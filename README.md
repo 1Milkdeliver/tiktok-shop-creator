@@ -4,7 +4,7 @@
 
 ## 📥 下载
 
-**⬇️ [点击下载安装程序](https://github.com/1Milkdeliver/tiktok-shop-creator/releases/latest)**
+**⬇️ [TikTok-Creator-Scraper-Setup.exe](https://github.com/1Milkdeliver/tiktok-shop-creator/releases/latest)**
 
 - Windows 安装包，双击运行安装向导，阅读并同意许可协议后一键安装
 - 安装完成后自动创建桌面快捷方式
