@@ -1,4 +1,6 @@
-// preload.js — expose safe IPC API to the renderer
+// TikTok Shop Creator Scraper — 专为 TikTok Shop 卖家打造
+// GitHub: https://github.com/1Milkdeliver/tiktok-shop-creator
+// Author: 1Milkdeliver
 'use strict';
 const { contextBridge, ipcRenderer } = require('electron');
 
@@ -10,3 +12,4 @@ contextBridge.exposeInMainWorld('api', {
   stop: () => ipcRenderer.invoke('stop-scrape'),
   exit: () => ipcRenderer.invoke('exit-app'),
 });
+
