@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>TikTok 达人抓取工具</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f5f5f7;
+    --card: rgba(255,255,255,.82);
+    --border: rgba(0,0,0,.08);
+    --text: #1d1d1f;
+    --sub: #86868b;
+    --accent: #0071e3;
+    --accent-hover: #0077ed;
+    --danger: #ff3b30;
+    --ok: #34c759;
+    --radius: 16px;
+    --shadow: 0 4px 24px rgba(0,0,0,.06);
+  }
+  body { font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1000px; margin: 0 auto; padding: 28px 32px; }
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 6px 4px; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-icon { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #0071e3, #5ac8fa); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; box-shadow: 0 2px 10px rgba(0,113,227,.35); }
+  .logo h1 { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+  .logo p { font-size: 12px; color: var(--sub); margin-top: 2px; }
+  .status-pill { padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: var(--card); border: 1px solid var(--border); color: var(--sub); backdrop-filter: blur(10px); }
+  .status-pill.running { color: var(--accent); border-color: rgba(0,113,227,.3); }
+  .status-pill.done { color: var(--ok); border-color: rgba(52,199,89,.35); }
+  .status-pill.error { color: var(--danger); border-color: rgba(255,59,48,.3); }
+  .card { background: var(--card); border-radius: var(--radius); padding: 22px 24px; margin-bottom: 16px; border: 1px solid var(--border); box-shadow: var(--shadow); backdrop-filter: blur(20px); }
+  .card h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; }
+  .hint { font-size: 12px; color: var(--sub); margin-top: 6px; line-height: 1.5; }
+  /* Cookie unified input */
+  .cookie-zone { border: 2px dashed rgba(0,0,0,.15); border-radius: 12px; padding: 18px; transition: .2s; background: rgba(255,255,255,.5); }
+  .cookie-zone.drag, .cookie-zone:hover { border-color: var(--accent); background: rgba(0,113,227,.04); }
+  .cookie-zone .zone-label { text-align: center; color: var(--sub); font-size: 13px; margin-bottom: 12px; }
+  .cookie-zone .zone-label b { color: var(--accent); }
+  .cookie-zone textarea { width: 100%; min-height: 70px; border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-family: 'SF Mono', Consolas, monospace; font-size: 12px; resize: vertical; background: #fff; outline: none; transition: .15s; }
+  .cookie-zone textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,.12); }
+  .cookie-zone .file-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px; font-size: 12px; color: var(--sub); }
+  .cookie-zone .file-row .fname { color: var(--ok); font-weight: 500; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cookie-list { margin-top: 12px; }
+  .cookie-item { background: rgba(0,0,0,.03); border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+  .cookie-item .tag { flex-shrink: 0; background: rgba(0,113,227,.1); color: var(--accent); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 12px; }
+  .cookie-item .sum { font-size: 12px; color: var(--sub); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cookie-item .del { cursor: pointer; color: var(--sub); font-size: 15px; padding: 2px 6px; border-radius: 6px; }
+  .cookie-item .del:hover { background: rgba(255,59,48,.1); color: var(--danger); }
+  .btn { padding: 9px 22px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: .15s; font-family: inherit; }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:disabled { background: #a8c7e8; cursor: not-allowed; }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-danger:disabled { background: #f0b3b0; cursor: not-allowed; }
+  .btn-secondary { background: rgba(0,0,0,.06); color: var(--text); }
+  .btn-secondary:hover { background: rgba(0,0,0,.1); }
+  .btn-link { background: none; border: none; color: var(--accent); font-size: 13px; cursor: pointer; padding: 4px 8px; border-radius: 8px; }
+  .btn-link:hover { background: rgba(0,113,227,.08); }
+  .radio-group { display: flex; gap: 6px; flex-wrap: wrap; }
+  .radio-group label { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 10px; font-size: 13px; cursor: pointer; background: rgba(0,0,0,.04); transition: .15s; }
+  .radio-group label:has(input:checked) { background: rgba(0,113,227,.1); color: var(--accent); font-weight: 500; }
+  .mode-desc { font-size: 12px; color: var(--sub); margin-top: 10px; line-height: 1.6; }
+  .cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+  .cat { background: rgba(0,0,0,.03); border-radius: 12px; padding: 10px 12px; }
+  .cat b { display: block; font-size: 13px; margin-bottom: 7px; color: var(--text); }
+  .cat label { display: flex; align-items: center; gap: 5px; font-size: 12px; margin: 4px 0; cursor: pointer; color: #555; }
+  .cat label:hover { color: var(--accent); }
+  input[type=text] { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; background: #fff; outline: none; transition: .15s; }
+  input[type=text]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,.12); }
+  .inline { display: flex; gap: 14px; }
+  .inline > div { flex: 1; }
+  .field-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 5px; max-height: 240px; overflow-y: auto; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: rgba(255,255,255,.5); }
+  .field-grid label { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #444; padding: 4px 6px; border-radius: 6px; cursor: pointer; }
+  .field-grid label:hover { background: rgba(0,113,227,.06); }
+  .sel-all { font-size: 12px; color: var(--accent); cursor: pointer; margin-left: 10px; }
+  .toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  #log { background: rgba(20,22,26,.95); color: #e8eaed; font-family: 'SF Mono', Consolas, monospace; font-size: 12px; padding: 14px; border-radius: 12px; height: 280px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+  .result-box { background: rgba(52,199,89,.08); border: 1px solid rgba(52,199,89,.3); color: #1d7a3a; padding: 12px 14px; border-radius: 12px; margin-top: 12px; font-size: 13px; display: none; line-height: 1.6; }
+  .check-label { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+  input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); }
+  input[type=radio] { accent-color: var(--accent); }
+  footer { text-align: center; color: var(--sub); font-size: 12px; padding: 16px 0 8px; }
+  .d-none { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">🎬</div>
+      <div>
+        <h1>TikTok 达人抓取</h1>
+        <p>TikTok Shop 联盟达人数据 · 多账号并发</p>
+      </div>
+    </div>
+    <span class="status-pill" id="status">就绪</span>
+  </header>
+
+  <div class="card">
+    <h2><span class="step-num">1</span> 导入 Cookie <span class="sel-all" id="addCookieBtn">＋ 添加账号</span></h2>
+    <div class="cookie-zone" id="cookieZone">
+      <div class="zone-label">将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框</div>
+      <textarea id="cookieInput" placeholder='粘贴 Cookie JSON，例如 [{"domain":".tiktokshopglobalselling.com","name":"sessionid","value":"..."}, ...]'></textarea>
+      <div class="file-row">
+        <span>📄</span>
+        <span class="fname" id="fname"></span>
+        <button class="btn-link" id="browseBtn">浏览文件…</button>
+      </div>
+      <input type="file" id="fileInput" accept=".json" style="display:none">
+    </div>
+    <div class="cookie-list" id="cookieList"></div>
+    <div class="hint">可添加多个账号 Cookie 实现多账号并发抓取 · 从浏览器 Cookie 扩展（如 Cookie-Editor）导出 JSON</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step-num">2</span> 浏览器模式</h2>
+    <div class="radio-group">
+      <label><input type="radio" name="mode" value="auto" checked> 自动（推荐）</label>
+      <label><input type="radio" name="mode" value="real"> 真实窗口</label>
+      <label><input type="radio" name="mode" value="headless"> Headless</label>
+    </div>
+    <div class="mode-desc">自动：优先连接常驻调试 Chrome(9222)，没有则开屏幕外真实窗口。<b>Headless 可能被平台拒绝</b>，建议自动或真实窗口。</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step-num">3</span> 选择类目 <button class="btn-link" id="langToggle" style="margin-left:4px">🌐 EN</button><span class="sel-all" id="selAll">全选</span><span class="sel-all" id="selNone">清空</span></h2>
+    <div class="cats" id="cats"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step-num">4</span> 导出设置</h2>
+    <div class="inline">
+      <div>
+        <div class="hint" style="margin-bottom:8px">格式</div>
+        <div class="radio-group">
+          <label><input type="radio" name="format" value="csv" checked> CSV</label>
+          <label><input type="radio" name="format" value="xlsx"> Excel</label>
+        </div>
+      </div>
+      <div>
+        <div class="hint" style="margin-bottom:8px">输出位置</div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="outPath" value="./output" placeholder="./output 或 D:/data">
+          <button class="btn btn-secondary" id="btnChooseDir" style="white-space:nowrap">📁 选择</button>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:14px">
+      <label class="check-label"><input type="checkbox" id="detail"> 同时抓取详情（简介、合作邮箱、MCN 等）</label>
+      <div class="hint" style="margin-top:6px;padding-left:24px">💡 勾选后会额外抓取每位达人的<b>主页简介（bio）、合作邮箱（从简介中提取）、所属 MCN 机构</b>。这些字段能帮你快速判断达人是否适合合作、直接联系洽谈。<b>注意：详情需要逐个达人单独请求，速度会比只抓列表慢 2-3 倍</b>（列表 1 万条约 20 分钟，详情约 1-2 小时），建议需要联系达人时再勾选。</div>
+    </div>
+    <div style="margin-top:14px">
+      <span style="font-size:13px;color:var(--sub)">导出字段</span>
+      <span class="sel-all" id="fieldsAll">全选</span><span class="sel-all" id="fieldsNone">清空</span>
+      <div class="field-grid" id="fields" style="margin-top:8px"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <button class="btn btn-primary" id="btnStart" style="padding:11px 34px;font-size:15px">▶ 开始抓取</button>
+      <button class="btn btn-danger" id="btnStop" disabled>■ 停止</button>
+      <button class="btn btn-secondary" id="btnExit">退出</button>
+    </div>
+    <div class="result-box" id="resultBox"></div>
+    <div id="log" style="margin-top:14px"></div>
+  </div>
+
+  <footer>v2.0 · 专为 TikTok Shop 卖家打造 · 随机间隔模拟真实用户 · 风控自动修复<br>Made by <b>1Milkdeliver</b> · <a href="https://github.com/1Milkdeliver/tiktok-creator-scraper" style="color:var(--accent);text-decoration:none" target="_blank">GitHub 项目主页</a></footer>
+</div>
+
+<script>
+// ═══════════ 类目 ═══════════
+// 类目：{ 类目名: { en: 英文名, zh: 中文名, items: [[关键词, 中文翻译], ...] } }
+const CATS = {
+  '美妆护肤': { en: 'Beauty & Skincare', zh: '美妆护肤', items: [['beauty','美妆'],['makeup','彩妆'],['skincare','护肤'],['cosmetics','化妆品'],['haircare','护发'],['nails','美甲'],['lashes','睫毛'],['perfume','香水'],['spa','水疗'],['tanning','美黑'],['skincare routine','护肤流程'],['self care','自我护理'],['grwm','化妆准备'],['get ready with me','陪我准备'],['makeup tutorial','化妆教程'],['maquillaje','彩妆(西)'],['cuidado','护理(西)'],['belleza','美丽(西)']] },
+  '时尚穿搭': { en: 'Fashion & Style', zh: '时尚穿搭', items: [['fashion','时尚'],['outfit','穿搭'],['clothing','服装'],['shoes','鞋子'],['boots','靴子'],['sneakers','运动鞋'],['handbag','手袋'],['jewelry','珠宝'],['accessories','配饰'],['sunglasses','墨镜'],['lingerie','内衣'],['thrift','二手'],['haul','开箱囤货'],['clothing haul','服装开箱'],['moda','时尚(西)'],['ropa','衣服(西)']] },
+  '宠物': { en: 'Pets', zh: '宠物', items: [['pet','宠物'],['dog','狗狗'],['cat','猫咪'],['puppy','幼犬'],['kitten','幼猫'],['pet supplies','宠物用品'],['dog mom','狗妈妈'],['cat mom','猫妈妈'],['aquarium','水族'],['bird','鸟类'],['mascotas','宠物(西)']] },
+  '家居生活': { en: 'Home & Living', zh: '家居生活', items: [['home','家居'],['kitchen','厨房'],['decor','装饰'],['cleaning','清洁'],['organization','收纳'],['furniture','家具'],['bedding','床品'],['garden','园艺'],['diy','手工'],['renovation','装修'],['cleaning hacks','清洁妙招'],['organization hacks','收纳妙招'],['home finds','家居好物'],['meal prep','备餐'],['hogar','家居(西)']] },
+  '科技数码': { en: 'Tech & Gadgets', zh: '科技数码', items: [['tech','科技'],['gadget','数码'],['phone','手机'],['iphone','iPhone'],['tablet','平板'],['laptop','笔记本'],['smart home','智能家居'],['camera','相机'],['gaming','游戏'],['gamer','玩家'],['unboxing','开箱'],['tech review','科技测评'],['gadget review','数码测评'],['phone case','手机壳'],['tecnologia','科技(西)']] },
+  '食品饮料': { en: 'Food & Drink', zh: '食品饮料', items: [['food','美食'],['cooking','烹饪'],['recipe','食谱'],['baking','烘焙'],['snacks','零食'],['coffee','咖啡'],['tea','茶'],['cocina','厨房(西)']] },
+  '母婴': { en: 'Baby & Kids', zh: '母婴', items: [['mom','妈妈'],['baby','婴儿'],['kids','儿童'],['parenting','育儿'],['toddler','幼儿'],['newborn','新生儿']] },
+  '运动健康': { en: 'Fitness & Health', zh: '运动健康', items: [['fitness','健身'],['workout','锻炼'],['gym','健身房'],['health','健康'],['wellness','养生'],['yoga','瑜伽'],['weight loss','减肥']] },
+  '汽车户外': { en: 'Auto & Outdoors', zh: '汽车户外', items: [['car','汽车'],['auto','车'],['truck','卡车'],['motorcycle','摩托'],['sports','运动'],['outdoor','户外'],['camping','露营'],['hiking','徒步'],['fishing','钓鱼'],['cycling','骑行']] },
+  '生活方式': { en: 'Lifestyle', zh: '生活方式', items: [['lifestyle','生活方式'],['vlog','Vlog'],['travel','旅行'],['book','书籍'],['reading','阅读'],['art','艺术'],['craft','手工'],['budget','预算'],['deal','好价'],['coupon','优惠券'],['shopping','购物'],['target','Target'],['walmart','沃尔玛'],['amazon','亚马逊'],['amazon finds','亚马逊好物'],['tiktok made me buy','TikTok种草'],['cute','可爱'],['aesthetic','美学'],['viral','爆款'],['fyp','推荐页'],['product review','产品测评'],['review','测评']] },
+};
+let catLang = 'zh'; // 'zh' | 'en'
+function renderCats() {
+  const box = document.getElementById('cats');
+  let html = '';
+  for (const [key, cat] of Object.entries(CATS)) {
+    const title = catLang === 'en' ? cat.en : cat.zh;
+    html += `<div class="cat"><b>${title}</b>`;
+    for (const [k, zh] of cat.items) {
+      const label = catLang === 'en' ? k : `${zh}`;
+      html += `<label title="${k}"><input type="checkbox" class="kw" value="${k}" checked> ${label}</label>`;
+    }
+    html += `</div>`;
+  }
+  box.innerHTML = html;
+}
+function toggleCatLang() {
+  catLang = catLang === 'zh' ? 'en' : 'zh';
+  renderCats();
+  document.getElementById('langToggle').textContent = catLang === 'zh' ? '🌐 EN' : '🌐 中文';
+}
+renderCats();
+document.getElementById('selAll').onclick = () => document.querySelectorAll('.kw').forEach(c => c.checked = true);
+document.getElementById('selNone').onclick = () => document.querySelectorAll('.kw').forEach(c => c.checked = false);
+document.getElementById('langToggle').onclick = toggleCatLang;
+
+// ═══════════ 字段 ═══════════
+const FIELDS = [
+  { k: 'handle', n: '达人主页' }, { k: 'nickname', n: '昵称' }, { k: 'creator_oecuid', n: '达人ID' },
+  { k: 'avatar', n: '头像' }, { k: 'selection_region', n: '地区' }, { k: 'follower_cnt', n: '粉丝数' },
+  { k: 'category', n: '类目' }, { k: 'med_gmv_revenue', n: '总GMV' }, { k: 'med_gmv_revenue_range', n: 'GMV区间' },
+  { k: 'video_gmv', n: '视频GMV' }, { k: 'live_gmv', n: '直播GMV' }, { k: 'units_sold', n: '销量' },
+  { k: 'units_sold_range', n: '销量区间' }, { k: 'video_avg_view_cnt', n: '平均视频观看' },
+  { k: 'video_play_cnt_med', n: '视频中位观看' }, { k: 'video_engagement', n: '视频互动量' },
+  { k: 'ec_video_engagement', n: '电商视频互动' }, { k: 'ec_video_gpm', n: '电商GPM' },
+  { k: 'ec_live_gpm', n: '直播GPM' }, { k: 'ec_live_avg_uv', n: '电商平均UV' },
+  { k: 'top_follower_ages', n: '粉丝年龄段' }, { k: 'top_follower_gender', n: '粉丝性别分布' },
+  { k: 'pps_score', n: 'PPS评分' }, { k: 'is_fast_growing', n: '快速增长' }, { k: 'has_collaborated', n: '已合作' },
+  { k: 'creator_permission_tag', n: '达人类目权限' }, { k: 'is_live_auction', n: '直播拍卖' },
+  { k: '简介', n: '简介' }, { k: '合作邮箱', n: '合作邮箱' }, { k: 'MCN机构', n: 'MCN机构' },
+];
+function renderFields() {
+  document.getElementById('fields').innerHTML = FIELDS.map(f => `<label title="${f.k}"><input type="checkbox" class="fld" value="${f.k}" checked> ${f.n}</label>`).join('');
+}
+renderFields();
+document.getElementById('fieldsAll').onclick = () => document.querySelectorAll('.fld').forEach(c => c.checked = true);
+document.getElementById('fieldsNone').onclick = () => document.querySelectorAll('.fld').forEach(c => c.checked = false);
+
+// ═══════════ Cookie 统一输入（拖拽 + 粘贴） ═══════════
+const cookieList = []; // array of { source: 'paste'|'file', data: string, name: string }
+const zone = document.getElementById('cookieZone');
+const fileInput = document.getElementById('fileInput');
+
+function cookieSummary(raw) {
+  try {
+    const arr = JSON.parse(raw.replace(/^\uFEFF/, ''));
+    if (!Array.isArray(arr)) return '无效 JSON（不是数组）';
+    return `已解析 ${arr.length} 条 Cookie`;
+  } catch (e) { return '内容无效，请检查 JSON 格式'; }
+}
+
+function addCookie(source, data, name) {
+  const sum = cookieSummary(data);
+  if (sum.startsWith('无效') || sum.startsWith('内容无效')) {
+    alert('Cookie ' + sum);
+    return;
+  }
+  cookieList.push({ source, data, name: name || `账号 ${cookieList.length + 1}` });
+  renderCookieList();
+  // clear paste box after successful add
+  document.getElementById('cookieInput').value = '';
+  document.getElementById('fname').textContent = '';
+}
+
+function renderCookieList() {
+  const box = document.getElementById('cookieList');
+  if (!cookieList.length) { box.innerHTML = ''; return; }
+  box.innerHTML = cookieList.map((c, i) => `
+    <div class="cookie-item">
+      <span class="tag">账号 ${i + 1}</span>
+      <span class="sum">${c.name} · ${cookieSummary(c.data)}</span>
+      <span class="del" data-i="${i}">✕</span>
+    </div>`).join('');
+  box.querySelectorAll('.del').forEach(el => {
+    el.onclick = () => { cookieList.splice(+el.dataset.i, 1); renderCookieList(); };
+  });
+}
+
+// paste: on Enter/click add
+document.getElementById('cookieInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); const v = e.target.value.trim(); if (v) addCookie('paste', v); }
+});
+// browse
+document.getElementById('browseBtn').onclick = () => fileInput.click();
+fileInput.onchange = (e) => { const f = e.target.files[0]; if (f) readFile(f); };
+// drag & drop
+zone.ondragover = (e) => { e.preventDefault(); zone.classList.add('drag'); };
+zone.ondragleave = () => zone.classList.remove('drag');
+zone.ondrop = (e) => { e.preventDefault(); zone.classList.remove('drag'); const f = e.dataTransfer.files[0]; if (f) readFile(f); };
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = () => {
+    const txt = String(reader.result);
+    addCookie('file', txt, file.name);
+  };
+  reader.readAsText(file);
+}
+document.getElementById('addCookieBtn').onclick = () => {
+  const v = document.getElementById('cookieInput').value.trim();
+  if (v) { addCookie('paste', v); return; }
+  fileInput.click();
+};
+
+// ═══════════ 目录选择 ═══════════
+function showDirModal(dirs) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:999;display:flex;align-items:center;justify-content:center;';
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:#fff;border-radius:16px;padding:24px;width:500px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.2);font-family:inherit;';
+  panel.innerHTML = `
+    <h3 style="margin:0 0 14px;font-size:16px;font-weight:600">选择输出目录</h3>
+    <div style="max-height:220px;overflow-y:auto;margin-bottom:12px">
+      ${(dirs || []).map((d, i) => `<div data-i="${i}" style="padding:9px 12px;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:4px">📁 ${d}</div>`).join('') || '<div style="color:#999;font-size:13px">无常用目录</div>'}
+    </div>
+    <div style="margin-bottom:14px"><input type="text" id="dirManual" placeholder="或手动输入完整路径，如 D:\\data" style="width:100%;padding:9px 12px;border:1px solid rgba(0,0,0,.12);border-radius:10px;font-size:14px;outline:none"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn btn-secondary" id="dirCancel">取消</button>
+      <button class="btn btn-primary" id="dirOk">确定</button>
+    </div>`;
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+  panel.querySelectorAll('[data-i]').forEach(el => {
+    el.onclick = () => { document.getElementById('dirManual').value = dirs[+el.dataset.i]; };
+    el.onmouseenter = () => el.style.background = '#f0f2f5';
+    el.onmouseleave = () => el.style.background = '';
+  });
+  const close = () => overlay.remove();
+  panel.querySelector('#dirCancel').onclick = close;
+  panel.querySelector('#dirOk').onclick = () => { const v = document.getElementById('dirManual').value.trim(); if (v) document.getElementById('outPath').value = v; close(); };
+  overlay.onclick = (e) => { if (e.target === overlay) close(); };
+}
+document.getElementById('btnChooseDir').onclick = async () => {
+  try {
+    const dir = await window.api.chooseDir();
+    if (dir) { document.getElementById('outPath').value = dir; return; }
+  } catch (e) { }
+  let dirs = [];
+  try { dirs = await window.api.commonDirs(); } catch (e) { }
+  showDirModal(dirs);
+};
+
+// ═══════════ 抓取控制 ═══════════
+const logEl = document.getElementById('log');
+let lastCount = 0;
+const statusEl = document.getElementById('status');
+function setStatus(text, cls) {
+  statusEl.textContent = text;
+  statusEl.className = 'status-pill' + (cls ? ' ' + cls : '');
+}
+
+async function poll() {
+  try {
+    const j = await window.api.status();
+    if (j.logs && j.logs.length !== lastCount) {
+      logEl.textContent = j.logs.join('\n');
+      logEl.scrollTop = logEl.scrollHeight;
+      lastCount = j.logs.length;
+    }
+    if (j.running) setStatus('⏳ 抓取中…', 'running');
+    else if (j.result && j.result.ok) { setStatus('✅ 完成', 'done'); showResult(j.result); }
+    else if (j.result && !j.result.ok) setStatus('❌ 出错', 'error');
+  } catch (e) { }
+}
+function showResult(r) {
+  const box = document.getElementById('resultBox');
+  box.style.display = 'block';
+  box.innerHTML = `✅ 抓取完成：${r.creators} 条达人${r.details ? ' + ' + r.details + ' 条详情' : ''}，共 ${r.rows} 行<br>📄 文件: ${r.outPath}`;
+}
+
+document.getElementById('btnStart').onclick = async () => {
+  if (!cookieList.length) { alert('请先导入 Cookie（拖入文件或粘贴内容）'); return; }
+  const kws = [...document.querySelectorAll('.kw:checked')].map(c => c.value);
+  if (!kws.length) { alert('请至少选择一个类目/关键词'); return; }
+  const fields = [...document.querySelectorAll('.fld:checked')].map(c => c.value);
+  const mode = document.querySelector('input[name=mode]:checked').value;
+  const format = document.querySelector('input[name=format]:checked').value;
+  const outPath = document.getElementById('outPath').value.trim() || './output';
+  const detail = document.getElementById('detail').checked;
+
+  const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, outPath, detail, keywords: kws, fields };
+  document.getElementById('btnStart').disabled = true;
+  document.getElementById('btnStop').disabled = false;
+  document.getElementById('resultBox').style.display = 'none';
+  logEl.textContent = '';
+  lastCount = 0;
+  setStatus('⏳ 启动中…', 'running');
+  try {
+    const j = await window.api.start(cfg);
+    if (j.error) { alert('启动失败: ' + j.error); setStatus('❌ ' + j.error, 'error'); document.getElementById('btnStart').disabled = false; document.getElementById('btnStop').disabled = true; }
+  } catch (e) { alert('启动失败: ' + e.message); }
+  setInterval(poll, 1500);
+};
+
+document.getElementById('btnStop').onclick = async () => { await window.api.stop(); document.getElementById('btnStop').disabled = true; };
+document.getElementById('btnExit').onclick = async () => { if (confirm('确定退出程序吗？')) await window.api.exit(); };
+
+poll();
+</script>
+</body>
+</html>

@@ -1,0 +1,51 @@
+{
+  "name": "tiktok-creator-scraper",
+  "version": "1.0.0",
+  "description": "TikTok Shop 联盟达人抓取桌面程序 — 专为 TikTok Shop 卖家打造，一键抓取联盟达人数据",
+  "main": "main.js",
+  "author": "1Milkdeliver <https://github.com/1Milkdeliver>",
+  "homepage": "https://github.com/1Milkdeliver/tiktok-creator-scraper",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer-core": "^24.0.0",
+    "exceljs": "^4.4.0"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.tiktok.creator.scraper",
+    "productName": "TikTok达人抓取",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "index.html",
+      "lib/**/*"
+    ],
+    "win": {
+      "target": [
+        "portable",
+        "nsis"
+      ],
+      "signAndEditExecutable": false
+    },
+    "portable": {
+      "artifactName": "TikTok达人抓取-便携版.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "artifactName": "TikTok达人抓取-安装版-${version}.exe"
+    }
+  },
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win portable",
+    "build-installer": "electron-builder --win nsis"
+  }
+}
