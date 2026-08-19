@@ -138,7 +138,28 @@ A：再次启动工具并开始抓取，会自动从上次位置继续（断点�
 ```bash
 npm install
 npm start          # 运行
-npm run build      # 打包安装程序 → dist/TikTok达人抓取安装程序-1.0.0.exe
+npm run build      # 打包安装程序 → dist/TikTok达人抓取安装程序-<版本>.exe
 ```
 
 > 打包需要设置环境变量 `CSC_IDENTITY_AUTO_DISCOVERY=false` 跳过代码签名（Windows 无权限创建符号链接的已知问题）。
+
+## 发布新版（版本更新流程）
+
+应用内置**启动时自动检查更新**功能，发现 GitHub 有新版本会提示用户下载。发布新版只需 4 步：
+
+```bash
+# 1. 更新版本号（package.json 中 version 字段）
+#    例如 1.1.0 → 1.2.0，用户启动旧版时会看到更新提示
+
+# 2. 打包安装程序
+$env:CSC_IDENTITY_AUTO_DISCOVERY='false'
+npm run build
+
+# 3. 发布到 GitHub Release（文件名用英文避免编码问题）
+Copy-Item "dist\TikTok达人抓取安装程序-1.2.0.exe" "dist\TikTok-Creator-Scraper-Setup.exe"
+gh release create v1.2.0 "dist\TikTok-Creator-Scraper-Setup.exe" --repo 1Milkdeliver/tiktok-shop-creator --title "TikTok达人抓取 v1.2.0" --notes "版本更新说明"
+
+# 4. 旧版用户启动时自动提示更新 → 下载新安装包 → 选择同一安装目录即可覆盖更新（Cookie、历史记录、输出文件均保留）
+```
+
+> 版本比较规则：三位版本号（主.次.修订），任一更高即提示更新。保持 Release 只留最新版本，README 下载链接（`/releases/latest`）自动指向最新。
