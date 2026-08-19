@@ -448,7 +448,15 @@ async function poll() {
     if (j.running) {
       btnPause.disabled = false;
       btnStop.disabled = false;
-      if (j.paused) {
+      if (j.stopping) {
+        // stopping: sessions wind down, then data is exported automatically
+        btnPause.disabled = true;
+        btnResume.style.display = 'none';
+        btnStop.disabled = true;
+        spinIdx = (spinIdx + 1) % 4;
+        setStatus(`⏹ 正在停止 ${SPINNER[spinIdx]}`, '');
+        detail.textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件，请稍候…' : 'Saving scraped data and exporting file…';
+      } else if (j.paused) {
         btnPause.style.display = 'none';
         btnResume.style.display = '';
         btnResume.disabled = false;
@@ -501,7 +509,14 @@ document.getElementById('btnStart').onclick = async () => {
   setInterval(poll, 1500);
 };
 
-document.getElementById('btnStop').onclick = async () => { await window.api.stop(); document.getElementById('btnStop').disabled = true; };
+document.getElementById('btnStop').onclick = async () => {
+  await window.api.stop();
+  document.getElementById('btnStop').disabled = true;
+  document.getElementById('btnPause').disabled = true;
+  document.getElementById('btnResume').style.display = 'none';
+  setStatus('⏹ 正在停止…', '');
+  document.getElementById('statusDetail').textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件，请稍候…' : 'Saving scraped data and exporting file…';
+};
 document.getElementById('btnPause').onclick = async () => { await window.api.pause(); };
 document.getElementById('btnResume').onclick = async () => { await window.api.resume(); };
 document.getElementById('btnExit').onclick = async () => { if (confirm('确定退出程序吗？')) await window.api.exit(); };

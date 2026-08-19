@@ -323,6 +323,7 @@ ipcMain.handle('start-scrape', async (event, config) => {
 ipcMain.handle('scrape-status', () => ({
   running: runner.running,
   paused: runner.paused,
+  stopping: !!(runner.running && runner.stopped),
   status: runner.status,
   currentInfo: runner.currentInfo || {},
   logs: runner.logs,
