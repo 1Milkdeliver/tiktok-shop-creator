@@ -328,7 +328,8 @@ function syncDetailFields() {
   document.querySelectorAll('.fld-detail').forEach(label => {
     const cb = label.querySelector('input.fld');
     cb.disabled = !on;
-    if (!on) cb.checked = false; // detail 未勾选时强制不选（且不可选）
+    if (on) cb.checked = true;       // 勾选详情时自动勾选简介/邮箱/MCN 字段
+    else cb.checked = false;         // 未勾选详情时强制取消并置灰
     label.classList.toggle('on', on);
     label.title = on ? (cb.value) : (uiLang === 'zh' ? '需勾选「同时抓取详情」' : 'Requires "Scrape details"');
   });
