@@ -1,6 +1,0 @@
-﻿## What's new
-- **In-app auto-update**: the app now checks for new versions and can download & install them directly — no need to manually download the installer every time. You'll be prompted when an update is available; after downloading, restart the app to finish.
-
-## 更新内容
-- **应用内自动更新**：现在启动时会自动检查新版本，发现新版直接弹窗提示下载，下载完成后重启应用即完成更新，无需再去下载页手动下载安装包。更新过程自动保留原有数据（Cookie、历史记录、输出文件）。
-- 如果自动更新不可用（网络/签名等原因），仍会提供下载页链接兜底。
