@@ -103,7 +103,6 @@
     </div>
     <span class="status-pill" id="appVersion" style="margin-right:8px">v—</span>
     <span class="status-pill" id="status" data-i18n="status.ready">就绪</span>
-    <button class="btn-link" id="btnReadme" style="margin-left:10px;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:5px 12px" data-i18n="action.readme">📖 使用说明</button>
     <button class="btn-link" id="uiLangToggle" style="margin-left:10px;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:5px 12px">🌐 EN</button>
   </header>
 
@@ -236,7 +235,6 @@ const I18N = {
   'action.resume': { zh: '▶ 继续', en: '▶ Resume' },
   'action.stop': { zh: '■ 结束并导出', en: '■ Finish & Export' },
   'action.exit': { zh: '退出', en: 'Exit' },
-  'action.readme': { zh: '📖 使用说明', en: '📖 Guide' },
   'step5.title': { zh: '历史输出', en: 'Output History' },
   'step5.refresh': { zh: '刷新', en: 'Refresh' },
   'step5.empty': { zh: '暂无历史记录', en: 'No history yet' },
@@ -270,8 +268,6 @@ document.addEventListener('DOMContentLoaded', () => {
   applyI18n();
   const u = document.getElementById('uiLangToggle');
   if (u) u.onclick = toggleUiLang;
-  const r = document.getElementById('btnReadme');
-  if (r) r.onclick = () => window.api.openReadme(uiLang);
 });
 
 // 类目：{ 类目名: { en: 英文名, zh: 中文名, items: [[关键词, 中文翻译], ...] } }
