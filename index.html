@@ -22,7 +22,7 @@
   .wrap { max-width: 1000px; margin: 0 auto; padding: 28px 32px; }
   header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; padding: 6px 4px; }
   .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-icon { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #0071e3, #5ac8fa); display: flex; align-items: center; justify-content: center; font-size: 20px; color: #fff; box-shadow: 0 2px 10px rgba(0,113,227,.35); }
+  .logo-icon { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; box-shadow: 0 2px 10px rgba(0,113,227,.35); }
   .logo h1 { font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
   .logo p { font-size: 12px; color: var(--sub); margin-top: 2px; }
   .status-pill { padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 500; background: var(--card); border: 1px solid var(--border); color: var(--sub); backdrop-filter: blur(10px); }
@@ -48,6 +48,10 @@
   .cookie-item .sum { font-size: 12px; color: var(--sub); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .cookie-item .del { cursor: pointer; color: var(--sub); font-size: 15px; padding: 2px 6px; border-radius: 6px; }
   .cookie-item .del:hover { background: rgba(255,59,48,.1); color: var(--danger); }
+  .hist-btn { border: none; background: rgba(0,0,0,.04); border-radius: 8px; padding: 4px 8px; cursor: pointer; font-size: 14px; line-height: 1; transition: .15s; }
+  .hist-btn:hover { background: rgba(0,113,227,.12); }
+  .hist-btn.hist-del:hover { background: rgba(255,59,48,.12); }
+  .hist-row:hover { background: rgba(0,0,0,.015); }
   .btn { padding: 9px 22px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: .15s; font-family: inherit; }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-hover); }
@@ -89,7 +93,7 @@
 <div class="wrap">
   <header>
     <div class="logo">
-      <div class="logo-icon">🎬</div>
+      <img class="logo-icon" src="logo.png" alt="logo">
       <div>
         <h1 data-i18n="app.title">TikTokShop达人抓取</h1>
         <p data-i18n="app.subtitle">TikTok Shop 联盟达人数据 · 多账号并发</p>
@@ -108,7 +112,7 @@
       <div class="file-row">
         <span>📄</span>
         <span class="fname" id="fname"></span>
-        <button class="btn-link" id="browseBtn" data-i18n="step1.browse">浏览文件…</button>
+        <button class="btn btn-secondary" id="browseBtn" style="padding:7px 18px" data-i18n="step1.browse">📂 导入文件</button>
       </div>
       <input type="file" id="fileInput" accept=".json" style="display:none">
     </div>
@@ -139,6 +143,13 @@
         <div class="radio-group">
           <label><input type="radio" name="format" value="csv" checked> CSV</label>
           <label><input type="radio" name="format" value="xlsx"> Excel</label>
+        </div>
+      </div>
+      <div>
+        <div class="hint" style="margin-bottom:8px" data-i18n="step4.headerLang">表头语言</div>
+        <div class="radio-group">
+          <label><input type="radio" name="headerLang" value="zh" checked> 中文</label>
+          <label><input type="radio" name="headerLang" value="en"> English</label>
         </div>
       </div>
       <div>
@@ -197,7 +208,7 @@ const I18N = {
   'step1.title': { zh: '导入 Cookie', en: 'Import Cookie' },
   'step1.add': { zh: '＋ 添加账号', en: '+ Add Account' },
   'step1.zone': { zh: '将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框', en: 'Drag <b>Cookie JSON file</b> here, or <b>paste</b> into the box below' },
-  'step1.browse': { zh: '浏览文件…', en: 'Browse…' },
+  'step1.browse': { zh: '📂 导入文件', en: '📂 Import File' },
   'step1.hint': { zh: '可添加多个账号 Cookie 实现多账号并发抓取 · 用 <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a> 扩展导出 JSON 后粘贴或拖入', en: 'Add multiple account cookies for concurrent scraping · Export JSON with <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a>, then paste or drag in' },
   'step2.title': { zh: '浏览器模式', en: 'Browser Mode' },
   'step2.auto': { zh: '自动（推荐）', en: 'Auto (Recommended)' },
@@ -209,6 +220,7 @@ const I18N = {
   'step3.none': { zh: '清空', en: 'Clear' },
   'step4.title': { zh: '导出设置', en: 'Export Settings' },
   'step4.format': { zh: '格式', en: 'Format' },
+  'step4.headerLang': { zh: '表头语言', en: 'Header Language' },
   'step4.out': { zh: '输出位置', en: 'Output Location' },
   'step4.choose': { zh: '📁 选择', en: '📁 Choose' },
   'step4.detail': { zh: '同时抓取详情（简介、合作邮箱、MCN 等）', en: 'Also scrape details (bio, email, MCN)' },
@@ -492,10 +504,11 @@ document.getElementById('btnStart').onclick = async () => {
   const fields = [...document.querySelectorAll('.fld:checked')].map(c => c.value);
   const mode = document.querySelector('input[name=mode]:checked').value;
   const format = document.querySelector('input[name=format]:checked').value;
+  const headerLang = document.querySelector('input[name=headerLang]:checked').value;
   const outPath = document.getElementById('outPath').value.trim() || './output';
   const detail = document.getElementById('detail').checked;
 
-  const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, outPath, detail, keywords: kws, fields };
+  const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, headerLang, outPath, detail, keywords: kws, fields };
   document.getElementById('btnStart').disabled = true;
   document.getElementById('btnStop').disabled = false;
   document.getElementById('resultBox').style.display = 'none';
@@ -547,18 +560,46 @@ document.getElementById('btnTest').onclick = async () => {
 };
 
 // ═══════════ 历史记录渲染 ═══════════
-function renderHistory(history) {
+const HIST_ACTIONS = { open: '📂', copy: '📋', del: '🗑' };
+async function renderHistory(history) {
   const box = document.getElementById('historyBox');
   if (!history || !history.length) {
     box.innerHTML = '<div style="color:var(--sub);font-size:13px;padding:10px">暂无历史记录</div>';
     return;
   }
-  box.innerHTML = history.map(h => `
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.05);font-size:13px">
+  box.innerHTML = history.map((h, i) => `
+    <div class="hist-row" data-i="${i}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.05);font-size:13px">
       <span style="color:var(--ok);flex-shrink:0">📄</span>
-      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.outPath}</span>
+      <span class="hist-path" title="${h.outPath}" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.outPath}</span>
       <span style="color:var(--sub);flex-shrink:0">${h.rows} 行 · ${h.time}</span>
+      <span class="hist-actions" style="display:flex;gap:4px;flex-shrink:0">
+        <button class="hist-btn" data-act="open" title="${uiLang === 'zh' ? '打开文件' : 'Open file'}">📂</button>
+        <button class="hist-btn" data-act="copy" title="${uiLang === 'zh' ? '复制路径' : 'Copy path'}">📋</button>
+        <button class="hist-btn hist-del" data-act="del" title="${uiLang === 'zh' ? '删除文件' : 'Delete file'}">🗑</button>
+      </span>
     </div>`).join('');
+  box.querySelectorAll('.hist-btn').forEach(btn => {
+    btn.onclick = async (e) => {
+      e.stopPropagation();
+      const row = btn.closest('.hist-row');
+      const entry = history[+row.dataset.i];
+      const act = btn.dataset.act;
+      if (act === 'open') {
+        const r = await window.api.openHistoryFile(entry.outPath);
+        if (!r.ok) alert(r.error || '打开失败');
+      } else if (act === 'copy') {
+        await window.api.copyHistoryPath(entry.outPath);
+        const orig = btn.textContent;
+        btn.textContent = '✅';
+        setTimeout(() => { btn.textContent = orig; }, 900);
+      } else if (act === 'del') {
+        if (!confirm(uiLang === 'zh' ? `确定删除文件吗？\n${entry.outPath}` : `Delete file?\n${entry.outPath}`)) return;
+        const r = await window.api.deleteHistoryFile(entry.outPath);
+        if (!r.ok) { alert(r.error || '删除失败'); return; }
+        renderHistory(r.history || []);
+      }
+    };
+  });
 }
 async function refreshAppData() {
   try {

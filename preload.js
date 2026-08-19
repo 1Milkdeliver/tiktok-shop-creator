@@ -13,6 +13,9 @@ contextBridge.exposeInMainWorld('api', {
   stop: () => ipcRenderer.invoke('stop-scrape'),
   getAppData: () => ipcRenderer.invoke('get-app-data'),
   clearCookies: () => ipcRenderer.invoke('clear-cookies'),
+  openHistoryFile: (p) => ipcRenderer.invoke('open-history-file', p),
+  copyHistoryPath: (p) => ipcRenderer.invoke('copy-history-path', p),
+  deleteHistoryFile: (p) => ipcRenderer.invoke('delete-history-file', p),
   getVersion: () => ipcRenderer.invoke('get-version'),
   exit: () => ipcRenderer.invoke('exit-app'),
 });

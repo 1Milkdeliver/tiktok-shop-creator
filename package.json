@@ -25,6 +25,7 @@
       "main.js",
       "preload.js",
       "index.html",
+      "logo.png",
       "lib/**/*"
     ],
     "extraResources": [

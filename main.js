@@ -2,7 +2,7 @@
 // main.js — Electron main process: native window, native folder picker, scrape orchestration
 'use strict';
 
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, clipboard } = require('electron');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -122,6 +122,36 @@ function recordHistory(entry) {
 // IPC: remembered cookies + history + default out dir
 ipcMain.handle('get-app-data', () => ({ cookies: appData.cookies || [], history: appData.history || [], defaultOutDir: appData.outDir || OUT_DIR }));
 ipcMain.handle('clear-cookies', () => { appData.cookies = []; saveAppData(); return { ok: true }; });
+
+// IPC: open a history file with the system default app
+ipcMain.handle('open-history-file', async (event, filePath) => {
+  try {
+    const abs = path.resolve(filePath || '');
+    if (!fs.existsSync(abs)) return { ok: false, error: '文件不存在: ' + abs };
+    const err = await shell.openPath(abs);
+    return err ? { ok: false, error: err } : { ok: true };
+  } catch (e) { return { ok: false, error: e.message }; }
+});
+
+// IPC: copy a history file path to the clipboard
+ipcMain.handle('copy-history-path', (event, filePath) => {
+  try {
+    const abs = path.resolve(filePath || '');
+    clipboard.writeText(abs);
+    return { ok: true };
+  } catch (e) { return { ok: false, error: e.message }; }
+});
+
+// IPC: delete a history file (and remove the entry), then return the refreshed history
+ipcMain.handle('delete-history-file', (event, filePath) => {
+  try {
+    const abs = path.resolve(filePath || '');
+    if (fs.existsSync(abs)) fs.unlinkSync(abs);
+    appData.history = (appData.history || []).filter(h => path.resolve(h.outPath || '') !== abs);
+    saveAppData();
+    return { ok: true, history: appData.history || [] };
+  } catch (e) { return { ok: false, error: e.message }; }
+});
 // IPC: current app version (lazy require to avoid ordering issues)
 ipcMain.handle('get-version', () => ({ version: require('./package.json').version }));
 
@@ -293,8 +323,9 @@ ipcMain.handle('start-scrape', async (event, config) => {
       cookieFiles,
       mode: config.mode || 'auto',
       format: config.format || 'csv',
-      outPath: config.outPath || OUT_DIR,
+      outPath: path.isAbsolute(config.outPath || '') ? config.outPath : path.join(APP_DIR, config.outPath || 'output'),
       detail: !!config.detail,
+      headerLang: config.headerLang === 'en' ? 'en' : 'zh',
       keywords: config.keywords && config.keywords.length ? config.keywords : require('./lib/exporter').DEFAULT_KEYWORDS,
       fields: config.fields && config.fields.length ? config.fields : null,
     };

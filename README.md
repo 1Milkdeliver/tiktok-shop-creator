@@ -41,7 +41,8 @@
 - Scrape creator data from the TikTok Shop Affiliate (联盟) marketplace
 - Analyze creator performance (GMV, sales, engagement, follower demographics)
 - Extract creator contact info (bio, email, MCN agency)
-- Export everything to **CSV / Excel** with selectable fields
+- Export everything to **CSV / Excel** with selectable fields and **CN/EN header language**
+- Output history with one-click **Open / Copy path / Delete**
 
 > Open-source · GPL-3.0 · Windows desktop app · Multi-account support
 
