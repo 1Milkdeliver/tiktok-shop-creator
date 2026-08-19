@@ -308,9 +308,18 @@ ipcMain.handle('start-scrape', async (event, config) => {
 // IPC: status
 ipcMain.handle('scrape-status', () => ({
   running: runner.running,
+  paused: runner.paused,
+  status: runner.status,
+  currentInfo: runner.currentInfo || {},
   logs: runner.logs,
   result: runner.result,
 }));
+
+// IPC: pause
+ipcMain.handle('pause-scrape', () => { runner.pause(); return { ok: true }; });
+
+// IPC: resume
+ipcMain.handle('resume-scrape', () => { runner.resume(); return { ok: true }; });
 
 // IPC: stop
 ipcMain.handle('stop-scrape', () => { runner.stop(); return { ok: true }; });

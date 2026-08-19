@@ -8,6 +8,8 @@ contextBridge.exposeInMainWorld('api', {
   start: (cfg) => ipcRenderer.invoke('start-scrape', cfg),
   test: (cfg) => ipcRenderer.invoke('test-scrape', cfg),
   status: () => ipcRenderer.invoke('scrape-status'),
+  pause: () => ipcRenderer.invoke('pause-scrape'),
+  resume: () => ipcRenderer.invoke('resume-scrape'),
   stop: () => ipcRenderer.invoke('stop-scrape'),
   getAppData: () => ipcRenderer.invoke('get-app-data'),
   clearCookies: () => ipcRenderer.invoke('clear-cookies'),
