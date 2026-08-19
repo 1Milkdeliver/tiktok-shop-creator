@@ -89,9 +89,35 @@
 
 ## 🚀 快速开始
 
-1. 登录 TikTok Shop 联盟后台，进入达人广场
-2. 用 [Cookie-Editor](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 导出 Cookie
-3. 打开工具 → 粘贴/拖入 Cookie → 选类目 → 开始抓取
+### 第一步：导出 Cookie（必做，约 2 分钟）
+
+工具需要你的 TikTok Shop 联盟**登录 Cookie** 才能查看达人数据。导出步骤：
+
+1. **打开 Chrome 浏览器**（Edge 也可以），访问 TikTok Shop 联盟后台：
+   **`https://affiliate.tiktokshopglobalselling.com`**
+2. **登录你的卖家账号**，进入**达人广场**页面
+3. **安装 Cookie-Editor 扩展**：
+   点这里 → [**Cookie-Editor**](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)
+   → 点"添加至 Chrome"→ 弹窗确认
+   > 已安装的跳过这步。（其他同类扩展：EditThisCookie 等也可用）
+4. **打开扩展**：点 Chrome 右上角的拼图 🧩 图标（扩展程序）→ 点 **Cookie-Editor**
+5. 点扩展面板里的 **Export（导出）** 按钮 —— Cookie 会以 JSON 文本复制到剪贴板
+6. **粘贴或保存**：
+   - **方式 A（粘贴）**：打开工具，点 Cookie 输入框，按 Ctrl+V 粘贴 —— 完成
+   - **方式 B（文件）**：把内容粘贴到记事本，保存为 `cookies.json`，再拖进工具或点"浏览文件…"
+
+> 💡 **Cookie 是什么？** 它是浏览器在登录后保存的一串"通行证"。工具只用它在你的账号下查看数据，**不会上传或分享**。
+
+### 第二步：配置并开始
+
+1. **浏览器模式**：保持"自动（推荐）"——优先连接你的 Chrome，没有则自动开屏幕外窗口
+2. **选择类目**：勾选要抓取的达人类目（支持全选/清空、中英文切换）
+3. **导出设置**：选 CSV 或 Excel、选输出文件夹、可选勾选导出字段
+   - 需要简介/邮箱/MCN 时勾选"同时抓取详情"（速度慢 2-3 倍）
+4. 点 **▶ 开始抓取** —— 下方日志区实时显示进度
+5. 完成后文件保存到你选的文件夹：`达人数据-日期-时间.csv` / `.xlsx`
+
+> 🆕 **第一次用？** 先点 **🔍 测试连接** 验证环境（隔离环境抓 1 页试跑，不占正式流程）。
 
 ## ❓ 常见问题
 

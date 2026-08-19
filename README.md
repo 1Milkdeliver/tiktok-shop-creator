@@ -88,9 +88,35 @@
 
 ## 🚀 Quick Start
 
-1. Log in to the TikTok Shop Affiliate backend and open the Creator Marketplace
-2. Export your cookie with [Cookie-Editor](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)
-3. Open the app → paste/drag the cookie → select categories → start scraping
+### Step 1 — Export your Cookie (required)
+
+The app needs your TikTok Shop Affiliate **login cookie** to access creator data. Exporting it takes ~2 minutes:
+
+1. **Open Chrome** (or Edge) and go to the TikTok Shop Affiliate backend:
+   **`https://affiliate.tiktokshopglobalselling.com`**
+2. **Log in** to your seller account and open the **Creator Marketplace** (达人广场) page
+3. **Install the Cookie-Editor extension**:
+   [**Cookie-Editor**](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)
+   → click "Add to Chrome" → confirm in the popup
+   > If you already have it, skip this step. (Other compatible extensions: EditThisCookie, Cookie-Editor, etc.)
+4. **Open the extension** — click the puzzle 🧩 icon (Extensions) in Chrome's top-right, then click **Cookie-Editor**
+5. Click the **Export** button (bottom of the Cookie-Editor panel) — your cookies are now copied to the clipboard as a JSON text
+6. **Paste or save it**:
+   - **Option A (paste)**: open the app, click in the cookie box, paste (Ctrl+V) — done
+   - **Option B (file)**: paste into a text file, save as `cookies.json`, then drag it into the app or click "Browse…"
+
+> 💡 **What is a cookie?** It's a small token your browser stores after login. The app uses it only to view data under your own account — it never uploads or shares it.
+
+### Step 2 — Configure & Start
+
+1. **Browser mode**: keep "Auto (Recommended)" — it connects to your Chrome if possible, otherwise opens an off-screen window
+2. **Select categories**: check the creator categories you want (select all / clear, 中/EN switch available)
+3. **Export settings**: choose CSV or Excel, pick an output folder, optionally select which fields to export
+   - Check "Also scrape details" if you need bio / email / MCN (slower)
+4. Click **▶ Start Scraping** — progress shows in the log below
+5. When done, the file is saved to your chosen folder: `达人数据-日期-时间.csv` / `.xlsx`
+
+> 🆕 **First time?** Click **🔍 Test** first to verify everything works with a 1-page trial scrape (isolated environment, no full run).
 
 ## ❓ FAQ
 
