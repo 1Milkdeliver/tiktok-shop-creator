@@ -369,13 +369,16 @@ function setupAutoUpdaterEvents() {
       type: 'info',
       title: '更新已就绪',
       message: `v${v} 更新下载完成（当前 v${CURRENT_VERSION}）`,
-      detail: '重启后自动完成安装（通常需要1-2分钟）。',
-      buttons: ['立即重启安装', '稍后'],
-      defaultId: 0,
+      detail: runner.running
+        ? '检测到正在抓取任务。\n\n你可以继续使用：选择「继续使用」后，抓取不受影响，下次退出应用时会自动完成更新安装。'
+        : '重启后自动完成安装（通常需要1-2分钟）。',
+      buttons: runner.running ? ['继续使用（退出时自动安装）', '立即重启安装'] : ['立即重启安装', '继续使用（退出时安装）'],
+      defaultId: runner.running ? 0 : 0,
       cancelId: 1,
       icon: path.join(__dirname, 'icon-256.png'),
     });
-    if (response === 0) {
+    if (response === 0 && !runner.running) {
+      // user chose immediate restart (and no scrape is running)
       setUpdateState({ phase: 'installing', percent: 100, message: '正在静默安装更新…' });
       // Stop any running scrape + close browsers first so the app can exit cleanly
       // and the silent installer never hits "cannot be closed".
@@ -387,6 +390,11 @@ function setupAutoUpdaterEvents() {
       } catch (e) { }
       // quitAndInstall(true) => silent NSIS update: no license/dir UI, just replace files
       setTimeout(() => autoUpdater.quitAndInstall(true, true), 800);
+    } else {
+      // "继续使用" (or scrape in progress): keep running; the update installs
+      // automatically when the user quits the app (autoInstallOnAppQuit = true).
+      setUpdateState({ phase: 'downloaded', percent: 100, message: '更新已就绪，退出应用时自动安装' });
+      writeLog('更新已就绪：继续使用，退出应用时将自动完成安装。');
     }
   });
   autoUpdater.on('update-not-available', () => {
@@ -573,5 +581,14 @@ if (!gotLock) {
     setupAutoUpdaterEvents();
     setTimeout(() => checkForUpdates(), 5000);
   });
-  app.on('window-all-closed', () => { app.quit(); });
+  app.on('window-all-closed', () => {
+    // clean up scrape browsers so the on-quit auto-update install never hits
+    // "app cannot be closed" (files would be locked by the running Chrome)
+    try {
+      for (const s of runner.sessions || []) {
+        if (s.browser) { try { Promise.race([s.browser.close(), new Promise(r => setTimeout(r, 2000))]).catch(() => { }); } catch (e) { } }
+      }
+    } catch (e) { }
+    app.quit();
+  });
 }
