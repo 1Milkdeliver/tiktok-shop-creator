@@ -2,7 +2,7 @@
 // main.js — Electron main process: native window, native folder picker, scrape orchestration
 'use strict';
 
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
 const os = require('os');
 const fs = require('fs');
@@ -25,6 +25,14 @@ function createWindow() {
     },
   });
   mainWindow.loadFile('index.html');
+  // Open external links (target=_blank / http links) in the system browser, not this window
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    if (/^https?:/i.test(url)) shell.openExternal(url);
+    return { action: 'deny' };
+  });
+  mainWindow.webContents.on('will-navigate', (e, url) => {
+    if (!url.startsWith('file://')) { e.preventDefault(); if (/^https?:/i.test(url)) shell.openExternal(url); }
+  });
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 
