@@ -124,6 +124,54 @@ function createWindow() {
   mainWindow.on('closed', () => { mainWindow = null; });
 }
 
+// ---- version check: query GitHub releases for the latest version ----
+const CURRENT_VERSION = require('./package.json').version;
+const REPO = '1Milkdeliver/tiktok-shop-creator';
+const RELEASE_URL = `https://github.com/${REPO}/releases/latest`;
+
+function parseVersion(v) {
+  const m = String(v).replace(/^v/i, '').match(/(\d+)\.(\d+)\.(\d+)/);
+  if (!m) return [0, 0, 0];
+  return [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])];
+}
+function isNewer(latest, cur) {
+  const a = parseVersion(latest);
+  const b = parseVersion(cur);
+  return a[0] > b[0] || (a[0] === b[0] && a[1] > b[1]) || (a[0] === b[0] && a[1] === b[1] && a[2] > b[2]);
+}
+
+async function checkForUpdates() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+      headers: { 'User-Agent': 'tiktok-shop-creator', 'Accept': 'application/vnd.github+json' },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return;
+    const rel = await res.json();
+    const latestTag = (rel.tag_name || '').replace(/^v/i, '');
+    if (!latestTag) return;
+    if (isNewer(latestTag, CURRENT_VERSION)) {
+      writeLog(`发现新版本 v${latestTag}（当前 v${CURRENT_VERSION}）`);
+      if (!mainWindow) return;
+      const { response } = await dialog.showMessageBox(mainWindow, {
+        type: 'info',
+        title: '发现新版本',
+        message: `发现新版本 v${latestTag}`,
+        detail: `当前版本：v${CURRENT_VERSION}\n\n新版本包含功能改进与修复。\n\n下载新安装包后，运行安装程序并选择同一安装目录即可自动覆盖更新，原数据（Cookie、历史记录、输出文件）都会保留。`,
+        buttons: ['前往下载', '稍后提醒'],
+        defaultId: 0,
+        cancelId: 1,
+        icon: path.join(__dirname, 'build', 'icon.ico'),
+      });
+      if (response === 0) shell.openExternal(RELEASE_URL);
+    } else {
+      writeLog('已是最新版本');
+    }
+  } catch (e) {
+    writeLog('版本检查失败: ' + e.message);
+  }
+}
+
 // ---- desktop shortcut (default: create on first run) ----
 function createDesktopShortcut() {
   try {
@@ -280,6 +328,8 @@ if (!gotLock) {
       appData.shortcutAsked = true;
       saveAppData();
     }
+    // check for updates after window is ready (delay so it doesn't interrupt startup)
+    setTimeout(() => checkForUpdates(), 5000);
   });
   app.on('window-all-closed', () => { app.quit(); });
 }
