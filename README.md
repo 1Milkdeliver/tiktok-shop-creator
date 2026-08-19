@@ -163,3 +163,11 @@ gh release create v1.2.0 "dist\TikTok-Creator-Scraper-Setup.exe" --repo 1Milkdel
 ```
 
 > 版本比较规则：三位版本号（主.次.修订），任一更高即提示更新。保持 Release 只留最新版本，README 下载链接（`/releases/latest`）自动指向最新。
+
+## 许可证
+
+本项目采用 **GPL-3.0**（GNU General Public License v3.0）。
+
+- 允许自由使用、修改、分发本软件
+- 基于本软件的衍生作品必须同样以 GPL-3.0 开源
+- 完整协议见 [LICENSE](LICENSE) 文件
