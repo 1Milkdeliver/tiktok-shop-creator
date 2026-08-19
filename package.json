@@ -5,7 +5,7 @@
   "main": "main.js",
   "author": "1Milkdeliver <https://github.com/1Milkdeliver>",
   "homepage": "https://github.com/1Milkdeliver/tiktok-shop-creator",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "dependencies": {
     "puppeteer-core": "^24.0.0",
     "exceljs": "^4.4.0"
