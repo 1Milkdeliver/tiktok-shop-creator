@@ -549,7 +549,7 @@ async function poll() {
     } else if (j.status === 'paused') {
       setStatus('⏸ 已暂停', '');
       detail.textContent = uiLang === 'zh' ? '已暂停' : 'Paused';
-    } else if (j.result && j.result.ok) { setStatus('✅ 完成', 'done'); showResult(j.result); detail.textContent = ''; btnPause.style.display = ''; btnResume.style.display = 'none'; btnPause.disabled = true; btnStop.disabled = true; document.getElementById('btnStart').disabled = false; }
+    } else if (j.result && j.result.ok) { setStatus('✅ 完成', 'done'); showResult(j.result); detail.textContent = ''; btnPause.style.display = ''; btnResume.style.display = 'none'; btnPause.disabled = true; btnStop.disabled = true; document.getElementById('btnStart').disabled = false; refreshAppData(); }
     else if (j.result && !j.result.ok) { setStatus('❌ 出错', 'error'); detail.textContent = ''; btnPause.style.display = ''; btnResume.style.display = 'none'; btnPause.disabled = true; btnStop.disabled = true; document.getElementById('btnStart').disabled = false; }
   } catch (e) { }
 }
