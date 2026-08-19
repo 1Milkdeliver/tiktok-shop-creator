@@ -165,7 +165,7 @@
       <button class="btn btn-primary" id="btnStart" style="padding:11px 34px;font-size:15px" data-i18n="action.start">▶ 开始抓取</button>
       <button class="btn btn-secondary" id="btnTest" data-i18n="action.test">🔍 测试连接</button>
       <button class="btn btn-secondary" id="btnPause" disabled data-i18n="action.pause">⏸ 暂停</button>
-      <button class="btn btn-secondary" id="btnResume" disabled style="display:none" data-i18n="action.resume">▶ 继续</button>      <button class="btn btn-danger" id="btnStop" disabled data-i18n="action.stop">■ 停止</button>
+      <button class="btn btn-secondary" id="btnResume" disabled style="display:none" data-i18n="action.resume">▶ 继续</button>      <button class="btn btn-danger" id="btnStop" disabled data-i18n="action.stop">■ 结束并导出</button>
       <button class="btn btn-secondary" id="btnExit" data-i18n="action.exit">退出</button>
     </div>
     <div class="hint" id="statusDetail" style="margin-top:10px;font-size:13px;color:var(--accent)"></div>
@@ -219,7 +219,7 @@ const I18N = {
   'action.test': { zh: '🔍 测试连接', en: '🔍 Test' },
   'action.pause': { zh: '⏸ 暂停', en: '⏸ Pause' },
   'action.resume': { zh: '▶ 继续', en: '▶ Resume' },
-  'action.stop': { zh: '■ 停止', en: '■ Stop' },
+  'action.stop': { zh: '■ 结束并导出', en: '■ Finish & Export' },
   'action.exit': { zh: '退出', en: 'Exit' },
   'step5.title': { zh: '历史输出', en: 'Output History' },
   'step5.refresh': { zh: '刷新', en: 'Refresh' },
@@ -454,7 +454,7 @@ async function poll() {
         btnResume.style.display = 'none';
         btnStop.disabled = true;
         spinIdx = (spinIdx + 1) % 4;
-        setStatus(`⏹ 正在停止 ${SPINNER[spinIdx]}`, '');
+        setStatus(`⏹ 正在结束并导出 ${SPINNER[spinIdx]}`, '');
         detail.textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件，请稍候…' : 'Saving scraped data and exporting file…';
       } else if (j.paused) {
         btnPause.style.display = 'none';
@@ -514,7 +514,7 @@ document.getElementById('btnStop').onclick = async () => {
   document.getElementById('btnStop').disabled = true;
   document.getElementById('btnPause').disabled = true;
   document.getElementById('btnResume').style.display = 'none';
-  setStatus('⏹ 正在停止…', '');
+  setStatus('⏹ 正在结束并导出…', '');
   document.getElementById('statusDetail').textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件，请稍候…' : 'Saving scraped data and exporting file…';
 };
 document.getElementById('btnPause').onclick = async () => { await window.api.pause(); };
