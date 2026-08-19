@@ -77,7 +77,7 @@
 ### 第一步：导出 Cookie
 
 1. 在 Chrome 浏览器中打开 TikTok Shop 联盟后台（`affiliate.tiktokshopglobalselling.com`），确认已登录并进入**达人广场**
-2. 安装 Cookie 导出扩展：[**Cookie-Editor**](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnnbalmgi)（Chrome 应用商店官方扩展）
+2. 安装 Cookie 导出扩展：[**Cookie-Editor**](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)（Chrome 应用商店官方扩展）
    > 或使用其他同类扩展：EditThisCookie、Cookie-Editor 等均可
 3. 在达人广场页面上，点击浏览器右上角的 **Cookie-Editor 图标**
 4. 点击扩展面板中的 **Export（导出）** 按钮，Cookie 会以 JSON 格式复制到剪贴板
