@@ -161,11 +161,20 @@
   <div class="card">
     <div class="toolbar">
       <button class="btn btn-primary" id="btnStart" style="padding:11px 34px;font-size:15px">▶ 开始抓取</button>
+      <button class="btn btn-secondary" id="btnTest">🔍 测试连接</button>
       <button class="btn btn-danger" id="btnStop" disabled>■ 停止</button>
       <button class="btn btn-secondary" id="btnExit">退出</button>
     </div>
+    <div class="hint" id="testResult" style="display:none;margin-top:8px"></div>
     <div class="result-box" id="resultBox"></div>
     <div id="log" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="step-num">5</span> 历史输出 <span class="sel-all" id="histRefresh">刷新</span></h2>
+    <div id="historyBox" style="max-height:220px;overflow-y:auto">
+      <div style="color:var(--sub);font-size:13px;padding:10px">暂无历史记录</div>
+    </div>
   </div>
 
   <footer>v2.0 · 专为 TikTok Shop 卖家打造 · 请求间隔人性化 · 自动限流处理</footer>
@@ -391,7 +400,62 @@ document.getElementById('btnStart').onclick = async () => {
 document.getElementById('btnStop').onclick = async () => { await window.api.stop(); document.getElementById('btnStop').disabled = true; };
 document.getElementById('btnExit').onclick = async () => { if (confirm('确定退出程序吗？')) await window.api.exit(); };
 
+// ═══════════ 测试连接 ═══════════
+document.getElementById('btnTest').onclick = async () => {
+  if (!cookieList.length) { alert('请先导入 Cookie'); return; }
+  const btn = document.getElementById('btnTest');
+  const box = document.getElementById('testResult');
+  btn.disabled = true;
+  box.style.display = 'block';
+  box.innerHTML = '⏳ 正在测试（隔离环境抓取 1 页验证）...';
+  box.className = 'hint';
+  try {
+    const j = await window.api.test({ pastedCookies: cookieList.map(c => c.data), mode: document.querySelector('input[name=mode]:checked').value });
+    if (j.error) {
+      box.innerHTML = '❌ 测试失败：' + j.error + '<br><small>' + (j.log ? j.log.join('<br>') : '') + '</small>';
+      box.style.color = 'var(--danger)';
+    } else {
+      box.innerHTML = '✅ 测试成功！抓取到 ' + j.creators + ' 条达人数据（' + j.rows + ' 行），环境正常可正式抓取';
+      box.style.color = 'var(--ok)';
+    }
+  } catch (e) {
+    box.innerHTML = '❌ 测试异常：' + e.message;
+    box.style.color = 'var(--danger)';
+  }
+  btn.disabled = false;
+};
+
+// ═══════════ 历史记录渲染 ═══════════
+function renderHistory(history) {
+  const box = document.getElementById('historyBox');
+  if (!history || !history.length) {
+    box.innerHTML = '<div style="color:var(--sub);font-size:13px;padding:10px">暂无历史记录</div>';
+    return;
+  }
+  box.innerHTML = history.map(h => `
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.05);font-size:13px">
+      <span style="color:var(--ok);flex-shrink:0">📄</span>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.outPath}</span>
+      <span style="color:var(--sub);flex-shrink:0">${h.rows} 行 · ${h.time}</span>
+    </div>`).join('');
+}
+async function refreshAppData() {
+  try {
+    const d = await window.api.getAppData();
+    // load remembered cookies (only if user hasn't added any yet)
+    if (!cookieList.length && d.cookies && d.cookies.length) {
+      for (const c of d.cookies) addCookie('paste', c);
+      document.getElementById('fname').textContent = '已自动加载上次的 Cookie';
+    }
+    // default output dir
+    if (d.defaultOutDir) document.getElementById('outPath').value = d.defaultOutDir;
+    renderHistory(d.history);
+  } catch (e) { }
+}
+document.getElementById('histRefresh').onclick = refreshAppData;
+
 poll();
+refreshAppData();
 </script>
 </body>
 </html>

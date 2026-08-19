@@ -10,9 +10,62 @@ const { MultiRunner } = require('./lib/multirunner');
 
 let mainWindow = null;
 const runner = new MultiRunner();
+runner.onFileLog = (line) => writeLog(line);
+
+// ---- app folders: logs/ and output/ next to the executable ----
+const APP_DIR = path.dirname(process.execPath);
+const LOG_DIR = path.join(APP_DIR, 'logs');
+const OUT_DIR = path.join(APP_DIR, 'output');
+
+function ensureDirs() {
+  try {
+    if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+    if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
+  } catch (e) { }
+}
+
+// ---- rotating log writer (prevents oversized log files) ----
+const MAX_LOG_SIZE = 2 * 1024 * 1024; // 2MB per file
+const MAX_LOG_FILES = 5;
+let logStream = null;
+
+function openLogStream() {
+  try {
+    if (logStream) { try { logStream.end(); } catch (e) { } logStream = null; }
+    ensureDirs();
+    const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+    const logFile = path.join(LOG_DIR, `app-${stamp}.log`);
+    logStream = fs.createWriteStream(logFile, { flags: 'a' });
+  } catch (e) { }
+}
+
+function rotateLogs() {
+  try {
+    // delete oldest if too many files
+    const files = fs.readdirSync(LOG_DIR).filter(f => f.endsWith('.log')).sort();
+    while (files.length > MAX_LOG_FILES) {
+      const oldest = path.join(LOG_DIR, files.shift());
+      fs.unlinkSync(oldest);
+    }
+  } catch (e) { }
+}
+
+function writeLog(msg) {
+  try {
+    const line = `[${new Date().toLocaleString()}] ${msg}\n`;
+    if (!logStream) openLogStream();
+    // rotate if current file too big
+    try {
+      const size = fs.statSync(logStream.path).size;
+      if (size > MAX_LOG_SIZE) openLogStream();
+    } catch (e) { }
+    logStream.write(line);
+    rotateLogs();
+  } catch (e) { }
+}
 
 // ---- persistent app data: remember last cookies + history ----
-let appData = { cookies: [], history: [] };
+let appData = { cookies: [], history: [], shortcutAsked: false, outDir: OUT_DIR };
 function dataFile() { return path.join(app.getPath('userData'), 'app-data.json'); }
 
 function loadAppData() {
@@ -21,6 +74,7 @@ function loadAppData() {
       appData = JSON.parse(fs.readFileSync(dataFile(), 'utf8'));
       if (!Array.isArray(appData.cookies)) appData.cookies = [];
       if (!Array.isArray(appData.history)) appData.history = [];
+      if (!appData.outDir) appData.outDir = OUT_DIR;
     }
   } catch (e) { }
 }
@@ -40,8 +94,8 @@ function recordHistory(entry) {
   saveAppData();
 }
 
-// IPC: remembered cookies + history
-ipcMain.handle('get-app-data', () => ({ cookies: appData.cookies || [], history: appData.history || [] }));
+// IPC: remembered cookies + history + default out dir
+ipcMain.handle('get-app-data', () => ({ cookies: appData.cookies || [], history: appData.history || [], defaultOutDir: appData.outDir || OUT_DIR }));
 ipcMain.handle('clear-cookies', () => { appData.cookies = []; saveAppData(); return { ok: true }; });
 
 function createWindow() {
@@ -49,6 +103,7 @@ function createWindow() {
     width: 980,
     height: 860,
     title: 'TikTok 达人抓取工具',
+    icon: path.join(__dirname, 'build', 'icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -67,6 +122,20 @@ function createWindow() {
     if (!url.startsWith('file://')) { e.preventDefault(); if (/^https?:/i.test(url)) shell.openExternal(url); }
   });
   mainWindow.on('closed', () => { mainWindow = null; });
+}
+
+// ---- desktop shortcut (default: create on first run) ----
+function createDesktopShortcut() {
+  try {
+    const exePath = process.execPath;
+    const desktop = path.join(os.homedir(), 'Desktop');
+    const lnk = path.join(desktop, 'TikTok达人抓取.lnk');
+    if (fs.existsSync(lnk)) return; // already exists
+    if (!fs.existsSync(desktop)) return;
+    const ps = `$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('${lnk.replace(/'/g, "''")}'); $s.TargetPath = '${exePath.replace(/'/g, "''")}'; $s.WorkingDirectory = '${path.dirname(exePath).replace(/'/g, "''")}'; $s.IconLocation = '${exePath.replace(/'/g, "''")},0'; $s.Description = 'TikTok 达人抓取工具'; $s.Save()`;
+    require('child_process').execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps], { windowsHide: true }, () => { });
+    writeLog('已在桌面创建快捷方式');
+  } catch (e) { writeLog('创建快捷方式失败: ' + e.message); }
 }
 
 // IPC: choose output directory (native dialog)
@@ -115,7 +184,7 @@ ipcMain.handle('test-scrape', async (event, config) => {
       cookieFiles: cookieFiles.slice(0, 1),
       mode: config.mode || 'auto',
       format: config.format || 'csv',
-      outPath: config.outPath || './output',
+      outPath: config.outPath || OUT_DIR,
       detail: false,
       keywords: ['phone case'],
       fields: ['handle', 'nickname'],
@@ -149,7 +218,7 @@ ipcMain.handle('start-scrape', async (event, config) => {
       cookieFiles,
       mode: config.mode || 'auto',
       format: config.format || 'csv',
-      outPath: config.outPath || './output',
+      outPath: config.outPath || OUT_DIR,
       detail: !!config.detail,
       keywords: config.keywords && config.keywords.length ? config.keywords : require('./lib/exporter').DEFAULT_KEYWORDS,
       fields: config.fields && config.fields.length ? config.fields : null,
@@ -199,6 +268,18 @@ if (!gotLock) {
       mainWindow.focus();
     }
   });
-  app.whenReady().then(() => { loadAppData(); createWindow(); });
+  app.whenReady().then(() => {
+    ensureDirs();
+    openLogStream();
+    writeLog('应用启动');
+    loadAppData();
+    createWindow();
+    // create desktop shortcut by default on first run
+    if (!appData.shortcutAsked) {
+      createDesktopShortcut();
+      appData.shortcutAsked = true;
+      saveAppData();
+    }
+  });
   app.on('window-all-closed', () => { app.quit(); });
 }
