@@ -91,23 +91,24 @@
     <div class="logo">
       <div class="logo-icon">🎬</div>
       <div>
-        <h1>TikTokShop达人抓取</h1>
-        <p>TikTok Shop 联盟达人数据 · 多账号并发</p>
+        <h1 data-i18n="app.title">TikTokShop达人抓取</h1>
+        <p data-i18n="app.subtitle">TikTok Shop 联盟达人数据 · 多账号并发</p>
       </div>
     </div>
     <span class="status-pill" id="appVersion" style="margin-right:8px">v—</span>
-    <span class="status-pill" id="status">就绪</span>
+    <span class="status-pill" id="status" data-i18n="status.ready">就绪</span>
+    <button class="btn-link" id="uiLangToggle" style="margin-left:10px;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:5px 12px">🌐 EN</button>
   </header>
 
   <div class="card">
-    <h2><span class="step-num">1</span> 导入 Cookie <span class="sel-all" id="addCookieBtn">＋ 添加账号</span></h2>
+    <h2><span class="step-num">1</span> <span data-i18n="step1.title">导入 Cookie</span> <span class="sel-all" id="addCookieBtn" data-i18n="step1.add">＋ 添加账号</span></h2>
     <div class="cookie-zone" id="cookieZone">
-      <div class="zone-label">将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框</div>
+      <div class="zone-label" data-i18n="step1.zone">将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框</div>
       <textarea id="cookieInput" placeholder='粘贴 Cookie JSON，例如 [{"domain":".tiktokshopglobalselling.com","name":"sessionid","value":"..."}, ...]'></textarea>
       <div class="file-row">
         <span>📄</span>
         <span class="fname" id="fname"></span>
-        <button class="btn-link" id="browseBtn">浏览文件…</button>
+        <button class="btn-link" id="browseBtn" data-i18n="step1.browse">浏览文件…</button>
       </div>
       <input type="file" id="fileInput" accept=".json" style="display:none">
     </div>
@@ -116,44 +117,44 @@
   </div>
 
   <div class="card">
-    <h2><span class="step-num">2</span> 浏览器模式</h2>
+    <h2><span class="step-num">2</span> <span data-i18n="step2.title">浏览器模式</span></h2>
     <div class="radio-group">
-      <label><input type="radio" name="mode" value="auto" checked> 自动（推荐）</label>
-      <label><input type="radio" name="mode" value="real"> 真实窗口</label>
+      <label><input type="radio" name="mode" value="auto" checked> <span data-i18n="step2.auto">自动（推荐）</span></label>
+      <label><input type="radio" name="mode" value="real"> <span data-i18n="step2.real">真实窗口</span></label>
       <label><input type="radio" name="mode" value="headless"> Headless</label>
     </div>
     <div class="mode-desc">自动：优先连接常驻调试 Chrome(9222)，没有则开屏幕外真实窗口。Headless 模式兼容性有限，建议使用自动或真实窗口。</div>
   </div>
 
   <div class="card">
-    <h2><span class="step-num">3</span> 选择类目 <button class="btn-link" id="langToggle" style="margin-left:4px">🌐 EN</button><span class="sel-all" id="selAll">全选</span><span class="sel-all" id="selNone">清空</span></h2>
+    <h2><span class="step-num">3</span> <span data-i18n="step3.title">选择类目</span> <button class="btn-link" id="langToggle" style="margin-left:4px">🌐 EN</button><span class="sel-all" id="selAll" data-i18n="step3.all">全选</span><span class="sel-all" id="selNone" data-i18n="step3.none">清空</span></h2>
     <div class="cats" id="cats"></div>
   </div>
 
   <div class="card">
-    <h2><span class="step-num">4</span> 导出设置</h2>
+    <h2><span class="step-num">4</span> <span data-i18n="step4.title">导出设置</span></h2>
     <div class="inline">
       <div>
-        <div class="hint" style="margin-bottom:8px">格式</div>
+        <div class="hint" style="margin-bottom:8px" data-i18n="step4.format">格式</div>
         <div class="radio-group">
           <label><input type="radio" name="format" value="csv" checked> CSV</label>
           <label><input type="radio" name="format" value="xlsx"> Excel</label>
         </div>
       </div>
       <div>
-        <div class="hint" style="margin-bottom:8px">输出位置</div>
+        <div class="hint" style="margin-bottom:8px" data-i18n="step4.out">输出位置</div>
         <div style="display:flex;gap:8px">
           <input type="text" id="outPath" value="./output" placeholder="./output 或 D:/data">
-          <button class="btn btn-secondary" id="btnChooseDir" style="white-space:nowrap">📁 选择</button>
+          <button class="btn btn-secondary" id="btnChooseDir" style="white-space:nowrap" data-i18n="step4.choose">📁 选择</button>
         </div>
       </div>
     </div>
     <div style="margin-top:14px">
-      <label class="check-label"><input type="checkbox" id="detail"> 同时抓取详情（简介、合作邮箱、MCN 等）</label>
+      <label class="check-label"><input type="checkbox" id="detail"> <span data-i18n="step4.detail">同时抓取详情（简介、合作邮箱、MCN 等）</span></label>
       <div class="hint" style="margin-top:6px;padding-left:24px">💡 勾选后会额外抓取每位达人的<b>主页简介（bio）、合作邮箱（从简介中提取）、所属 MCN 机构</b>。这些字段能帮你快速判断达人是否适合合作、直接联系洽谈。<b>注意：详情需要逐个达人单独请求，速度会比只抓列表慢 2-3 倍</b>（列表 1 万条约 20 分钟，详情约 1-2 小时），建议需要联系达人时再勾选。</div>
     </div>
     <div style="margin-top:14px">
-      <span style="font-size:13px;color:var(--sub)">导出字段</span>
+      <span style="font-size:13px;color:var(--sub)" data-i18n="step4.fields">导出字段</span>
       <span class="sel-all" id="fieldsAll">全选</span><span class="sel-all" id="fieldsNone">清空</span>
       <div class="field-grid" id="fields" style="margin-top:8px"></div>
     </div>
@@ -161,10 +162,10 @@
 
   <div class="card">
     <div class="toolbar">
-      <button class="btn btn-primary" id="btnStart" style="padding:11px 34px;font-size:15px">▶ 开始抓取</button>
-      <button class="btn btn-secondary" id="btnTest">🔍 测试连接</button>
-      <button class="btn btn-danger" id="btnStop" disabled>■ 停止</button>
-      <button class="btn btn-secondary" id="btnExit">退出</button>
+      <button class="btn btn-primary" id="btnStart" style="padding:11px 34px;font-size:15px" data-i18n="action.start">▶ 开始抓取</button>
+      <button class="btn btn-secondary" id="btnTest" data-i18n="action.test">🔍 测试连接</button>
+      <button class="btn btn-danger" id="btnStop" disabled data-i18n="action.stop">■ 停止</button>
+      <button class="btn btn-secondary" id="btnExit" data-i18n="action.exit">退出</button>
     </div>
     <div class="hint" id="testResult" style="display:none;margin-top:8px"></div>
     <div class="result-box" id="resultBox"></div>
@@ -172,17 +173,85 @@
   </div>
 
   <div class="card">
-    <h2><span class="step-num">5</span> 历史输出 <span class="sel-all" id="histRefresh">刷新</span></h2>
+    <h2><span class="step-num">5</span> <span data-i18n="step5.title">历史输出</span> <span class="sel-all" id="histRefresh" data-i18n="step5.refresh">刷新</span></h2>
     <div id="historyBox" style="max-height:220px;overflow-y:auto">
       <div style="color:var(--sub);font-size:13px;padding:10px">暂无历史记录</div>
     </div>
   </div>
 
-  <footer><span id="footerVersion">v—</span> · 专为 TikTok Shop 卖家打造 · 请求间隔人性化 · 自动限流处理</footer>
+  <footer><span id="footerVersion">v—</span> · <span data-i18n="footer.text">专为 TikTok Shop 卖家打造 · 请求间隔人性化 · 自动限流处理</span></footer>
 </div>
 
 <script>
-// ═══════════ 类目 ═══════════
+// ═══════════ 界面中英切换 (UI i18n) ═══════════
+const I18N = {
+  'app.title': { zh: 'TikTokShop达人抓取', en: 'TikTokShop Creator Scraper' },
+  'app.subtitle': { zh: 'TikTok Shop 联盟达人数据 · 多账号并发', en: 'TikTok Shop Affiliate Creator Data · Multi-Account' },
+  'status.ready': { zh: '就绪', en: 'Ready' },
+  'status.running': { zh: '抓取中…', en: 'Scraping…' },
+  'status.done': { zh: '完成', en: 'Done' },
+  'status.error': { zh: '出错', en: 'Error' },
+  'status.starting': { zh: '启动中…', en: 'Starting…' },
+  'step1.title': { zh: '导入 Cookie', en: 'Import Cookie' },
+  'step1.add': { zh: '＋ 添加账号', en: '+ Add Account' },
+  'step1.zone': { zh: '将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框', en: 'Drag <b>Cookie JSON file</b> here, or <b>paste</b> into the box below' },
+  'step1.browse': { zh: '浏览文件…', en: 'Browse…' },
+  'step1.hint': { zh: '可添加多个账号 Cookie 实现多账号并发抓取 · 用 <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a> 扩展导出 JSON 后粘贴或拖入', en: 'Add multiple account cookies for concurrent scraping · Export JSON with <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a>, then paste or drag in' },
+  'step2.title': { zh: '浏览器模式', en: 'Browser Mode' },
+  'step2.auto': { zh: '自动（推荐）', en: 'Auto (Recommended)' },
+  'step2.real': { zh: '真实窗口', en: 'Real Window' },
+  'step2.headless': { zh: 'Headless', en: 'Headless' },
+  'step2.desc': { zh: '自动：优先连接常驻调试 Chrome(9222)，没有则开屏幕外真实窗口。Headless 模式兼容性有限，建议使用自动或真实窗口。', en: 'Auto: connects to debug Chrome(9222) first, otherwise opens an off-screen real window. Headless has limited compatibility; auto or real window is recommended.' },
+  'step3.title': { zh: '选择类目', en: 'Select Categories' },
+  'step3.all': { zh: '全选', en: 'Select All' },
+  'step3.none': { zh: '清空', en: 'Clear' },
+  'step4.title': { zh: '导出设置', en: 'Export Settings' },
+  'step4.format': { zh: '格式', en: 'Format' },
+  'step4.out': { zh: '输出位置', en: 'Output Location' },
+  'step4.choose': { zh: '📁 选择', en: '📁 Choose' },
+  'step4.detail': { zh: '同时抓取详情（简介、合作邮箱、MCN 等）', en: 'Also scrape details (bio, email, MCN)' },
+  'step4.fields': { zh: '导出字段', en: 'Export Fields' },
+  'step4.fieldsAll': { zh: '全选', en: 'Select All' },
+  'step4.fieldsNone': { zh: '清空', en: 'Clear' },
+  'action.start': { zh: '▶ 开始抓取', en: '▶ Start Scraping' },
+  'action.test': { zh: '🔍 测试连接', en: '🔍 Test' },
+  'action.stop': { zh: '■ 停止', en: '■ Stop' },
+  'action.exit': { zh: '退出', en: 'Exit' },
+  'step5.title': { zh: '历史输出', en: 'Output History' },
+  'step5.refresh': { zh: '刷新', en: 'Refresh' },
+  'step5.empty': { zh: '暂无历史记录', en: 'No history yet' },
+  'footer.text': { zh: '专为 TikTok Shop 卖家打造 · 请求间隔人性化 · 自动限流处理', en: 'Built for TikTok Shop Sellers · Reasonable request pacing' },
+  'lang.toggle': { zh: '🌐 EN', en: '🌐 中文' },
+};
+let uiLang = localStorage.getItem('uiLang') || 'zh';
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const t = I18N[key];
+    if (t) {
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.setAttribute('placeholder', t[uiLang] || '');
+      else el.innerHTML = t[uiLang] || el.innerHTML;
+    }
+  });
+  // dynamic bits
+  const lt = document.getElementById('uiLangToggle');
+  if (lt) lt.textContent = I18N['lang.toggle'][uiLang];
+  const langToggle = document.getElementById('langToggle');
+  if (langToggle) langToggle.textContent = uiLang === 'zh' ? '🌐 EN' : '🌐 中文';
+  catLang = uiLang;
+  renderCats();
+}
+function toggleUiLang() {
+  uiLang = uiLang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('uiLang', uiLang);
+  applyI18n();
+}
+document.addEventListener('DOMContentLoaded', () => {
+  applyI18n();
+  const u = document.getElementById('uiLangToggle');
+  if (u) u.onclick = toggleUiLang;
+});
+
 // 类目：{ 类目名: { en: 英文名, zh: 中文名, items: [[关键词, 中文翻译], ...] } }
 const CATS = {
   '美妆护肤': { en: 'Beauty & Skincare', zh: '美妆护肤', items: [['beauty','美妆'],['makeup','彩妆'],['skincare','护肤'],['cosmetics','化妆品'],['haircare','护发'],['nails','美甲'],['lashes','睫毛'],['perfume','香水'],['spa','水疗'],['tanning','美黑'],['skincare routine','护肤流程'],['self care','自我护理'],['grwm','化妆准备'],['get ready with me','陪我准备'],['makeup tutorial','化妆教程'],['maquillaje','彩妆(西)'],['cuidado','护理(西)'],['belleza','美丽(西)']] },
