@@ -1,0 +1,11 @@
+﻿## What's new
+- **Header language option**: choose Chinese or English column headers when exporting CSV/Excel.
+- **Output history actions**: each history entry now has Open file 📂 / Copy path 📋 / Delete file 🗑 buttons.
+- **Custom logo**: app header now shows your own icon.
+- **Import button**: cookie section now has a clear "Import File" button.
+
+## 更新内容
+- **表头语言选项**：导出 CSV/Excel 时可选中文或英文表头。
+- **历史记录操作按钮**：每条导出记录支持 📂 打开文件 / 📋 复制路径 / 🗑 删除文件。
+- **自定义图标**：应用左上角 logo 已换成你的图标。
+- **导入按钮**：Cookie 导入区新增醒目的「📂 导入文件」按钮。
