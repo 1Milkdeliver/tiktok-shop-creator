@@ -499,8 +499,8 @@ function setStatus(text, cls) {
   statusEl.className = 'status-pill' + (cls ? ' ' + cls : '');
 }
 
-// spinner animation frames
-const SPINNER = ['|', '/', '-', '\\'];
+// spinner animation frames: dots grow 1 → 2 → 3 → repeat
+const SPINNER = ['.', '..', '...'];
 let spinIdx = 0;
 async function poll() {
   try {
@@ -527,8 +527,8 @@ async function poll() {
         btnPause.disabled = true;
         btnResume.style.display = 'none';
         btnStop.disabled = true;
-        spinIdx = (spinIdx + 1) % 4;
-        setStatus(`⏹ 正在结束并导出 ${SPINNER[spinIdx]}`, '');
+        spinIdx = (spinIdx + 1) % 3;
+        setStatus(`⏹ 正在结束并导出${SPINNER[spinIdx]}`, '');
         detail.textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件，请稍候…' : 'Saving scraped data and exporting file…';
       } else if (j.paused) {
         btnPause.style.display = 'none';
@@ -539,12 +539,12 @@ async function poll() {
       } else {
         btnPause.style.display = '';
         btnResume.style.display = 'none';
-        // spinner animation for "running"
-        spinIdx = (spinIdx + 1) % 4;
+        // spinner animation for "running": dots grow 1 → 2 → 3 → repeat
+        spinIdx = (spinIdx + 1) % 3;
         const info = j.currentInfo || {};
         const kwText = info.keyword ? (uiLang === 'zh' ? ` 正在抓取：${info.keyword}` : ` Scraping: ${info.keyword}`) : '';
-        setStatus(`⏳ 运行中 ${SPINNER[spinIdx]}`, 'running');
-        detail.textContent = (uiLang === 'zh' ? '抓取中...' : 'Running...') + kwText + (info.total ? `（${info.total} 条）` : '');
+        setStatus(`⏳ 抓取中${SPINNER[spinIdx]}`, 'running');
+        detail.textContent = (uiLang === 'zh' ? '抓取中' : 'Running') + SPINNER[spinIdx] + kwText + (info.total ? `（${info.total} 条）` : '');
       }
     } else if (j.status === 'paused') {
       setStatus('⏸ 已暂停', '');
