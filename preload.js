@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('api', {
   stop: () => ipcRenderer.invoke('stop-scrape'),
   getAppData: () => ipcRenderer.invoke('get-app-data'),
   clearCookies: () => ipcRenderer.invoke('clear-cookies'),
+  getVersion: () => ipcRenderer.invoke('get-version'),
   exit: () => ipcRenderer.invoke('exit-app'),
 });
 

@@ -108,6 +108,8 @@ function recordHistory(entry) {
 // IPC: remembered cookies + history + default out dir
 ipcMain.handle('get-app-data', () => ({ cookies: appData.cookies || [], history: appData.history || [], defaultOutDir: appData.outDir || OUT_DIR }));
 ipcMain.handle('clear-cookies', () => { appData.cookies = []; saveAppData(); return { ok: true }; });
+// IPC: current app version (lazy require to avoid ordering issues)
+ipcMain.handle('get-version', () => ({ version: require('./package.json').version }));
 
 function createWindow() {
   mainWindow = new BrowserWindow({

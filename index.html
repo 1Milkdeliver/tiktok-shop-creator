@@ -95,6 +95,7 @@
         <p>TikTok Shop 联盟达人数据 · 多账号并发</p>
       </div>
     </div>
+    <span class="status-pill" id="appVersion" style="margin-right:8px">v—</span>
     <span class="status-pill" id="status">就绪</span>
   </header>
 
@@ -177,7 +178,7 @@
     </div>
   </div>
 
-  <footer>v2.0 · 专为 TikTok Shop 卖家打造 · 请求间隔人性化 · 自动限流处理</footer>
+  <footer><span id="footerVersion">v—</span> · 专为 TikTok Shop 卖家打造 · 请求间隔人性化 · 自动限流处理</footer>
 </div>
 
 <script>
@@ -456,6 +457,14 @@ document.getElementById('histRefresh').onclick = refreshAppData;
 
 poll();
 refreshAppData();
+// load app version into header + footer
+window.api.getVersion().then(v => {
+  const ver = 'v' + (v.version || '—');
+  const hv = document.getElementById('appVersion');
+  const fv = document.getElementById('footerVersion');
+  if (hv) hv.textContent = ver;
+  if (fv) fv.textContent = ver;
+}).catch(() => { });
 </script>
 </body>
 </html>
