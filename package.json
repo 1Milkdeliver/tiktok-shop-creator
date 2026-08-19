@@ -26,6 +26,12 @@
       "index.html",
       "lib/**/*"
     ],
+    "extraResources": [
+      {
+        "from": "build/app-icon.png",
+        "to": "app-icon.png"
+      }
+    ],
     "win": {
       "target": [
         "nsis"
@@ -44,7 +50,6 @@
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "runAfterFinish": true,
-      "include": "build/custom-install-check.nsh",
       "artifactName": "TikTokShop达人抓取安装程序-${version}.exe"
     }
   },
