@@ -75,13 +75,52 @@
 - 实时进度日志、可停止
 - 单实例运行（防止多开）
 
-## 使用说明
+## 使用说明（详细教程）
 
-1. 登录 TikTok Shop 联盟后台，进入达人广场
-2. 用浏览器 Cookie 扩展（如 Cookie-Editor）导出 Cookie JSON
-3. 打开工具，粘贴 Cookie（或拖入文件）
-4. 选择类目和导出字段，开始抓取
-5. 完成后在所选目录查看 CSV/Excel 文件
+### 第一步：导出 Cookie
+
+1. 在 Chrome 浏览器中打开 TikTok Shop 联盟后台（`affiliate.tiktokshopglobalselling.com`），确认已登录并进入**达人广场**
+2. 安装 Cookie 导出扩展：[**Cookie-Editor**](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnnbalmgi)（Chrome 应用商店官方扩展）
+   > 或使用其他同类扩展：EditThisCookie、Cookie-Editor 等均可
+3. 在达人广场页面上，点击浏览器右上角的 **Cookie-Editor 图标**
+4. 点击扩展面板中的 **Export（导出）** 按钮，Cookie 会以 JSON 格式复制到剪贴板
+5. 把复制的内容**粘贴到工具里**，或点"浏览文件"选择一个 `.json` 文件（也可直接拖拽文件到输入区）
+
+> 💡 **只导出达人广场域的 Cookie**：Cookie-Editor 默认导出当前站点（`affiliate.tiktokshopglobalselling.com`）的 Cookie，直接使用即可。如果是手动复制的 JSON，请确认包含 `sessionid`、`sid_guard`、`user_oec_info` 等关键字段。
+
+### 第二步：配置抓取
+
+1. **浏览器模式**（推荐"自动"）：
+   - 自动：优先连接常驻调试 Chrome，没有则自动开屏幕外真实窗口
+   - 真实窗口：直接打开一个浏览器窗口进行抓取
+   - Headless：后台无窗口模式（兼容性有限，不建议）
+2. **选择类目**：勾选需要抓取的达人类目（可全选/清空，支持中/英文切换）
+3. **导出设置**：
+   - 格式：CSV（Excel 可直接打开）或 Excel (.xlsx)
+   - 输出位置：点"📁 选择"用系统对话框选目录
+   - 导出字段：勾选需要的字段（不勾选则全部导出）
+   - 详情：需要简介/邮箱/MCN 时勾选（速度慢 2-3 倍）
+
+### 第三步：开始抓取
+
+1. 点击 **▶ 开始抓取**
+2. 下方日志区实时显示抓取进度（每页新增人数、总数）
+3. 如需停止点击 **■ 停止**
+4. 完成后自动保存到所选目录，文件名为 `达人数据-日期-时间.csv/xlsx`
+
+### 常见问题
+
+**Q：提示"页面未正常加载"？**
+A：Cookie 可能失效（TikTok 登录态约 3 天有效），重新导出 Cookie 即可。
+
+**Q：抓取速度慢？**
+A：为保证稳定性，请求间隔会随机化（约 6-15 秒）。需要简介/邮箱时会更慢（每个达人单独请求）。
+
+**Q：多账号怎么用？**
+A：在 Cookie 输入区点"＋ 添加账号"，粘贴多个账号的 Cookie，工具会自动并发抓取（错峰启动避免冲突）。
+
+**Q：中途断了怎么办？**
+A：再次启动工具并开始抓取，会自动从上次位置继续（断点续抓）。
 
 ## 使用提示
 
