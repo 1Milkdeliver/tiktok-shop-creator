@@ -1,82 +1,142 @@
-# TikTok Shop 达人抓取工具 | TikTok Shop Creator Scraper
+<p align='center'>
+<img src='./build/icon.ico' width="150" height="150" alt="TikTokShop Creator Scraper Icon" />
+</p>
 
-**专为 TikTok Shop 卖家（Owner）打造的开源桌面工具**：一键抓取 TikTok Shop 联盟（Affiliate）达人广场数据，批量获取达人信息、筛选合作对象、分析带货数据，导出 CSV / Excel。
+<h1 align="center">TikTokShop Creator Scraper</h1>
 
-> Open-source desktop app for TikTok Shop sellers to scrape & analyze affiliate creators — find top creators, extract emails, MCN info, and export to CSV/Excel.
+<p align="center">Open-source desktop app for TikTok Shop sellers to discover, analyze and export affiliate creator data — GMV, followers, engagement, bio, email, MCN info — to CSV/Excel.</p>
+
+<p align="center">
+  <a href="https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/stargazers"><img src="https://img.shields.io/github/stars/1Milkdeliver/tiktok-shop-creator-scraper" alt="Stars Badge"/></a>
+  <a href="https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/network/members"><img src="https://img.shields.io/github/forks/1Milkdeliver/tiktok-shop-creator-scraper" alt="Forks Badge"/></a>
+  <a href="https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/blob/main/LICENSE"><img src="https://img.shields.io/github/license/1Milkdeliver/tiktok-shop-creator-scraper" alt="License Badge"/></a>
+  <a href="https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/releases/latest"><img src="https://img.shields.io/github/v/release/1Milkdeliver/tiktok-shop-creator-scraper" alt="Latest Release"/></a>
+</p>
+
+<div align="center">
+  <a href="./README.zh.md">中文</a> / <a href="./README.md">English</a>
+</div>
 
 ---
 
-## 这个工具能做什么 | What It Does
+## 📑 Table of Contents
 
-- 🔍 **抓取达人广场数据**：从 TikTok Shop 联盟后台批量获取达人列表
-- 📊 **带货数据**：GMV、销量、视频/直播表现、粉丝画像
-- 📧 **达人联系方式**：简介、合作邮箱、MCN 机构
-- 📁 **导出表格**：CSV / Excel，字段可自定义
-- 👥 **多账号并发**：支持多 Cookie 同时抓取
-- 🔄 **自动更新**：启动时检查新版本，一键更新
+- [🚀 Introduction](#-introduction)
+- [🎯 Who It's For](#-who-its-for)
+- [✨ Features](#-features)
+- [📊 Data You Can Collect](#-data-you-can-collect)
+- [📦 Install](#-install)
+- [🚀 Quick Start](#-quick-start)
+- [❓ FAQ](#-faq)
+- [💻 Development](#-development)
+- [📤 Release / Update](#-release--update)
+- [📄 License](#-license)
 
-## 适合谁 | Who It's For
+---
 
-- **TikTok Shop 卖家**：找达人带货、筛选合作对象
-- **联盟运营 / 商务**：批量整理达人信息、联系洽谈
-- **选品团队**：按类目分析达人带货数据
+## 🚀 Introduction
 
-## 可抓取的数据 | Data You Can Collect
+**TikTokShop Creator Scraper** is a desktop application built for **TikTok Shop sellers** to:
 
-| 类别 | 字段 |
+- Scrape creator data from the TikTok Shop Affiliate (联盟) marketplace
+- Analyze creator performance (GMV, sales, engagement, follower demographics)
+- Extract creator contact info (bio, email, MCN agency)
+- Export everything to **CSV / Excel** with selectable fields
+
+> Open-source · GPL-3.0 · Windows desktop app · Multi-account support
+
+## 🎯 Who It's For
+
+- **TikTok Shop Sellers** — find creators to collaborate with, screen potential partners
+- **Affiliate Ops / Business Dev** — batch-organize creator info, reach out for collaboration
+- **Product Selection Teams** — analyze creator data by category
+
+## ✨ Features
+
+| Feature | Description |
 |---|---|
-| 基础信息 | 达人主页、昵称、达人ID、头像、地区、粉丝数 |
-| 带货数据 | 总GMV、视频GMV、直播GMV、销量、类目 |
-| 内容表现 | 平均观看、互动量、GPM、UV |
-| 粉丝画像 | 年龄段、性别分布、PPS评分 |
-| 详情（可选） | 简介、合作邮箱、MCN机构 |
+| 🔍 Creator scraping | Batch-scrape the affiliate creator marketplace |
+| 📊 Performance data | GMV, sales, video/live performance, follower profile |
+| 📧 Contact info | Bio, collaboration email (extracted), MCN agency |
+| 📁 Export | CSV / Excel with customizable fields |
+| 👥 Multi-account | Multiple cookies for concurrent scraping |
+| 🌐 Bilingual UI | Chinese / English interface with one-click switch |
+| 🔄 Auto-update | Checks for new versions on startup, one-click update |
+| 💾 Data memory | Remembers cookies, output history, resume from breakpoints |
+| 🖥️ Desktop integration | Desktop shortcut, custom icon, auto output/log folders |
+| 🛡️ Install guard | Detects existing install, prevents duplicate installation |
 
-## 安装 | Install
+## 📊 Data You Can Collect
 
-⬇️ **[TikTok-Creator-Scraper-Setup.exe](https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/releases/latest)**（Windows 安装包）
+| Category | Fields |
+|---|---|
+| Basic Info | handle, nickname, creator ID, avatar, region, follower count |
+| Sales Data | total GMV, video GMV, live GMV, units sold, category |
+| Content Performance | avg views, engagement, GPM, UV |
+| Follower Profile | age distribution, gender split, PPS score |
+| Details (optional) | bio, collaboration email, MCN agency |
 
-- 双击运行安装向导，同意许可协议后安装
-- 自动创建桌面快捷方式
-- 输出文件默认在安装目录 `output/`，日志在 `logs/`
+## 📦 Install
 
-> Windows SmartScreen 提示时点"更多信息 → 仍要运行"（开源未签名程序正常提示）。
+⬇️ **[TikTok-Creator-Scraper-Setup.exe](https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/releases/latest)** (Windows installer)
 
-## 快速开始 | Quick Start
+- Run the installer wizard, accept the license agreement
+- Desktop shortcut created automatically
+- Output files go to `output/` folder, logs to `logs/` folder in the install directory
 
-1. 登录 TikTok Shop 联盟后台，进入达人广场
-2. 用 [Cookie-Editor](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm) 导出 Cookie
-3. 打开工具 → 粘贴/拖入 Cookie → 选类目 → 开始抓取
+> If Windows SmartScreen warns, click "More info → Run anyway" (normal for unsigned open-source apps).
 
-## 技术特性 | Features
+## 🚀 Quick Start
 
-- Electron 桌面应用（Windows）
-- 多 Cookie 并发抓取（错峰调度）
-- 请求间隔自动随机化，稳定抓取
-- 断点续抓、历史记录、Cookie 记忆
-- 自动创建输出/日志目录，日志自动轮转
+1. Log in to the TikTok Shop Affiliate backend and open the Creator Marketplace
+2. Export your cookie with [Cookie-Editor](https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm)
+3. Open the app → paste/drag the cookie → select categories → start scraping
 
-## 开发 | Development
+## ❓ FAQ
+
+**Q: "Page did not load properly"?**  
+A: Your cookie may have expired (TikTok sessions last ~3 days). Re-export a fresh cookie.
+
+**Q: Scraping is slow?**  
+A: Request intervals are randomized (~6-15s) for stability. Enabling details (bio/email) is slower as each creator is queried individually.
+
+**Q: How do I use multiple accounts?**  
+A: Click "＋ Add Account" in the cookie area and paste multiple account cookies. The app scrapes concurrently with staggered starts.
+
+**Q: Interrupted mid-scrape?**  
+A: Restart the app and scrape again — it resumes automatically from the last checkpoint.
+
+## 💻 Development
 
 ```bash
 npm install
-npm start          # 运行
-npm run build      # 打包安装程序
+npm start          # run in dev mode
+npm run build      # build installer → dist/TikTokShop达人抓取安装程序-<version>.exe
 ```
 
-## 发布新版 | Release
+> Set `CSC_IDENTITY_AUTO_DISCOVERY=false` when packaging to skip code signing (known Windows symlink permission issue).
 
-内置自动检查更新：修改 `package.json` 版本号 → 打包 → 发布 GitHub Release，旧版用户自动收到更新提示。
+## 📤 Release / Update
 
-## 使用提示
+The app checks GitHub for new versions on startup. To publish a new version:
 
-- 本工具用于卖家自身账号的数据查看
-- Cookie 仅保存在本机，不会上传
-- 数据仅供个人商业分析
+```bash
+# 1. Bump version in package.json (e.g. 1.1.1 → 1.2.0)
+# 2. Build installer
+$env:CSC_IDENTITY_AUTO_DISCOVERY='false'
+npm run build
+# 3. Publish release
+Copy-Item "dist\TikTokShop达人抓取安装程序-1.2.0.exe" "dist\TikTok-Creator-Scraper-Setup.exe"
+gh release create v1.2.0 "dist\TikTok-Creator-Scraper-Setup.exe" --repo 1Milkdeliver/tiktok-shop-creator-scraper --title "v1.2.0" --notes "release notes"
+# 4. Old-version users get update prompt on startup → install over same directory (data preserved)
+```
 
-## 许可证 | License
+> Version comparison: three-part version (major.minor.patch). Keep only the latest release — README download link auto-points to `/releases/latest`.
 
-本项目采用 **GPL-3.0** 许可证，详见 [LICENSE](LICENSE)。
+## 📄 License
+
+This project is licensed under the **GPL-3.0** License — see the [LICENSE](LICENSE) file.
 
 ---
 
-*Keywords: TikTok Shop affiliate creator scraper, 达人抓取, TikTok联盟达人, TikTok Shop 卖家工具, creator data export, TikTok influencer analytics, 达人数据采集*
+*Keywords: TikTok Shop affiliate creator scraper, TikTok creator data, TikTok Shop seller tool, creator export CSV Excel, TikTok influencer analytics, TikTok达人抓取, TikTok联盟达人*
