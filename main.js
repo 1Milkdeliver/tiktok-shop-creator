@@ -230,7 +230,9 @@ function setUpdateState(patch) {
 }
 
 // Manual check triggered by the UI button
+let isManualCheck = false;
 ipcMain.handle('check-update', () => {
+  isManualCheck = true;
   checkForUpdates(true);
   return { ok: true };
 });
@@ -246,17 +248,19 @@ async function checkForUpdates(manual) {
   writeLog(manual ? '手动检查更新…' : '正在检查更新…');
   try {
     const result = await autoUpdater.checkForUpdates();
-    if (!result || !result.updateInfo) {
+    // no update available → tell the user (both the return-value path and the
+    // event path can fire; guard so we only show the dialog once)
+    if ((!result || !result.updateInfo) && manual && mainWindow && isManualCheck) {
+      isManualCheck = false;
       setUpdateState({ phase: 'idle', message: '' });
       writeLog('已是最新版本');
-      if (manual && mainWindow) {
-        dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '已是最新版本', detail: `当前版本 v${CURRENT_VERSION}` });
-      }
+      dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '已是最新版本', detail: `当前版本 v${CURRENT_VERSION}` });
     }
   } catch (e) {
     setUpdateState({ phase: 'error', message: e.message });
     writeLog('自动更新检查失败: ' + e.message);
     if (manual && mainWindow) {
+      isManualCheck = false;
       dialog.showMessageBox(mainWindow, { type: 'error', title: '检查更新失败', message: '无法连接更新服务器', detail: String(e.message || e), buttons: ['前往下载页', '关闭'], defaultId: 0, cancelId: 1 })
         .then(({ response }) => { if (response === 0) shell.openExternal(RELEASE_URL); });
     } else {
@@ -388,6 +392,11 @@ function setupAutoUpdaterEvents() {
   autoUpdater.on('update-not-available', () => {
     setUpdateState({ phase: 'idle', message: '' });
     writeLog('已是最新版本');
+    // manual check → confirm to the user with a dialog
+    if (isManualCheck && mainWindow) {
+      isManualCheck = false;
+      dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '已是最新版本', detail: `当前版本 v${CURRENT_VERSION}` });
+    }
   });
   autoUpdater.on('error', (e) => {
     setUpdateState({ phase: 'error', message: e && e.message || String(e) });
