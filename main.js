@@ -364,8 +364,17 @@ function setupAutoUpdaterEvents() {
       icon: path.join(__dirname, 'icon-256.png'),
     });
     if (response === 0) {
-      setUpdateState({ phase: 'installing', percent: 100, message: '正在重启安装…' });
-      autoUpdater.quitAndInstall();
+      setUpdateState({ phase: 'installing', percent: 100, message: '正在静默安装更新…' });
+      // Stop any running scrape + close browsers first so the app can exit cleanly
+      // and the silent installer never hits "cannot be closed".
+      try { runner.stop(); } catch (e) { }
+      try {
+        for (const s of runner.sessions || []) {
+          if (s.browser) { try { await Promise.race([s.browser.close(), new Promise(r => setTimeout(r, 3000))]).catch(() => { }); } catch (e) { } }
+        }
+      } catch (e) { }
+      // quitAndInstall(true) => silent NSIS update: no license/dir UI, just replace files
+      setTimeout(() => autoUpdater.quitAndInstall(true, true), 800);
     }
   });
   autoUpdater.on('update-not-available', () => {
