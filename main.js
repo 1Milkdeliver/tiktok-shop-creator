@@ -1,6 +1,4 @@
 // TikTok Shop Creator Scraper — 专为 TikTok Shop 卖家打造
-// GitHub: https://github.com/1Milkdeliver/tiktok-shop-creator
-// Author: 1Milkdeliver
 // main.js — Electron main process: native window, native folder picker, scrape orchestration
 'use strict';
 

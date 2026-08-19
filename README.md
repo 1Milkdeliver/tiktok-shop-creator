@@ -2,9 +2,6 @@
 
 **专为 TikTok Shop 卖家（Owner）打造**：抓取联盟达人广场数据，筛选适合合作的达人，导出本地表格。
 
-> ⭐ **GitHub 项目主页**：https://github.com/1Milkdeliver/tiktok-shop-creator
-> 👤 **作者**：1Milkdeliver（https://github.com/1Milkdeliver）
-
 ## 适合谁用
 
 - **TikTok Shop 卖家**：查看联盟达人数据、筛选合作对象
