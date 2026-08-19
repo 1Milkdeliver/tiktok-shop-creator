@@ -4,7 +4,7 @@
 
 ## 📥 下载
 
-**⬇️ [TikTok-Creator-Scraper-Setup.exe](https://github.com/1Milkdeliver/tiktok-shop-creator/releases/latest)**
+**⬇️ [TikTok-Creator-Scraper-Setup.exe](https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/releases/latest)**
 
 - Windows 安装包，双击运行安装向导，阅读并同意许可协议后一键安装
 - 安装完成后自动创建桌面快捷方式
@@ -138,7 +138,7 @@ A：再次启动工具并开始抓取，会自动从上次位置继续（断点�
 ```bash
 npm install
 npm start          # 运行
-npm run build      # 打包安装程序 → dist/TikTok达人抓取安装程序-<版本>.exe
+npm run build      # 打包安装程序 → dist/TikTokShop达人抓取安装程序-<版本>.exe
 ```
 
 > 打包需要设置环境变量 `CSC_IDENTITY_AUTO_DISCOVERY=false` 跳过代码签名（Windows 无权限创建符号链接的已知问题）。
@@ -156,8 +156,8 @@ $env:CSC_IDENTITY_AUTO_DISCOVERY='false'
 npm run build
 
 # 3. 发布到 GitHub Release（文件名用英文避免编码问题）
-Copy-Item "dist\TikTok达人抓取安装程序-1.2.0.exe" "dist\TikTok-Creator-Scraper-Setup.exe"
-gh release create v1.2.0 "dist\TikTok-Creator-Scraper-Setup.exe" --repo 1Milkdeliver/tiktok-shop-creator --title "TikTok达人抓取 v1.2.0" --notes "版本更新说明"
+Copy-Item "dist\TikTokShop达人抓取安装程序-1.2.0.exe" "dist\TikTok-Creator-Scraper-Setup.exe"
+gh release create v1.2.0 "dist\TikTok-Creator-Scraper-Setup.exe" --repo 1Milkdeliver/tiktok-shop-creator-scraper --title "TikTokShop达人抓取 v1.2.0" --notes "版本更新说明"
 
 # 4. 旧版用户启动时自动提示更新 → 下载新安装包 → 选择同一安装目录即可覆盖更新（Cookie、历史记录、输出文件均保留）
 ```

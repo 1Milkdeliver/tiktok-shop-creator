@@ -21,7 +21,18 @@ function ensureDirs() {
   try {
     if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
     if (!fs.existsSync(OUT_DIR)) fs.mkdirSync(OUT_DIR, { recursive: true });
-  } catch (e) { }
+    writeLog('目录就绪: ' + APP_DIR);
+  } catch (e) {
+    // if app dir is not writable (e.g. Program Files), fall back to userData
+    try {
+      const alt = path.join(app.getPath('userData'));
+      const fallbackLog = path.join(alt, 'logs');
+      const fallbackOut = path.join(alt, 'output');
+      if (!fs.existsSync(fallbackLog)) fs.mkdirSync(fallbackLog, { recursive: true });
+      if (!fs.existsSync(fallbackOut)) fs.mkdirSync(fallbackOut, { recursive: true });
+      writeLog('安装目录不可写，使用用户目录: ' + alt);
+    } catch (e2) { }
+  }
 }
 
 // ---- rotating log writer (prevents oversized log files) ----
@@ -102,7 +113,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 980,
     height: 860,
-    title: 'TikTok 达人抓取工具',
+    title: 'TikTokShop达人抓取工具',
     icon: path.join(__dirname, 'build', 'icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
@@ -126,7 +137,7 @@ function createWindow() {
 
 // ---- version check: query GitHub releases for the latest version ----
 const CURRENT_VERSION = require('./package.json').version;
-const REPO = '1Milkdeliver/tiktok-shop-creator';
+const REPO = '1Milkdeliver/tiktok-shop-creator-scraper';
 const RELEASE_URL = `https://github.com/${REPO}/releases/latest`;
 
 function parseVersion(v) {
@@ -143,7 +154,7 @@ function isNewer(latest, cur) {
 async function checkForUpdates() {
   try {
     const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
-      headers: { 'User-Agent': 'tiktok-shop-creator', 'Accept': 'application/vnd.github+json' },
+      headers: { 'User-Agent': 'tiktok-shop-creator-scraper', 'Accept': 'application/vnd.github+json' },
       signal: AbortSignal.timeout(10000),
     });
     if (!res.ok) return;
@@ -177,10 +188,10 @@ function createDesktopShortcut() {
   try {
     const exePath = process.execPath;
     const desktop = path.join(os.homedir(), 'Desktop');
-    const lnk = path.join(desktop, 'TikTok达人抓取.lnk');
+    const lnk = path.join(desktop, 'TikTokShop达人抓取.lnk');
     if (fs.existsSync(lnk)) return; // already exists
     if (!fs.existsSync(desktop)) return;
-    const ps = `$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('${lnk.replace(/'/g, "''")}'); $s.TargetPath = '${exePath.replace(/'/g, "''")}'; $s.WorkingDirectory = '${path.dirname(exePath).replace(/'/g, "''")}'; $s.IconLocation = '${exePath.replace(/'/g, "''")},0'; $s.Description = 'TikTok 达人抓取工具'; $s.Save()`;
+    const ps = `$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut('${lnk.replace(/'/g, "''")}'); $s.TargetPath = '${exePath.replace(/'/g, "''")}'; $s.WorkingDirectory = '${path.dirname(exePath).replace(/'/g, "''")}'; $s.IconLocation = '${exePath.replace(/'/g, "''")},0'; $s.Description = 'TikTokShop达人抓取工具'; $s.Save()`;
     require('child_process').execFile('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', ps], { windowsHide: true }, () => { });
     writeLog('已在桌面创建快捷方式');
   } catch (e) { writeLog('创建快捷方式失败: ' + e.message); }
@@ -317,17 +328,13 @@ if (!gotLock) {
     }
   });
   app.whenReady().then(() => {
+    loadAppData();
+    // always ensure dirs + shortcut on every launch (idempotent)
     ensureDirs();
     openLogStream();
-    writeLog('应用启动');
-    loadAppData();
+    writeLog('应用启动: ' + APP_DIR);
     createWindow();
-    // create desktop shortcut by default on first run
-    if (!appData.shortcutAsked) {
-      createDesktopShortcut();
-      appData.shortcutAsked = true;
-      saveAppData();
-    }
+    createDesktopShortcut(); // skips if shortcut already exists
     // check for updates after window is ready (delay so it doesn't interrupt startup)
     setTimeout(() => checkForUpdates(), 5000);
   });

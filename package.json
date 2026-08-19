@@ -1,10 +1,10 @@
 {
-  "name": "tiktok-shop-creator",
-  "version": "1.1.0",
+  "name": "tiktok-shop-creator-scraper",
+  "version": "1.1.1",
   "description": "TikTok Shop 达人抓取工具 - 专为 TikTok Shop 卖家打造的联盟达人数据采集桌面应用，一键抓取达人广场数据，支持多账号并发、CSV/Excel 导出、达人筛选、选品分析。TikTok Shop affiliate creator scraper desktop app for sellers.",
   "main": "main.js",
   "author": "1Milkdeliver <https://github.com/1Milkdeliver>",
-  "homepage": "https://github.com/1Milkdeliver/tiktok-shop-creator",
+  "homepage": "https://github.com/1Milkdeliver/tiktok-shop-creator-scraper",
   "license": "GPL-3.0",
   "dependencies": {
     "puppeteer-core": "^24.0.0",
@@ -16,7 +16,7 @@
   },
   "build": {
     "appId": "com.tiktok.creator.scraper",
-    "productName": "TikTok达人抓取",
+    "productName": "TikTokShop达人抓取",
     "directories": {
       "output": "dist"
     },
@@ -39,11 +39,11 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "TikTok达人抓取",
-      "license": "build/license.txt",
+      "shortcutName": "TikTokShop达人抓取",
+      "license": "build/license.html",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
-      "artifactName": "TikTok达人抓取安装程序-${version}.exe"
+      "artifactName": "TikTokShop达人抓取安装程序-${version}.exe"
     }
   },
   "scripts": {
