@@ -373,6 +373,22 @@ ipcMain.handle('stop-scrape', () => { runner.stop(); return { ok: true }; });
 // IPC: exit app
 ipcMain.handle('exit-app', () => { app.quit(); return { ok: true }; });
 
+// IPC: open the bundled README (usage guide) in the system default app
+ipcMain.handle('open-readme', (event, lang) => {
+  try {
+    // installed build: resources/ next to the exe; dev: project root
+    const candidates = [
+      path.join(APP_DIR, 'resources', lang === 'zh' ? 'README-zh.md' : 'README.md'),
+      path.join(APP_DIR, lang === 'zh' ? 'README-zh.md' : 'README.md'),
+      path.join(process.cwd(), lang === 'zh' ? 'README.zh.md' : 'README.md'),
+    ];
+    const found = candidates.find(p => fs.existsSync(p));
+    if (!found) return { ok: false, error: '未找到使用说明文件' };
+    shell.openPath(found).then(err => { if (err) writeLog('打开 README 失败: ' + err); });
+    return { ok: true };
+  } catch (e) { return { ok: false, error: e.message }; }
+});
+
 // Single instance: only one copy of the app may run at a time
 const gotLock = app.requestSingleInstanceLock();
 if (!gotLock) {

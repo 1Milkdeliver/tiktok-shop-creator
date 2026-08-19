@@ -32,6 +32,14 @@
       {
         "from": "build/app-icon.png",
         "to": "app-icon.png"
+      },
+      {
+        "from": "README.md",
+        "to": "README.md"
+      },
+      {
+        "from": "README.zh.md",
+        "to": "README-zh.md"
       }
     ],
     "afterPack": "./afterPack.js",
