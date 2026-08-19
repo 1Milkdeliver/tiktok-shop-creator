@@ -593,12 +593,13 @@ async function poll() {
       btnPause.disabled = false;
       btnStop.disabled = false;
       if (j.stopping) {
-        // stopping: sessions wind down, then data is exported automatically
+        // stopping: sessions wind down (list stopped; details finish for collected
+        // creators). Button stays enabled so a 2nd click aborts the detail phase.
         btnPause.disabled = true;
         btnResume.style.display = 'none';
-        btnStop.disabled = true;
+        btnStop.disabled = false;
         startSpin('⏹ 正在结束并导出');
-        detail.textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件，请稍候…' : 'Saving scraped data and exporting file…';
+        detail.textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件（可再次点击「结束并导出」跳过详情补抓）…' : 'Saving scraped data and exporting (click again to skip detail fill)…';
       } else if (j.paused) {
         stopSpin();
         btnPause.style.display = 'none';
