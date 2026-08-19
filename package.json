@@ -43,6 +43,7 @@
       "license": "build/license.html",
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
+      "runAfterFinish": true,
       "artifactName": "TikTokShop达人抓取安装程序-${version}.exe"
     }
   },
