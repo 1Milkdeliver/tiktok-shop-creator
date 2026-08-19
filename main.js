@@ -43,16 +43,21 @@ let logStream = null;
 function openLogStream() {
   try {
     if (logStream) { try { logStream.end(); } catch (e) { } logStream = null; }
-    ensureDirs();
+    // ensure dirs WITHOUT calling writeLog (avoid recursion)
+    try {
+      if (!fs.existsSync(LOG_DIR)) fs.mkdirSync(LOG_DIR, { recursive: true });
+    } catch (e) { }
     const stamp = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
     const logFile = path.join(LOG_DIR, `app-${stamp}.log`);
     logStream = fs.createWriteStream(logFile, { flags: 'a' });
-  } catch (e) { }
+  } catch (e) {
+    logStream = null;
+  }
 }
 
 function rotateLogs() {
   try {
-    // delete oldest if too many files
+    if (!fs.existsSync(LOG_DIR)) return;
     const files = fs.readdirSync(LOG_DIR).filter(f => f.endsWith('.log')).sort();
     while (files.length > MAX_LOG_FILES) {
       const oldest = path.join(LOG_DIR, files.shift());
@@ -65,12 +70,21 @@ function writeLog(msg) {
   try {
     const line = `[${new Date().toLocaleString()}] ${msg}\n`;
     if (!logStream) openLogStream();
+    if (!logStream) {
+      // fallback: write to userData logs if app dir not writable
+      try {
+        const altDir = path.join(app.getPath('userData'), 'logs');
+        if (!fs.existsSync(altDir)) fs.mkdirSync(altDir, { recursive: true });
+        fs.appendFileSync(path.join(altDir, 'app.log'), line);
+      } catch (e) { }
+      return;
+    }
     // rotate if current file too big
     try {
       const size = fs.statSync(logStream.path).size;
       if (size > MAX_LOG_SIZE) openLogStream();
     } catch (e) { }
-    logStream.write(line);
+    if (logStream) logStream.write(line);
     rotateLogs();
   } catch (e) { }
 }
