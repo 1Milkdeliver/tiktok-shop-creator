@@ -100,6 +100,14 @@ function loadAppData() {
       if (!Array.isArray(appData.cookies)) appData.cookies = [];
       if (!Array.isArray(appData.history)) appData.history = [];
       if (!appData.outDir) appData.outDir = OUT_DIR;
+      // validate remembered outDir: if it no longer exists (e.g. leftover path
+      // from an old install), fall back to the default so export never ENOENTs
+      try {
+        fs.mkdirSync(appData.outDir, { recursive: true });
+      } catch (e) {
+        appData.outDir = OUT_DIR;
+        try { fs.mkdirSync(OUT_DIR, { recursive: true }); } catch (e2) { }
+      }
     }
   } catch (e) { }
 }
