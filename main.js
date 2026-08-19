@@ -207,7 +207,24 @@ function isNewer(latest, cur) {
   return a[0] > b[0] || (a[0] === b[0] && a[1] > b[1]) || (a[0] === b[0] && a[1] === b[1] && a[2] > b[2]);
 }
 
+// ---- auto-update: electron-updater downloads & installs the new build in-app ----
+const { autoUpdater } = require('electron-updater');
+autoUpdater.autoDownload = false; // ask the user first, then download
+autoUpdater.autoInstallOnAppQuit = true;
+
 async function checkForUpdates() {
+  if (!app.isPackaged) return; // dev mode: skip auto-update
+  try {
+    const result = await autoUpdater.checkForUpdates();
+    if (!result || !result.updateInfo) writeLog('已是最新版本');
+  } catch (e) {
+    writeLog('自动更新检查失败: ' + e.message);
+    checkViaGitHubApi(); // fallback: open the release page
+  }
+}
+
+// Fallback: if electron-updater fails, at least offer the download page
+async function checkViaGitHubApi() {
   try {
     const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
       headers: { 'User-Agent': 'tiktok-shop-creator-scraper', 'Accept': 'application/vnd.github+json' },
@@ -216,27 +233,65 @@ async function checkForUpdates() {
     if (!res.ok) return;
     const rel = await res.json();
     const latestTag = (rel.tag_name || '').replace(/^v/i, '');
-    if (!latestTag) return;
-    if (isNewer(latestTag, CURRENT_VERSION)) {
-      writeLog(`发现新版本 v${latestTag}（当前 v${CURRENT_VERSION}）`);
-      if (!mainWindow) return;
-      const { response } = await dialog.showMessageBox(mainWindow, {
-        type: 'info',
-        title: '发现新版本',
-        message: `发现新版本 v${latestTag}`,
-        detail: `当前版本：v${CURRENT_VERSION}\n\n新版本包含功能改进与修复。\n\n下载新安装包后，运行安装程序并选择同一安装目录即可自动覆盖更新，原数据（Cookie、历史记录、输出文件）都会保留。`,
-        buttons: ['前往下载', '稍后提醒'],
-        defaultId: 0,
-        cancelId: 1,
-        icon: path.join(__dirname, 'build', 'icon-256.png'),
-      });
-      if (response === 0) shell.openExternal(RELEASE_URL);
-    } else {
-      writeLog('已是最新版本');
+    if (!latestTag || !isNewer(latestTag, CURRENT_VERSION)) return;
+    if (!mainWindow) return;
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: '发现新版本',
+      message: `发现新版本 v${latestTag}（自动更新不可用）`,
+      detail: `当前版本：v${CURRENT_VERSION}\n\n请前往下载页获取新版安装包，覆盖安装即可保留原数据。`,
+      buttons: ['前往下载', '稍后提醒'],
+      defaultId: 0,
+      cancelId: 1,
+      icon: path.join(__dirname, 'build', 'icon-256.png'),
+    });
+    if (response === 0) shell.openExternal(RELEASE_URL);
+  } catch (e) { writeLog('版本检查失败: ' + e.message); }
+}
+
+// wire autoUpdater events (called once at startup)
+function setupAutoUpdaterEvents() {
+  autoUpdater.on('checking-for-update', () => writeLog('正在检查更新…'));
+  autoUpdater.on('update-available', async (info) => {
+    const v = (info && info.version) || '';
+    writeLog(`发现新版本 v${v}`);
+    if (!mainWindow) return;
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: '发现新版本',
+      message: `发现新版本 v${v}`,
+      detail: `当前版本：v${CURRENT_VERSION}\n\n是否现在下载并安装？下载完成后会提示重启应用完成更新。`,
+      buttons: ['立即下载更新', '稍后'],
+      defaultId: 0,
+      cancelId: 1,
+      icon: path.join(__dirname, 'build', 'icon-256.png'),
+    });
+    if (response === 0) {
+      try { await autoUpdater.downloadUpdate(); }
+      catch (e) { writeLog('下载更新失败: ' + e.message); }
     }
-  } catch (e) {
-    writeLog('版本检查失败: ' + e.message);
-  }
+  });
+  autoUpdater.on('download-progress', (p) => {
+    const pct = p && p.percent != null ? p.percent.toFixed(0) : '';
+    writeLog(`正在下载更新… ${pct}%`);
+  });
+  autoUpdater.on('update-downloaded', async (info) => {
+    writeLog('更新下载完成');
+    if (!mainWindow) return;
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: '更新已就绪',
+      message: '更新下载完成，是否立即重启应用完成安装？',
+      detail: '重启后自动完成更新（通常需要1-2分钟）。',
+      buttons: ['立即重启安装', '稍后'],
+      defaultId: 0,
+      cancelId: 1,
+      icon: path.join(__dirname, 'build', 'icon-256.png'),
+    });
+    if (response === 0) autoUpdater.quitAndInstall();
+  });
+  autoUpdater.on('update-not-available', () => writeLog('已是最新版本'));
+  autoUpdater.on('error', (e) => writeLog('自动更新出错: ' + (e && e.message || e)));
 }
 
 // ---- desktop shortcut (default: create on first run) ----
@@ -403,7 +458,8 @@ if (!gotLock) {
     writeLog('应用启动: ' + APP_DIR);
     createWindow();
     createDesktopShortcut(); // skips if shortcut already exists
-    // check for updates after window is ready (delay so it doesn't interrupt startup)
+    // auto-update: wire events once, then check after window is ready
+    setupAutoUpdaterEvents();
     setTimeout(() => checkForUpdates(), 5000);
   });
   app.on('window-all-closed', () => { app.quit(); });
