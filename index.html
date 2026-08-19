@@ -210,7 +210,7 @@ const I18N = {
   'status.starting': { zh: '启动中…', en: 'Starting…' },
   'step1.title': { zh: '导入 Cookie', en: 'Import Cookie' },
   'step1.add': { zh: '＋ 添加账号', en: '+ Add Account' },
-  'step1.zone': { zh: '将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框', en: 'Drag <b>Cookie JSON file</b> here, or <b>paste</b> into the box below' },
+  'step1.zone': { zh: '将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框<b>（按回车导入）</b>', en: 'Drag <b>Cookie JSON file</b> here, or <b>paste</b> into the box below <b>(press Enter to import)</b>' },
   'step1.browse': { zh: '📂 导入文件', en: '📂 Import File' },
   'step1.hint': { zh: '可添加多个账号 Cookie 实现多账号并发抓取 · 用 <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a> 扩展导出 JSON 后粘贴或拖入', en: 'Add multiple account cookies for concurrent scraping · Export JSON with <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a>, then paste or drag in' },
   'step2.title': { zh: '浏览器模式', en: 'Browser Mode' },
@@ -355,7 +355,25 @@ function cookieSummary(raw) {
   try {
     const arr = JSON.parse(raw.replace(/^\uFEFF/, ''));
     if (!Array.isArray(arr)) return '无效 JSON（不是数组）';
-    return `已解析 ${arr.length} 条 Cookie`;
+    // find the earliest expiry among cookies that have one (expires/expirationDate, seconds)
+    let minExp = Infinity;
+    let hasExpiry = false;
+    for (const c of arr) {
+      const e = c.expirationDate || c.expires;
+      if (e && Number(e) > 0) { hasExpiry = true; minExp = Math.min(minExp, Number(e)); }
+    }
+    let expiryText = '';
+    if (hasExpiry && isFinite(minExp)) {
+      const ms = minExp * 1000;
+      const days = Math.ceil((ms - Date.now()) / 86400000);
+      const d = new Date(ms);
+      const pad = n => String(n).padStart(2, '0');
+      const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      if (days > 0) expiryText = ` · 失效 ${dateStr}（剩 ${days} 天）`;
+      else if (days === 0) expiryText = ` · 今天失效 ${dateStr}`;
+      else expiryText = ` · ⚠️ 已过期 ${dateStr}`;
+    }
+    return `已解析 ${arr.length} 条 Cookie${expiryText}`;
   } catch (e) { return '内容无效，请检查 JSON 格式'; }
 }
 
@@ -384,6 +402,33 @@ function renderCookieList() {
   box.querySelectorAll('.del').forEach(el => {
     el.onclick = () => { cookieList.splice(+el.dataset.i, 1); renderCookieList(); };
   });
+  renderRateLimit();
+}
+
+// Show risk-control status (when was a session captcha'd, suggested unlock time)
+let lastRateLimitShown = null;
+function renderRateLimit() {
+  const rl = window._lastRateLimit;
+  const host = document.getElementById('cookieList');
+  // drop detached stale node
+  if (lastRateLimitShown && !lastRateLimitShown.isConnected) lastRateLimitShown = null;
+  if (!rl) {
+    if (lastRateLimitShown) { lastRateLimitShown.remove(); lastRateLimitShown = null; }
+    return;
+  }
+  if (!lastRateLimitShown) {
+    lastRateLimitShown = document.createElement('div');
+    lastRateLimitShown.id = 'rateLimitBar';
+    lastRateLimitShown.style.cssText = 'margin-top:10px;padding:9px 12px;border-radius:10px;background:rgba(255,149,0,.12);border:1px solid rgba(255,149,0,.35);color:#b5651d;font-size:12px;line-height:1.5';
+    host.appendChild(lastRateLimitShown);
+  }
+  const when = new Date(rl.at);
+  const pad = n => String(n).padStart(2, '0');
+  const atStr = `${pad(when.getHours())}:${pad(when.getMinutes())}:${pad(when.getSeconds())}`;
+  // suggest unlock after 30 min
+  const unlock = new Date(rl.at + 30 * 60000);
+  const unlockStr = `${pad(unlock.getHours())}:${pad(unlock.getMinutes())}`;
+  lastRateLimitShown.textContent = `⚠️ 账号 ${rl.session} 于 ${atStr} 触发${rl.reason} —— 建议 ${unlockStr} 之后（约30分钟）再重新抓取，期间可手动在浏览器里完成滑块验证。`;
 }
 
 // paste: on Enter/click add
@@ -469,6 +514,9 @@ async function poll() {
       logEl.scrollTop = logEl.scrollHeight;
       lastCount = j.logs.length;
     }
+    // risk-control status → cookie area banner
+    window._lastRateLimit = j.rateLimit || null;
+    if (renderRateLimit && typeof renderRateLimit === 'function') renderRateLimit();
     const st = document.getElementById('status');
     const detail = document.getElementById('statusDetail');
     const btnPause = document.getElementById('btnPause');
@@ -505,8 +553,8 @@ async function poll() {
     } else if (j.status === 'paused') {
       setStatus('⏸ 已暂停', '');
       detail.textContent = uiLang === 'zh' ? '已暂停' : 'Paused';
-    } else if (j.result && j.result.ok) { setStatus('✅ 完成', 'done'); showResult(j.result); detail.textContent = ''; btnPause.style.display = ''; btnResume.style.display = 'none'; btnPause.disabled = true; btnStop.disabled = true; }
-    else if (j.result && !j.result.ok) { setStatus('❌ 出错', 'error'); detail.textContent = ''; btnPause.style.display = ''; btnResume.style.display = 'none'; btnPause.disabled = true; btnStop.disabled = true; }
+    } else if (j.result && j.result.ok) { setStatus('✅ 完成', 'done'); showResult(j.result); detail.textContent = ''; btnPause.style.display = ''; btnResume.style.display = 'none'; btnPause.disabled = true; btnStop.disabled = true; document.getElementById('btnStart').disabled = false; }
+    else if (j.result && !j.result.ok) { setStatus('❌ 出错', 'error'); detail.textContent = ''; btnPause.style.display = ''; btnResume.style.display = 'none'; btnPause.disabled = true; btnStop.disabled = true; document.getElementById('btnStart').disabled = false; }
   } catch (e) { }
 }
 function showResult(r) {
@@ -591,9 +639,9 @@ async function renderHistory(history) {
       <span class="hist-path" title="${h.outPath}" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.outPath}</span>
       <span style="color:var(--sub);flex-shrink:0">${h.rows} 行 · ${h.time}</span>
       <span class="hist-actions" style="display:flex;gap:4px;flex-shrink:0">
-        <button class="hist-btn" data-act="open" title="${uiLang === 'zh' ? '打开文件' : 'Open file'}">📂</button>
-        <button class="hist-btn" data-act="copy" title="${uiLang === 'zh' ? '复制路径' : 'Copy path'}">📋</button>
-        <button class="hist-btn hist-del" data-act="del" title="${uiLang === 'zh' ? '删除文件' : 'Delete file'}">🗑</button>
+        <button class="hist-btn" data-act="open" title="${uiLang === 'zh' ? '打开文件' : 'Open file'}">📂 打开</button>
+        <button class="hist-btn" data-act="folder" title="${uiLang === 'zh' ? '打开所在文件夹' : 'Open folder'}">📁</button>
+        <button class="hist-btn hist-del" data-act="del" title="${uiLang === 'zh' ? '删除文件' : 'Delete file'}">🗑 删除</button>
       </span>
     </div>`).join('');
   box.querySelectorAll('.hist-btn').forEach(btn => {
@@ -605,11 +653,9 @@ async function renderHistory(history) {
       if (act === 'open') {
         const r = await window.api.openHistoryFile(entry.outPath);
         if (!r.ok) alert(r.error || '打开失败');
-      } else if (act === 'copy') {
-        await window.api.copyHistoryPath(entry.outPath);
-        const orig = btn.textContent;
-        btn.textContent = '✅';
-        setTimeout(() => { btn.textContent = orig; }, 900);
+      } else if (act === 'folder') {
+        const r = await window.api.openHistoryFolder(entry.outPath);
+        if (!r.ok) alert(r.error || '打开文件夹失败');
       } else if (act === 'del') {
         if (!confirm(uiLang === 'zh' ? `确定删除文件吗？\n${entry.outPath}` : `Delete file?\n${entry.outPath}`)) return;
         const r = await window.api.deleteHistoryFile(entry.outPath);

@@ -142,6 +142,16 @@ ipcMain.handle('copy-history-path', (event, filePath) => {
   } catch (e) { return { ok: false, error: e.message }; }
 });
 
+// IPC: open the folder containing a history file
+ipcMain.handle('open-history-folder', (event, filePath) => {
+  try {
+    const abs = path.resolve(filePath || '');
+    if (!fs.existsSync(abs)) return { ok: false, error: '文件不存在: ' + abs };
+    shell.showItemInFolder(abs);
+    return { ok: true };
+  } catch (e) { return { ok: false, error: e.message }; }
+});
+
 // IPC: delete a history file (and remove the entry), then return the refreshed history
 ipcMain.handle('delete-history-file', (event, filePath) => {
   try {
@@ -359,6 +369,7 @@ ipcMain.handle('scrape-status', () => ({
   currentInfo: runner.currentInfo || {},
   logs: runner.logs,
   result: runner.result,
+  rateLimit: runner.rateLimit,
 }));
 
 // IPC: pause
