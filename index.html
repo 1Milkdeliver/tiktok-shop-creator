@@ -54,6 +54,12 @@
   .hist-row:hover { background: rgba(0,0,0,.015); }
   .fld-detail { opacity: .45; filter: grayscale(.6); }
   .fld-detail.on { opacity: 1; filter: none; }
+  #updateBar { display: none; margin-top: 10px; padding: 10px 14px; border-radius: 12px; background: rgba(0,113,227,.06); border: 1px solid rgba(0,113,227,.25); font-size: 13px; }
+  #updateBar .ub-msg { color: var(--accent); font-weight: 500; margin-bottom: 6px; }
+  #updateBar .ub-track { height: 8px; border-radius: 4px; background: rgba(0,0,0,.08); overflow: hidden; }
+  #updateBar .ub-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #0071e3, #5ac8fa); border-radius: 4px; transition: width .3s; }
+  #updateBar.ub-error { border-color: rgba(255,59,48,.4); background: rgba(255,59,48,.06); }
+  #updateBar.ub-error .ub-msg { color: var(--danger); }
   .btn { padding: 9px 22px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: .15s; font-family: inherit; }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-hover); }
@@ -103,6 +109,7 @@
     </div>
     <span class="status-pill" id="appVersion" style="margin-right:8px">v—</span>
     <span class="status-pill" id="status" data-i18n="status.ready">就绪</span>
+    <button class="btn-link" id="btnUpdate" style="margin-left:10px;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:5px 12px" data-i18n="action.update">🔄 检查更新</button>
     <button class="btn-link" id="uiLangToggle" style="margin-left:10px;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:5px 12px">🌐 EN</button>
   </header>
 
@@ -184,6 +191,10 @@
     <div class="hint" id="statusDetail" style="margin-top:10px;font-size:13px;color:var(--accent)"></div>
     <div class="hint" id="testResult" style="display:none;margin-top:8px"></div>
     <div class="result-box" id="resultBox"></div>
+    <div id="updateBar">
+      <div class="ub-msg" id="updateMsg"></div>
+      <div class="ub-track"><div class="ub-fill" id="updateFill"></div></div>
+    </div>
     <div id="log" style="margin-top:14px"></div>
   </div>
 
@@ -235,6 +246,7 @@ const I18N = {
   'action.resume': { zh: '▶ 继续', en: '▶ Resume' },
   'action.stop': { zh: '■ 结束并导出', en: '■ Finish & Export' },
   'action.exit': { zh: '退出', en: 'Exit' },
+  'action.update': { zh: '🔄 检查更新', en: '🔄 Check Update' },
   'step5.title': { zh: '历史输出', en: 'Output History' },
   'step5.refresh': { zh: '刷新', en: 'Refresh' },
   'step5.empty': { zh: '暂无历史记录', en: 'No history yet' },
@@ -268,6 +280,17 @@ document.addEventListener('DOMContentLoaded', () => {
   applyI18n();
   const u = document.getElementById('uiLangToggle');
   if (u) u.onclick = toggleUiLang;
+  const up = document.getElementById('btnUpdate');
+  if (up) {
+    up.onclick = () => {
+      up.disabled = true;
+      const orig = up.textContent;
+      up.textContent = uiLang === 'zh' ? '检查中…' : 'Checking…';
+      window.api.checkUpdate().then(() => {
+        setTimeout(() => { up.disabled = false; up.textContent = orig; }, 8000);
+      }).catch(() => { up.disabled = false; up.textContent = orig; });
+    };
+  }
 });
 
 // 类目：{ 类目名: { en: 英文名, zh: 中文名, items: [[关键词, 中文翻译], ...] } }
@@ -503,6 +526,35 @@ function setStatus(text, cls) {
 // spinner animation frames: dots grow 1 → 2 → 3 → repeat
 const SPINNER = ['.', '..', '...'];
 let spinIdx = 0;
+// ═══════════ 更新状态显示 ═══════════
+function renderUpdate(u) {
+  const bar = document.getElementById('updateBar');
+  const msg = document.getElementById('updateMsg');
+  const fill = document.getElementById('updateFill');
+  if (!bar || !u) return;
+  if (!u.phase || u.phase === 'idle') { bar.style.display = 'none'; return; }
+  bar.style.display = 'block';
+  bar.classList.toggle('ub-error', u.phase === 'error');
+  const zh = uiLang === 'zh';
+  if (u.phase === 'checking') {
+    msg.textContent = zh ? '正在检查更新…' : 'Checking for updates…';
+    fill.style.width = '0%';
+  } else if (u.phase === 'downloading') {
+    msg.textContent = zh ? `正在下载更新… ${u.percent}%` : `Downloading update… ${u.percent}%`;
+    fill.style.width = (u.percent || 0) + '%';
+  } else if (u.phase === 'downloaded' || u.phase === 'installing') {
+    msg.textContent = zh ? '更新下载完成，等待重启安装…' : 'Update downloaded, waiting to restart…';
+    fill.style.width = '100%';
+  } else if (u.phase === 'available') {
+    msg.textContent = (u.message || '') + (zh ? '，点击「立即下载更新」' : ', click "Download now"');
+    fill.style.width = '0%';
+  } else if (u.phase === 'error') {
+    msg.textContent = zh ? ('❌ ' + (u.message || '更新出错')) : ('❌ ' + (u.message || 'Update failed'));
+    fill.style.width = '0%';
+  }
+}
+
+// poll: also sync update state from the status payload
 async function poll() {
   try {
     const j = await window.api.status();
@@ -511,6 +563,8 @@ async function poll() {
       logEl.scrollTop = logEl.scrollHeight;
       lastCount = j.logs.length;
     }
+    // update progress bar
+    if (j.update) renderUpdate(j.update);
     // risk-control status → cookie area banner
     window._lastRateLimit = j.rateLimit || null;
     if (renderRateLimit && typeof renderRateLimit === 'function') renderRateLimit();

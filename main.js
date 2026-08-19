@@ -170,7 +170,7 @@ function createWindow() {
     width: 980,
     height: 860,
     title: 'TikTokShop达人抓取工具',
-    icon: path.join(__dirname, 'build', 'icon-256.png'),
+    icon: path.join(__dirname, 'icon-256.png'),
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -212,14 +212,48 @@ const { autoUpdater } = require('electron-updater');
 autoUpdater.autoDownload = false; // ask the user first, then download
 autoUpdater.autoInstallOnAppQuit = true;
 
-async function checkForUpdates() {
-  if (!app.isPackaged) return; // dev mode: skip auto-update
+// update state shared with the renderer (polled by the UI)
+let updateState = { phase: 'idle', percent: 0, message: '' };
+function setUpdateState(patch) {
+  updateState = { ...updateState, ...patch };
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    try { mainWindow.webContents.send('update-state', updateState); } catch (e) { }
+  }
+}
+
+// Manual check triggered by the UI button
+ipcMain.handle('check-update', () => {
+  checkForUpdates(true);
+  return { ok: true };
+});
+
+async function checkForUpdates(manual) {
+  if (!app.isPackaged) {
+    if (manual && mainWindow) {
+      dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '开发模式下不检查更新', detail: '请使用打包后的安装版。' });
+    }
+    return;
+  }
+  setUpdateState({ phase: 'checking', percent: 0, message: '' });
+  writeLog(manual ? '手动检查更新…' : '正在检查更新…');
   try {
     const result = await autoUpdater.checkForUpdates();
-    if (!result || !result.updateInfo) writeLog('已是最新版本');
+    if (!result || !result.updateInfo) {
+      setUpdateState({ phase: 'idle', message: '' });
+      writeLog('已是最新版本');
+      if (manual && mainWindow) {
+        dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '已是最新版本', detail: `当前版本 v${CURRENT_VERSION}` });
+      }
+    }
   } catch (e) {
+    setUpdateState({ phase: 'error', message: e.message });
     writeLog('自动更新检查失败: ' + e.message);
-    checkViaGitHubApi(); // fallback: open the release page
+    if (manual && mainWindow) {
+      dialog.showMessageBox(mainWindow, { type: 'error', title: '检查更新失败', message: '无法连接更新服务器', detail: String(e.message || e), buttons: ['前往下载页', '关闭'], defaultId: 0, cancelId: 1 })
+        .then(({ response }) => { if (response === 0) shell.openExternal(RELEASE_URL); });
+    } else {
+      checkViaGitHubApi(); // silent fallback: open the release page
+    }
   }
 }
 
@@ -243,7 +277,7 @@ async function checkViaGitHubApi() {
       buttons: ['前往下载', '稍后提醒'],
       defaultId: 0,
       cancelId: 1,
-      icon: path.join(__dirname, 'build', 'icon-256.png'),
+      icon: path.join(__dirname, 'icon-256.png'),
     });
     if (response === 0) shell.openExternal(RELEASE_URL);
   } catch (e) { writeLog('版本检查失败: ' + e.message); }
@@ -251,47 +285,97 @@ async function checkViaGitHubApi() {
 
 // wire autoUpdater events (called once at startup)
 function setupAutoUpdaterEvents() {
-  autoUpdater.on('checking-for-update', () => writeLog('正在检查更新…'));
+  autoUpdater.on('checking-for-update', () => {
+    setUpdateState({ phase: 'checking', percent: 0, message: '' });
+    writeLog('正在检查更新…');
+  });
   autoUpdater.on('update-available', async (info) => {
     const v = (info && info.version) || '';
+    setUpdateState({ phase: 'available', percent: 0, message: `发现新版本 v${v}` });
     writeLog(`发现新版本 v${v}`);
     if (!mainWindow) return;
+    // fetch release notes from GitHub to show what's new in the dialog
+    let notes = '';
+    try {
+      const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+        headers: { 'User-Agent': 'tiktok-shop-creator-scraper', 'Accept': 'application/vnd.github+json' },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (res.ok) {
+        const rel = await res.json();
+        if (rel.body) {
+          // strip markdown headers/links to keep the dialog readable
+          notes = String(rel.body).replace(/^#+\s*/gm, '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/\*\*/g, '').trim();
+          if (notes.length > 900) notes = notes.slice(0, 900) + '\n…';
+        }
+      }
+    } catch (e) { }
+    const notesText = notes ? `\n\n── 更新内容 ──\n${notes}` : '';
     const { response } = await dialog.showMessageBox(mainWindow, {
       type: 'info',
       title: '发现新版本',
-      message: `发现新版本 v${v}`,
-      detail: `当前版本：v${CURRENT_VERSION}\n\n是否现在下载并安装？下载完成后会提示重启应用完成更新。`,
+      message: `发现新版本 v${v}（当前 v${CURRENT_VERSION}）`,
+      detail: `是否现在下载并安装？下载完成后会提示重启应用完成更新。${notesText}`,
       buttons: ['立即下载更新', '稍后'],
       defaultId: 0,
       cancelId: 1,
-      icon: path.join(__dirname, 'build', 'icon-256.png'),
+      icon: path.join(__dirname, 'icon-256.png'),
     });
     if (response === 0) {
-      try { await autoUpdater.downloadUpdate(); }
-      catch (e) { writeLog('下载更新失败: ' + e.message); }
+      try {
+        setUpdateState({ phase: 'downloading', percent: 0, message: '开始下载更新…' });
+        await autoUpdater.downloadUpdate();
+      } catch (e) {
+        setUpdateState({ phase: 'error', message: '下载失败: ' + e.message });
+        writeLog('下载更新失败: ' + e.message);
+        if (mainWindow) {
+          dialog.showMessageBox(mainWindow, {
+            type: 'error',
+            title: '下载更新失败',
+            message: '更新下载失败',
+            detail: String(e.message || e) + '\n\n可前往下载页手动下载最新安装包。',
+            buttons: ['前往下载页', '关闭'],
+            defaultId: 0,
+            cancelId: 1,
+            icon: path.join(__dirname, 'icon-256.png'),
+          }).then((r) => { if (r.response === 0) shell.openExternal(RELEASE_URL); });
+        }
+      }
     }
   });
   autoUpdater.on('download-progress', (p) => {
-    const pct = p && p.percent != null ? p.percent.toFixed(0) : '';
+    const pct = p && p.percent != null ? Math.round(p.percent) : 0;
+    setUpdateState({ phase: 'downloading', percent: pct, message: `正在下载更新 ${pct}%` });
     writeLog(`正在下载更新… ${pct}%`);
   });
   autoUpdater.on('update-downloaded', async (info) => {
+    const v = (info && info.version) || '';
+    setUpdateState({ phase: 'downloaded', percent: 100, message: '更新已下载完成' });
     writeLog('更新下载完成');
     if (!mainWindow) return;
     const { response } = await dialog.showMessageBox(mainWindow, {
       type: 'info',
       title: '更新已就绪',
-      message: '更新下载完成，是否立即重启应用完成安装？',
-      detail: '重启后自动完成更新（通常需要1-2分钟）。',
+      message: `v${v} 更新下载完成（当前 v${CURRENT_VERSION}）`,
+      detail: '重启后自动完成安装（通常需要1-2分钟）。',
       buttons: ['立即重启安装', '稍后'],
       defaultId: 0,
       cancelId: 1,
-      icon: path.join(__dirname, 'build', 'icon-256.png'),
+      icon: path.join(__dirname, 'icon-256.png'),
     });
-    if (response === 0) autoUpdater.quitAndInstall();
+    if (response === 0) {
+      setUpdateState({ phase: 'installing', percent: 100, message: '正在重启安装…' });
+      autoUpdater.quitAndInstall();
+    }
   });
-  autoUpdater.on('update-not-available', () => writeLog('已是最新版本'));
-  autoUpdater.on('error', (e) => writeLog('自动更新出错: ' + (e && e.message || e)));
+  autoUpdater.on('update-not-available', () => {
+    setUpdateState({ phase: 'idle', message: '' });
+    writeLog('已是最新版本');
+  });
+  autoUpdater.on('error', (e) => {
+    setUpdateState({ phase: 'error', message: e && e.message || String(e) });
+    writeLog('自动更新出错: ' + (e && e.message || e));
+  });
 }
 
 // ---- desktop shortcut (default: create on first run) ----
@@ -425,6 +509,7 @@ ipcMain.handle('scrape-status', () => ({
   logs: runner.logs,
   result: runner.result,
   rateLimit: runner.rateLimit,
+  update: updateState,
 }));
 
 // IPC: pause

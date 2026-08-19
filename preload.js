@@ -19,5 +19,7 @@ contextBridge.exposeInMainWorld('api', {
   deleteHistoryFile: (p) => ipcRenderer.invoke('delete-history-file', p),
   getVersion: () => ipcRenderer.invoke('get-version'),
   exit: () => ipcRenderer.invoke('exit-app'),
+  checkUpdate: () => ipcRenderer.invoke('check-update'),
+  onUpdateState: (cb) => ipcRenderer.on('update-state', (e, s) => cb(s)),
 });
 
