@@ -28,18 +28,26 @@
     ],
     "win": {
       "target": [
-        "portable"
+        "nsis"
       ],
       "icon": "build/icon.ico",
       "signAndEditExecutable": false
     },
-    "portable": {
-      "artifactName": "TikTok达人抓取.exe"
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "TikTok达人抓取",
+      "license": "build/license.txt",
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico",
+      "artifactName": "TikTok达人抓取安装程序-${version}.exe"
     }
   },
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win portable",
-    "build-zip": "electron-builder --win zip"
+    "build": "electron-builder --win nsis"
   }
 }
