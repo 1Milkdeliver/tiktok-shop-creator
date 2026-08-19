@@ -116,7 +116,7 @@ function createWindow() {
     width: 980,
     height: 860,
     title: 'TikTokShop达人抓取工具',
-    icon: path.join(__dirname, 'build', 'icon.ico'),
+    icon: path.join(__dirname, 'build', 'icon-256.png'),
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -174,7 +174,7 @@ async function checkForUpdates() {
         buttons: ['前往下载', '稍后提醒'],
         defaultId: 0,
         cancelId: 1,
-        icon: path.join(__dirname, 'build', 'icon.ico'),
+        icon: path.join(__dirname, 'build', 'icon-256.png'),
       });
       if (response === 0) shell.openExternal(RELEASE_URL);
     } else {

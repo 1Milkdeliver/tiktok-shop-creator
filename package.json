@@ -7,8 +7,9 @@
   "homepage": "https://github.com/1Milkdeliver/tiktok-shop-creator-scraper",
   "license": "GPL-3.0",
   "dependencies": {
-    "puppeteer-core": "^24.0.0",
-    "exceljs": "^4.4.0"
+    "exceljs": "^4.4.0",
+    "png2icons": "^2.0.1",
+    "puppeteer-core": "^24.0.0"
   },
   "devDependencies": {
     "electron": "^33.0.0",
@@ -32,6 +33,7 @@
         "to": "app-icon.png"
       }
     ],
+    "afterPack": "./afterPack.js",
     "win": {
       "target": [
         "nsis"
