@@ -52,6 +52,8 @@
   .hist-btn:hover { background: rgba(0,113,227,.12); }
   .hist-btn.hist-del:hover { background: rgba(255,59,48,.12); }
   .hist-row:hover { background: rgba(0,0,0,.015); }
+  .fld-detail { opacity: .45; filter: grayscale(.6); }
+  .fld-detail.on { opacity: 1; filter: none; }
   .btn { padding: 9px 22px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: .15s; font-family: inherit; }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-hover); }
@@ -319,14 +321,26 @@ const FIELDS = [
   { k: 'top_follower_ages', n: '粉丝年龄段' }, { k: 'top_follower_gender', n: '粉丝性别分布' },
   { k: 'pps_score', n: 'PPS评分' }, { k: 'is_fast_growing', n: '快速增长' }, { k: 'has_collaborated', n: '已合作' },
   { k: 'creator_permission_tag', n: '达人类目权限' }, { k: 'is_live_auction', n: '直播拍卖' },
-  { k: '简介', n: '简介' }, { k: '合作邮箱', n: '合作邮箱' }, { k: 'MCN机构', n: 'MCN机构' },
+  { k: '简介', n: '简介', detail: true }, { k: '合作邮箱', n: '合作邮箱', detail: true }, { k: 'MCN机构', n: 'MCN机构', detail: true },
 ];
+function syncDetailFields() {
+  const on = document.getElementById('detail').checked;
+  document.querySelectorAll('.fld-detail').forEach(label => {
+    const cb = label.querySelector('input.fld');
+    cb.disabled = !on;
+    if (!on) cb.checked = false; // detail 未勾选时强制不选（且不可选）
+    label.classList.toggle('on', on);
+    label.title = on ? (cb.value) : (uiLang === 'zh' ? '需勾选「同时抓取详情」' : 'Requires "Scrape details"');
+  });
+}
 function renderFields() {
-  document.getElementById('fields').innerHTML = FIELDS.map(f => `<label title="${f.k}"><input type="checkbox" class="fld" value="${f.k}" checked> ${f.n}</label>`).join('');
+  document.getElementById('fields').innerHTML = FIELDS.map(f => `<label class="${f.detail ? 'fld-detail' : ''}" title="${f.k}"><input type="checkbox" class="fld" value="${f.k}" checked> ${f.n}</label>`).join('');
+  syncDetailFields();
 }
 renderFields();
-document.getElementById('fieldsAll').onclick = () => document.querySelectorAll('.fld').forEach(c => c.checked = true);
-document.getElementById('fieldsNone').onclick = () => document.querySelectorAll('.fld').forEach(c => c.checked = false);
+document.getElementById('detail').addEventListener('change', syncDetailFields);
+document.getElementById('fieldsAll').onclick = () => { document.querySelectorAll('.fld:not(:disabled)').forEach(c => c.checked = true); };
+document.getElementById('fieldsNone').onclick = () => { document.querySelectorAll('.fld:not(:disabled)').forEach(c => c.checked = false); };
 
 // ═══════════ Cookie 统一输入（拖拽 + 粘贴） ═══════════
 const cookieList = []; // array of { source: 'paste'|'file', data: string, name: string }
