@@ -53,6 +53,7 @@
       "installerIcon": "build/icon.ico",
       "uninstallerIcon": "build/icon.ico",
       "runAfterFinish": true,
+      "include": "build/nsis-auto-close.nsh",
       "artifactName": "TikTokShop达人抓取安装程序-${version}.exe"
     }
   },
