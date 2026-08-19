@@ -2,8 +2,6 @@
 
 **专为 TikTok Shop 卖家（Owner）打造**：抓取联盟达人广场数据，筛选适合合作的达人，导出本地表格。
 
-基于 Electron 的桌面程序，用于抓取 TikTok Shop 联盟（Affiliate）达人数据并导出为本地表格文件。
-
 > ⭐ **GitHub 项目主页**：https://github.com/1Milkdeliver/tiktok-shop-creator
 > 👤 **作者**：1Milkdeliver（https://github.com/1Milkdeliver）
 
@@ -85,10 +83,10 @@
 4. 选择类目和导出字段，开始抓取
 5. 完成后在所选目录查看 CSV/Excel 文件
 
-## 合规声明
+## 使用提示
 
-- 本工具仅用于**卖家自身账号**查看联盟达人数据，请遵守 TikTok 平台服务条款
-- 抓取频率已做人性化控制，请勿批量滥用
+- 本工具用于**卖家自身账号**查看联盟达人数据
+- 请求频率已做合理控制
 - Cookie 仅保存在本机，不会上传或共享
 - 数据仅供个人商业分析使用
 
