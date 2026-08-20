@@ -774,7 +774,7 @@ async function renderHistory(history) {
       const act = btn.dataset.act;
       if (act === 'open') {
         const r = await window.api.openHistoryFile(entry.outPath);
-        if (!r.ok) alert(r.error || '打开失败');
+        if (!r.ok) { alert(r.error || '打开失败'); if (r.history) renderHistory(r.history); }
       } else if (act === 'folder') {
         const r = await window.api.openHistoryFolder(entry.outPath);
         if (!r.ok) alert(r.error || '打开文件夹失败');

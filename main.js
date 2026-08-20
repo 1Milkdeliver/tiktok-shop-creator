@@ -11,6 +11,12 @@ const { MultiRunner } = require('./lib/multirunner');
 let mainWindow = null;
 const runner = new MultiRunner();
 runner.onFileLog = (line) => writeLog(line);
+// record history immediately when a run finishes (reliable, no polling)
+runner.onDone = (result) => {
+  try {
+    if (result && result.ok && !result.testMode) recordHistory(result);
+  } catch (e) { }
+};
 
 // ---- app folders: logs/ and output/ next to the executable ----
 const APP_DIR = path.dirname(process.execPath);
@@ -131,11 +137,16 @@ function recordHistory(entry) {
 ipcMain.handle('get-app-data', () => ({ cookies: appData.cookies || [], history: appData.history || [], defaultOutDir: appData.outDir || OUT_DIR }));
 ipcMain.handle('clear-cookies', () => { appData.cookies = []; saveAppData(); return { ok: true }; });
 
-// IPC: open a history file with the system default app
+// IPC: open a history file with the system default app.
+// If the file is gone (moved/deleted), drop the stale entry from history too.
 ipcMain.handle('open-history-file', async (event, filePath) => {
   try {
     const abs = path.resolve(filePath || '');
-    if (!fs.existsSync(abs)) return { ok: false, error: '文件不存在: ' + abs };
+    if (!fs.existsSync(abs)) {
+      appData.history = (appData.history || []).filter(h => path.resolve(h.outPath || '') !== abs);
+      saveAppData();
+      return { ok: false, error: '文件不存在或已被移动/删除，已从历史记录移除', history: appData.history || [] };
+    }
     const err = await shell.openPath(abs);
     return err ? { ok: false, error: err } : { ok: true };
   } catch (e) { return { ok: false, error: e.message }; }
