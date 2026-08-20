@@ -202,8 +202,26 @@
   </div>
 
   <div class="card">
-    <h2><span class="step-num">3</span> <span data-i18n="step3.title">选择类目</span> <button class="btn-link" id="langToggle" style="margin-left:4px">🌐 EN</button><span class="sel-all" id="selAll" data-i18n="step3.all">全选</span><span class="sel-all" id="selNone" data-i18n="step3.none">清空</span></h2>
-    <div class="cats" id="cats"></div>
+    <h2><span class="step-num">3</span> <span data-i18n="step3.title">选择抓取对象</span></h2>
+    <div class="radio-group" style="margin-bottom:14px">
+      <label><input type="radio" name="source" value="cat" checked> 🏷️ 按类目抓取</label>
+      <label><input type="radio" name="source" value="list"> 📋 按达人名单抓取</label>
+    </div>
+    <div id="sourceCat">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:13px;font-weight:600;color:var(--text-2)">类目关键词</span>
+        <span><button class="btn-link" id="langToggle" style="margin-left:4px">🌐 EN</button><span class="sel-all" id="selAll" data-i18n="step3.all">全选</span><span class="sel-all" id="selNone" data-i18n="step3.none">清空</span></span>
+      </div>
+      <div class="cats" id="cats"></div>
+    </div>
+    <div id="sourceList" style="display:none">
+      <label class="check-label" style="font-size:13.5px;color:var(--text-2);margin-bottom:8px">📋 达人名单（数值ID / handle / TikTok链接，每行一个）</label>
+      <textarea id="creatorInput" rows="4" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'SF Mono',Consolas,monospace;font-size:12px;resize:vertical;background:#fff;outline:none" placeholder='例如：
+7494397026366031127
+@beauty.pro
+https://www.tiktok.com/@makeup.lover'></textarea>
+      <div class="hint" style="margin-top:6px">ID 直接抓，handle/链接会自动解析；名单非空时按名单抓取。</div>
+    </div>
   </div>
 
   <div class="card">
@@ -239,17 +257,12 @@
       </div>
       <div class="hint" style="margin-top:8px;padding-left:0">💡 <b>快速模式</b>约 3-7 秒/页，适合大批量筛选；<b>完整模式</b>额外抓每位达人的简介、邮箱、佣金率、合作品牌等（速度慢 2-3 倍），适合精挑合作对象。快速模式下详情字段为灰色不可选。</div>
     </div>
-    <div style="margin-top:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
-      <label class="check-label"><input type="checkbox" id="dedupe" checked> <span data-i18n="step4.dedupe">查重（跳过已抓过的达人）</span></label>
-      <span class="hint" style="margin:0">取消勾选 = 刷新模式（重爬已有达人，更新数据）</span>
-    </div>
-    <div style="margin-top:14px">
-      <label class="check-label" style="font-size:13.5px;color:var(--text-2)">📋 导入达人名单（可选：数值ID / handle / TikTok链接，每行一个）</label>
-      <textarea id="creatorInput" rows="3" style="width:100%;margin-top:8px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'SF Mono',Consolas,monospace;font-size:12px;resize:vertical;background:#fff;outline:none" placeholder='例如：
-7494397026366031127
-@beauty.pro
-https://www.tiktok.com/@makeup.lover'></textarea>
-      <div class="hint" style="margin-top:6px">填入名单后按名单抓取（不走关键词搜索）；留空则按上方类目关键词抓取。ID 直接抓，handle/链接会自动解析。</div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <span style="font-size:13px;font-weight:600;color:var(--text-2)">去重方式：</span>
+      <div class="radio-group">
+        <label><input type="radio" name="dedupeMode" value="dedupe" checked> 🎯 查重（跳过已抓过）</label>
+        <label><input type="radio" name="dedupeMode" value="refresh"> 🔄 刷新（重爬更新数据）</label>
+      </div>
     </div>
     <div style="margin-top:14px">
       <span style="font-size:13px;color:var(--sub)" data-i18n="step4.fields">导出字段</span>
@@ -466,6 +479,12 @@ function toggleCatLang() {
 renderCats();
 document.getElementById('selAll').onclick = () => document.querySelectorAll('.kw').forEach(c => c.checked = true);
 document.getElementById('selNone').onclick = () => document.querySelectorAll('.kw').forEach(c => c.checked = false);
+// source switch: categories vs creator list
+document.querySelectorAll('input[name=source]').forEach(r => r.addEventListener('change', () => {
+  const list = document.querySelector('input[name=source]:checked').value === 'list';
+  document.getElementById('sourceCat').style.display = list ? 'none' : '';
+  document.getElementById('sourceList').style.display = list ? '' : 'none';
+}));
 document.getElementById('langToggle').onclick = toggleCatLang;
 
 // ═══════════ 字段 ═══════════
@@ -490,13 +509,6 @@ const FIELDS = [
   { k: 'it_tax_regime', n: '税制' }, { k: 'brand_safe_tag', n: '品牌安全' },
   { k: 'invoice_available', n: '可开发票' }, { k: 'receipt_info_authorized', n: '收据授权' },
   { k: '简介', n: '简介', detail: true }, { k: '合作邮箱', n: '合作邮箱', detail: true }, { k: 'MCN机构', n: 'MCN机构', detail: true },
-  { k: '平均佣金率', n: '平均佣金率', detail: true }, { k: '佣金率区间', n: '佣金率区间', detail: true },
-  { k: '合作品牌数', n: '合作品牌数', detail: true }, { k: '产品数', n: '产品数', detail: true },
-  { k: '推广产品数', n: '推广产品数', detail: true }, { k: '近30天视频数', n: '近30天视频数', detail: true },
-  { k: '近30天直播数', n: '近30天直播数', detail: true }, { k: '平均客单价', n: '平均客单价', detail: true },
-  { k: '客单价区间', n: '客单价区间', detail: true }, { k: '明星达人', n: '明星达人', detail: true },
-  { k: '样片履约率', n: '样片履约率', detail: true }, { k: '粉丝地域', n: '粉丝地域', detail: true },
-  { k: '税制', n: '税制', detail: true }, { k: '可开发票', n: '可开发票', detail: true },
 ];
 function syncDetailFields() {
   // fast mode → detail-only fields grayed out & uncheckable; full mode → all enabled
@@ -768,8 +780,8 @@ async function poll() {
       syncMainButton('resume', { disabled: false });
       setStatus('⏸ 已暂停', '');
       detail.textContent = uiLang === 'zh' ? '已暂停' : 'Paused';
-    } else if (j.result && j.result.ok) { stopSpin(); setStatus('✅ 完成', 'done'); showResult(j.result); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; refreshAppData(); }
-    else if (j.result && !j.result.ok) { stopSpin(); setStatus('❌ 出错', 'error'); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; }
+    } else if (j.result && j.result.ok) { stopSpin(); setStatus('✅ 完成', 'done'); showResult(j.result); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; lockOptions(false); refreshAppData(); }
+    else if (j.result && !j.result.ok) { stopSpin(); setStatus('❌ 出错', 'error'); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; lockOptions(false); }
   } catch (e) { }
 }
 function showResult(r) {
@@ -804,9 +816,11 @@ document.getElementById('btnStart').onclick = async () => {
 
   // ---- start a new scrape ----
   if (!cookieList.length) { alert('请先导入 Cookie（拖入文件或粘贴内容）'); return; }
+  const source = (document.querySelector('input[name=source]:checked') || {}).value || 'cat';
   const creatorInput = document.getElementById('creatorInput').value.trim().split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   const kws = [...document.querySelectorAll('.kw:checked')].map(c => c.value);
-  if (!creatorInput.length && !kws.length) { alert('请至少选择一个类目/关键词，或填写达人名单'); return; }
+  if (source === 'list' && !creatorInput.length) { alert('请填写达人名单'); return; }
+  if (source === 'cat' && !kws.length) { alert('请至少选择一个类目/关键词'); return; }
   const fields = [...document.querySelectorAll('.fld:checked')].map(c => c.value);
   const mode = document.querySelector('input[name=mode]:checked').value;
   const format = document.querySelector('input[name=format]:checked').value;
@@ -818,22 +832,34 @@ document.getElementById('btnStart').onclick = async () => {
   const detailKeys = new Set(FIELDS.filter(f => f.detail).map(f => f.k));
   const hasDetailField = fields.some(f => detailKeys.has(f));
   const detail = scrapeMode === 'full' && hasDetailField;
-  const dedupe = document.getElementById('dedupe').checked;
+  const dedupe = (document.querySelector('input[name=dedupeMode]:checked') || {}).value !== 'refresh';
   const shopRegion = (document.getElementById('shopRegionCustom').value.trim() || document.getElementById('shopRegion').value || 'US').toUpperCase();
 
-  const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, headerLang, outPath, detail, dedupe, creatorInput: creatorInput.length ? creatorInput : null, keywords: kws, fields, shopRegion };
+  const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, headerLang, outPath, detail, dedupe, creatorInput: source === 'list' && creatorInput.length ? creatorInput : null, keywords: kws, fields, shopRegion };
   syncMainButton('pause', { disabled: true });
   document.getElementById('btnStop').disabled = false;
   document.getElementById('resultBox').style.display = 'none';
   logEl.textContent = '';
   lastCount = 0;
   setStatus('⏳ 启动中…', 'running');
+  lockOptions(true); // 抓取开始后锁定所有配置选项
   try {
     const j = await window.api.start(cfg);
-    if (j.error) { alert('启动失败: ' + j.error); setStatus('❌ ' + j.error, 'error'); syncMainButton('start', { disabled: false }); document.getElementById('btnStop').disabled = true; }
-  } catch (e) { alert('启动失败: ' + e.message); }
+    if (j.error) { alert('启动失败: ' + j.error); setStatus('❌ ' + j.error, 'error'); syncMainButton('start', { disabled: false }); document.getElementById('btnStop').disabled = true; lockOptions(false); }
+  } catch (e) { alert('启动失败: ' + e.message); lockOptions(false); }
   setInterval(poll, 1500);
 };
+
+// Lock/unlock all configuration controls while a scrape is running
+function lockOptions(lock) {
+  const ids = ['cookieInput', 'browseBtn', 'creatorInput', 'outPath', 'btnChooseDir'];
+  for (const id of ids) { const el = document.getElementById(id); if (el) el.disabled = lock; }
+  document.querySelectorAll('input[name=scrapeMode], input[name=source], input[name=dedupeMode], input[name=mode], input[name=format], input[name=headerLang], .kw, .fld, #detail, #selAll, #selNone, #fieldsAll, #fieldsNone, #langToggle, #shopRegion, #shopRegionCustom').forEach(el => { el.disabled = lock; });
+  // category toggle + cookie add/remove
+  document.querySelectorAll('.cat-toggle').forEach(el => { el.style.pointerEvents = lock ? 'none' : ''; });
+  document.querySelectorAll('.cookie-item .del').forEach(el => { el.style.pointerEvents = lock ? 'none' : ''; });
+  const addBtn = document.getElementById('addCookieBtn'); if (addBtn) addBtn.style.pointerEvents = lock ? 'none' : '';
+}
 
 document.getElementById('btnStop').onclick = async () => {
   await window.api.stop();

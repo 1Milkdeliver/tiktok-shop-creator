@@ -14,7 +14,10 @@ runner.onFileLog = (line) => writeLog(line);
 // record history immediately when a run finishes (reliable, no polling)
 runner.onDone = (result) => {
   try {
-    if (result && result.ok && !result.testMode) recordHistory(result);
+    if (result && result.ok && !result.testMode) {
+      runner._historyRecorded = true;
+      recordHistory(result);
+    }
   } catch (e) { }
 };
 
@@ -122,6 +125,9 @@ function saveAppData() {
 }
 function recordHistory(entry) {
   if (!entry || !entry.outPath) return;
+  const abs = path.resolve(entry.outPath);
+  // dedupe: avoid double-recording the same file (onDone + polling fallback)
+  appData.history = (appData.history || []).filter(h => path.resolve(h.outPath || '') !== abs);
   appData.history.unshift({
     outPath: entry.outPath,
     rows: entry.rows || 0,
@@ -525,12 +531,13 @@ ipcMain.handle('start-scrape', async (event, config) => {
     saveAppData();
     const prevResult = runner.result;
     runner.start(cfg).catch(e => runner.log('内部错误: ' + e.message));
-    // record history when done
+    // history is recorded via runner.onDone (reliable); this polling loop only
+    // acts as a fallback trigger if onDone somehow didn't fire
     (async () => {
       for (let i = 0; i < 720; i++) { // up to ~60min
         await new Promise(r => setTimeout(r, 5000));
         if (runner.result !== prevResult && runner.result) {
-          if (runner.result.ok) recordHistory(runner.result);
+          if (runner.result.ok && !runner._historyRecorded) recordHistory(runner.result);
           break;
         }
       }
