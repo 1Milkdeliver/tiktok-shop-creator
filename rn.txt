@@ -1,5 +1,0 @@
-﻿## What's new in v1.1.36
-- **Hotfix**: crash "fs is not defined" at scrape start — `fs` module was missing from the runner import (introduced with dedupe/instant-detail features). Scraping now starts normally.
-
-## 更新内容
-- **紧急修复**：抓取开始即崩溃「fs is not defined」——新增查重/即时详情功能时漏导入 fs 模块。现已修复，抓取恢复正常。
