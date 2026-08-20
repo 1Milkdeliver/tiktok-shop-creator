@@ -232,8 +232,12 @@
       </div>
     </div>
     <div style="margin-top:14px">
-      <label class="check-label"><input type="checkbox" id="detail"> <span data-i18n="step4.detail">同时抓取详情（简介、合作邮箱、MCN 等）</span></label>
-      <div class="hint" style="margin-top:6px;padding-left:24px">💡 勾选后会额外抓取每位达人的<b>主页简介（bio）、合作邮箱（从简介中提取）、所属 MCN 机构</b>。这些字段能帮你快速判断达人是否适合合作、直接联系洽谈。<b>注意：详情需要逐个达人单独请求，速度会比只抓列表慢 2-3 倍</b>（列表 1 万条约 20 分钟，详情约 1-2 小时），建议需要联系达人时再勾选。</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:8px">抓取模式</div>
+      <div class="radio-group">
+        <label><input type="radio" name="scrapeMode" value="fast" checked> ⚡ 快速模式（只抓列表字段）</label>
+        <label><input type="radio" name="scrapeMode" value="full"> 📦 完整模式（列表 + 详情全部字段）</label>
+      </div>
+      <div class="hint" style="margin-top:8px;padding-left:0">💡 <b>快速模式</b>约 3-7 秒/页，适合大批量筛选；<b>完整模式</b>额外抓每位达人的简介、邮箱、佣金率、合作品牌等（速度慢 2-3 倍），适合精挑合作对象。快速模式下详情字段为灰色不可选。</div>
     </div>
     <div style="margin-top:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
       <label class="check-label"><input type="checkbox" id="dedupe" checked> <span data-i18n="step4.dedupe">查重（跳过已抓过的达人）</span></label>
@@ -495,14 +499,15 @@ const FIELDS = [
   { k: '税制', n: '税制', detail: true }, { k: '可开发票', n: '可开发票', detail: true },
 ];
 function syncDetailFields() {
-  const on = document.getElementById('detail').checked;
+  // fast mode → detail-only fields grayed out & uncheckable; full mode → all enabled
+  const mode = (document.querySelector('input[name=scrapeMode]:checked') || {}).value || 'fast';
+  const on = mode === 'full';
   document.querySelectorAll('.fld-detail').forEach(label => {
     const cb = label.querySelector('input.fld');
     cb.disabled = !on;
-    if (on) cb.checked = true;       // 勾选详情时自动勾选简介/邮箱/MCN 字段
-    else cb.checked = false;         // 未勾选详情时强制取消并置灰
+    if (!on) cb.checked = false;   // fast mode: force unchecked
     label.classList.toggle('on', on);
-    label.title = on ? (cb.value) : (uiLang === 'zh' ? '需勾选「同时抓取详情」' : 'Requires "Scrape details"');
+    label.title = on ? (cb.value) : (uiLang === 'zh' ? '完整模式才可抓取' : 'Available in Full mode');
   });
 }
 function renderFields() {
@@ -510,7 +515,7 @@ function renderFields() {
   syncDetailFields();
 }
 renderFields();
-document.getElementById('detail').addEventListener('change', syncDetailFields);
+document.querySelectorAll('input[name=scrapeMode]').forEach(r => r.addEventListener('change', syncDetailFields));
 document.getElementById('fieldsAll').onclick = () => { document.querySelectorAll('.fld:not(:disabled)').forEach(c => c.checked = true); };
 document.getElementById('fieldsNone').onclick = () => { document.querySelectorAll('.fld:not(:disabled)').forEach(c => c.checked = false); };
 
@@ -807,7 +812,12 @@ document.getElementById('btnStart').onclick = async () => {
   const format = document.querySelector('input[name=format]:checked').value;
   const headerLang = document.querySelector('input[name=headerLang]:checked').value;
   const outPath = document.getElementById('outPath').value.trim() || './output';
-  const detail = document.getElementById('detail').checked;
+  // 模式：fast=纯列表；full=详情。若用户选了完整模式但没勾任何详情字段，
+  // 自动按快速模式抓（不告知，避免无谓的详情请求）。
+  const scrapeMode = (document.querySelector('input[name=scrapeMode]:checked') || {}).value || 'fast';
+  const detailKeys = new Set(FIELDS.filter(f => f.detail).map(f => f.k));
+  const hasDetailField = fields.some(f => detailKeys.has(f));
+  const detail = scrapeMode === 'full' && hasDetailField;
   const dedupe = document.getElementById('dedupe').checked;
   const shopRegion = (document.getElementById('shopRegionCustom').value.trim() || document.getElementById('shopRegion').value || 'US').toUpperCase();
 
