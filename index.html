@@ -184,8 +184,7 @@
     <div class="toolbar">
       <button class="btn btn-primary" id="btnStart" style="padding:11px 34px;font-size:15px" data-i18n="action.start">▶ 开始抓取</button>
       <button class="btn btn-secondary" id="btnTest" data-i18n="action.test">🔍 测试连接</button>
-      <button class="btn btn-secondary" id="btnPause" disabled data-i18n="action.pause">⏸ 暂停</button>
-      <button class="btn btn-secondary" id="btnResume" disabled style="display:none" data-i18n="action.resume">▶ 继续</button>      <button class="btn btn-danger" id="btnStop" disabled data-i18n="action.stop">■ 结束并导出</button>
+      <button class="btn btn-danger" id="btnStop" disabled data-i18n="action.stop">■ 结束并导出</button>
       <button class="btn btn-secondary" id="btnExit" data-i18n="action.exit">退出</button>
     </div>
     <div class="hint" id="statusDetail" style="margin-top:10px;font-size:13px;color:var(--accent)"></div>
@@ -585,32 +584,25 @@ async function poll() {
     if (renderRateLimit && typeof renderRateLimit === 'function') renderRateLimit();
     const st = document.getElementById('status');
     const detail = document.getElementById('statusDetail');
-    const btnPause = document.getElementById('btnPause');
-    const btnResume = document.getElementById('btnResume');
     const btnStop = document.getElementById('btnStop');
 
     if (j.running) {
-      btnPause.disabled = false;
       btnStop.disabled = false;
       if (j.stopping) {
         // stopping: sessions wind down (list stopped; details finish for collected
         // creators). Button stays enabled so a 2nd click aborts the detail phase.
-        btnPause.disabled = true;
-        btnResume.style.display = 'none';
+        syncMainButton('start', { disabled: true });
         btnStop.disabled = false;
         startSpin('⏹ 正在结束并导出');
         detail.textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件（可再次点击「结束并导出」跳过详情补抓）…' : 'Saving scraped data and exporting (click again to skip detail fill)…';
       } else if (j.paused) {
         stopSpin();
-        btnPause.style.display = 'none';
-        btnResume.style.display = '';
-        btnResume.disabled = false;
+        syncMainButton('resume', { disabled: false });
         setStatus('⏸ 已暂停', '');
-        detail.textContent = uiLang === 'zh' ? '已暂停，点击"▶ 继续"恢复抓取' : 'Paused — click Resume to continue';
+        detail.textContent = uiLang === 'zh' ? '已暂停，点击按钮恢复抓取' : 'Paused — click button to resume';
       } else {
-        btnPause.style.display = '';
-        btnResume.style.display = 'none';
         // fast dot animation (250ms ticker) while running
+        syncMainButton('pause', { disabled: false });
         startSpin('⏳ 抓取中');
         const info = j.currentInfo || {};
         const kwText = info.keyword ? (uiLang === 'zh' ? ` 正在抓取：${info.keyword}` : ` Scraping: ${info.keyword}`) : '';
@@ -619,10 +611,11 @@ async function poll() {
       }
     } else if (j.status === 'paused') {
       stopSpin();
+      syncMainButton('resume', { disabled: false });
       setStatus('⏸ 已暂停', '');
       detail.textContent = uiLang === 'zh' ? '已暂停' : 'Paused';
-    } else if (j.result && j.result.ok) { stopSpin(); setStatus('✅ 完成', 'done'); showResult(j.result); detail.textContent = ''; btnPause.style.display = ''; btnResume.style.display = 'none'; btnPause.disabled = true; btnStop.disabled = true; document.getElementById('btnStart').disabled = false; refreshAppData(); }
-    else if (j.result && !j.result.ok) { stopSpin(); setStatus('❌ 出错', 'error'); detail.textContent = ''; btnPause.style.display = ''; btnResume.style.display = 'none'; btnPause.disabled = true; btnStop.disabled = true; document.getElementById('btnStart').disabled = false; }
+    } else if (j.result && j.result.ok) { stopSpin(); setStatus('✅ 完成', 'done'); showResult(j.result); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; refreshAppData(); }
+    else if (j.result && !j.result.ok) { stopSpin(); setStatus('❌ 出错', 'error'); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; }
   } catch (e) { }
 }
 function showResult(r) {
@@ -631,7 +624,31 @@ function showResult(r) {
   box.innerHTML = `✅ 抓取完成：${r.creators} 条达人${r.details ? ' + ' + r.details + ' 条详情' : ''}，共 ${r.rows} 行<br>📄 文件: ${r.outPath}`;
 }
 
+// ── 三态主按钮：开始抓取 / 暂停 / 继续 ──
+// mode: 'start' | 'pause' | 'resume'
+function syncMainButton(mode, opts) {
+  const btn = document.getElementById('btnStart');
+  const zh = uiLang === 'zh';
+  const labels = {
+    start: ['▶ 开始抓取', '▶ Start Scraping'],
+    pause: ['⏸ 暂停', '⏸ Pause'],
+    resume: ['▶ 继续', '▶ Resume'],
+  };
+  btn.textContent = labels[mode][zh ? 0 : 1];
+  btn.className = 'btn ' + (mode === 'pause' ? 'btn-secondary' : 'btn-primary');
+  if (opts && opts.disabled !== undefined) btn.disabled = opts.disabled;
+}
+
 document.getElementById('btnStart').onclick = async () => {
+  // dispatch by current state: if a run is active, the button acts as pause/resume
+  const st = await window.api.status().catch(() => null);
+  if (st && st.running && !st.stopping) {
+    if (st.paused) { await window.api.resume(); syncMainButton('pause'); return; }
+    await window.api.pause(); syncMainButton('resume'); return;
+  }
+  if (st && st.stopping) return; // ignore clicks while winding down
+
+  // ---- start a new scrape ----
   if (!cookieList.length) { alert('请先导入 Cookie（拖入文件或粘贴内容）'); return; }
   const kws = [...document.querySelectorAll('.kw:checked')].map(c => c.value);
   if (!kws.length) { alert('请至少选择一个类目/关键词'); return; }
@@ -643,7 +660,7 @@ document.getElementById('btnStart').onclick = async () => {
   const detail = document.getElementById('detail').checked;
 
   const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, headerLang, outPath, detail, keywords: kws, fields };
-  document.getElementById('btnStart').disabled = true;
+  syncMainButton('pause', { disabled: true });
   document.getElementById('btnStop').disabled = false;
   document.getElementById('resultBox').style.display = 'none';
   logEl.textContent = '';
@@ -651,7 +668,7 @@ document.getElementById('btnStart').onclick = async () => {
   setStatus('⏳ 启动中…', 'running');
   try {
     const j = await window.api.start(cfg);
-    if (j.error) { alert('启动失败: ' + j.error); setStatus('❌ ' + j.error, 'error'); document.getElementById('btnStart').disabled = false; document.getElementById('btnStop').disabled = true; }
+    if (j.error) { alert('启动失败: ' + j.error); setStatus('❌ ' + j.error, 'error'); syncMainButton('start', { disabled: false }); document.getElementById('btnStop').disabled = true; }
   } catch (e) { alert('启动失败: ' + e.message); }
   setInterval(poll, 1500);
 };
@@ -659,13 +676,10 @@ document.getElementById('btnStart').onclick = async () => {
 document.getElementById('btnStop').onclick = async () => {
   await window.api.stop();
   document.getElementById('btnStop').disabled = true;
-  document.getElementById('btnPause').disabled = true;
-  document.getElementById('btnResume').style.display = 'none';
+  syncMainButton('start', { disabled: true });
   setStatus('⏹ 正在结束并导出…', '');
-  document.getElementById('statusDetail').textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件，请稍候…' : 'Saving scraped data and exporting file…';
+  document.getElementById('statusDetail').textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件（可再次点击「结束并导出」跳过详情补抓）…' : 'Saving scraped data and exporting (click again to skip detail fill)…';
 };
-document.getElementById('btnPause').onclick = async () => { await window.api.pause(); };
-document.getElementById('btnResume').onclick = async () => { await window.api.resume(); };
 document.getElementById('btnExit').onclick = async () => { if (confirm('确定退出程序吗？')) await window.api.exit(); };
 
 // ═══════════ 测试连接 ═══════════
