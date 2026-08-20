@@ -1,5 +1,5 @@
 <p align='center'>
-<img src='./build/icon.ico' width="150" height="150" alt="TikTokShop达人抓取 图标" />
+<img src='./icon-256.png' width="150" height="150" alt="TikTokShop达人抓取 图标" />
 </p>
 
 <h1 align="center">TikTokShop达人抓取</h1>

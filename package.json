@@ -10,6 +10,7 @@
     "electron-updater": "^6.8.9",
     "exceljs": "^4.4.0",
     "png2icons": "^2.0.1",
+    "pngjs": "^7.0.0",
     "puppeteer-core": "^24.0.0"
   },
   "devDependencies": {
