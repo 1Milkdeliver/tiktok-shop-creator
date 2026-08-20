@@ -79,7 +79,7 @@
 
 ## 📦 安装
 
-⬇️ **下载最新安装包**（Windows）：[Releases](https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/releases/latest)
+⬇️ [**下载最新安装包（Windows）**](https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/releases/latest)
 
 - 双击运行安装向导，同意许可协议后安装
 - 自动创建桌面快捷方式

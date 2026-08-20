@@ -1,4 +1,4 @@
-﻿<p align='center'>
+<p align='center'>
 <img src='./build/icon.ico' width="150" height="150" alt="TikTokShop Creator Scraper Icon" />
 </p>
 
@@ -79,7 +79,7 @@
 
 ## 📦 Install
 
-⬇️ **[TikTok-Creator-Scraper-Setup.exe](https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/releases/latest)** (Windows installer)
+⬇️ [**Download Latest Installer (Windows)**](https://github.com/1Milkdeliver/tiktok-shop-creator-scraper/releases/latest)
 
 - Run the installer wizard, accept the license agreement
 - Desktop shortcut created automatically
