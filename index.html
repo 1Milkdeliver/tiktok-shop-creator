@@ -235,6 +235,18 @@
       <label class="check-label"><input type="checkbox" id="detail"> <span data-i18n="step4.detail">同时抓取详情（简介、合作邮箱、MCN 等）</span></label>
       <div class="hint" style="margin-top:6px;padding-left:24px">💡 勾选后会额外抓取每位达人的<b>主页简介（bio）、合作邮箱（从简介中提取）、所属 MCN 机构</b>。这些字段能帮你快速判断达人是否适合合作、直接联系洽谈。<b>注意：详情需要逐个达人单独请求，速度会比只抓列表慢 2-3 倍</b>（列表 1 万条约 20 分钟，详情约 1-2 小时），建议需要联系达人时再勾选。</div>
     </div>
+    <div style="margin-top:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+      <label class="check-label"><input type="checkbox" id="dedupe" checked> <span data-i18n="step4.dedupe">查重（跳过已抓过的达人）</span></label>
+      <span class="hint" style="margin:0">取消勾选 = 刷新模式（重爬已有达人，更新数据）</span>
+    </div>
+    <div style="margin-top:14px">
+      <label class="check-label" style="font-size:13.5px;color:var(--text-2)">📋 导入达人名单（可选：数值ID / handle / TikTok链接，每行一个）</label>
+      <textarea id="creatorInput" rows="3" style="width:100%;margin-top:8px;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'SF Mono',Consolas,monospace;font-size:12px;resize:vertical;background:#fff;outline:none" placeholder='例如：
+7494397026366031127
+@beauty.pro
+https://www.tiktok.com/@makeup.lover'></textarea>
+      <div class="hint" style="margin-top:6px">填入名单后按名单抓取（不走关键词搜索）；留空则按上方类目关键词抓取。ID 直接抓，handle/链接会自动解析。</div>
+    </div>
     <div style="margin-top:14px">
       <span style="font-size:13px;color:var(--sub)" data-i18n="step4.fields">导出字段</span>
       <span class="sel-all" id="fieldsAll">全选</span><span class="sel-all" id="fieldsNone">清空</span>
@@ -316,6 +328,7 @@ const I18N = {
   'step4.out': { zh: '输出位置', en: 'Output Location' },
   'step4.choose': { zh: '📁 选择', en: '📁 Choose' },
   'step4.detail': { zh: '同时抓取详情（简介、合作邮箱、MCN 等）', en: 'Also scrape details (bio, email, MCN)' },
+  'step4.dedupe': { zh: '查重（跳过已抓过的达人）', en: 'Dedupe (skip already-scraped creators)' },
   'step4.fields': { zh: '导出字段', en: 'Export Fields' },
   'step4.fieldsAll': { zh: '全选', en: 'Select All' },
   'step4.fieldsNone': { zh: '清空', en: 'Clear' },
@@ -786,17 +799,19 @@ document.getElementById('btnStart').onclick = async () => {
 
   // ---- start a new scrape ----
   if (!cookieList.length) { alert('请先导入 Cookie（拖入文件或粘贴内容）'); return; }
+  const creatorInput = document.getElementById('creatorInput').value.trim().split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   const kws = [...document.querySelectorAll('.kw:checked')].map(c => c.value);
-  if (!kws.length) { alert('请至少选择一个类目/关键词'); return; }
+  if (!creatorInput.length && !kws.length) { alert('请至少选择一个类目/关键词，或填写达人名单'); return; }
   const fields = [...document.querySelectorAll('.fld:checked')].map(c => c.value);
   const mode = document.querySelector('input[name=mode]:checked').value;
   const format = document.querySelector('input[name=format]:checked').value;
   const headerLang = document.querySelector('input[name=headerLang]:checked').value;
   const outPath = document.getElementById('outPath').value.trim() || './output';
   const detail = document.getElementById('detail').checked;
+  const dedupe = document.getElementById('dedupe').checked;
   const shopRegion = (document.getElementById('shopRegionCustom').value.trim() || document.getElementById('shopRegion').value || 'US').toUpperCase();
 
-  const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, headerLang, outPath, detail, keywords: kws, fields, shopRegion };
+  const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, headerLang, outPath, detail, dedupe, creatorInput: creatorInput.length ? creatorInput : null, keywords: kws, fields, shopRegion };
   syncMainButton('pause', { disabled: true });
   document.getElementById('btnStop').disabled = false;
   document.getElementById('resultBox').style.display = 'none';

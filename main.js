@@ -515,6 +515,8 @@ ipcMain.handle('start-scrape', async (event, config) => {
       detail: !!config.detail,
       headerLang: config.headerLang === 'en' ? 'en' : 'zh',
       shopRegion: config.shopRegion || 'US',
+      dedupe: !!config.dedupe,
+      creatorInput: Array.isArray(config.creatorInput) ? config.creatorInput : null,
       keywords: config.keywords && config.keywords.length ? config.keywords : require('./lib/exporter').DEFAULT_KEYWORDS,
       fields: config.fields && config.fields.length ? config.fields : null,
     };
