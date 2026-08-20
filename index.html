@@ -60,6 +60,15 @@
   #updateBar .ub-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #0071e3, #5ac8fa); border-radius: 4px; transition: width .3s; }
   #updateBar.ub-error { border-color: rgba(255,59,48,.4); background: rgba(255,59,48,.06); }
   #updateBar.ub-error .ub-msg { color: var(--danger); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 999; display: flex; align-items: center; justify-content: center; }
+  .modal-panel { background: #fff; border-radius: 16px; width: 560px; max-width: 92vw; max-height: 82vh; display: flex; flex-direction: column; box-shadow: 0 16px 48px rgba(0,0,0,.25); overflow: hidden; }
+  .modal-head { display: flex; align-items: center; gap: 12px; padding: 18px 20px 12px; }
+  .modal-head img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; }
+  .modal-head h3 { margin: 0; font-size: 16px; font-weight: 600; }
+  .modal-head .sub { font-size: 12px; color: var(--sub); margin-top: 2px; }
+  .modal-body { flex: 1; overflow-y: auto; padding: 8px 20px 14px; font-size: 13px; line-height: 1.6; color: #444; white-space: pre-wrap; word-break: break-word; }
+  .modal-foot { display: flex; justify-content: flex-end; gap: 10px; padding: 14px 20px 18px; border-top: 1px solid rgba(0,0,0,.06); }
+  .modal-foot .btn { min-width: 110px; }
   .btn { padding: 9px 22px; border: none; border-radius: 12px; font-size: 14px; font-weight: 500; cursor: pointer; transition: .15s; font-family: inherit; }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: var(--accent-hover); }
@@ -230,6 +239,24 @@
   <footer><span id="footerVersion">v—</span> · <span data-i18n="footer.text">专为 TikTok Shop 卖家打造 · 请求间隔人性化 · 自动限流处理</span></footer>
 </div>
 
+<!-- 更新内容弹窗（可滚动查看完整更新说明） -->
+<div class="modal-overlay" id="updateModal" style="display:none">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <img src="logo.png" alt="logo">
+      <div>
+        <h3 id="umTitle">发现新版本</h3>
+        <div class="sub" id="umSub"></div>
+      </div>
+    </div>
+    <div class="modal-body" id="umBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" id="umLater">稍后</button>
+      <button class="btn btn-primary" id="umDownload">立即下载更新</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════ 界面中英切换 (UI i18n) ═══════════
 const I18N = {
@@ -313,6 +340,31 @@ document.addEventListener('DOMContentLoaded', () => {
       }).catch(() => { up.disabled = false; up.textContent = orig; });
     };
   }
+
+  // ── in-app update dialog (scrollable full release notes) ──
+  const umModal = document.getElementById('updateModal');
+  const umTitle = document.getElementById('umTitle');
+  const umSub = document.getElementById('umSub');
+  const umBody = document.getElementById('umBody');
+  const closeModal = () => { umModal.style.display = 'none'; };
+  window.api.onShowUpdateDialog((d) => {
+    const zh = uiLang === 'zh';
+    umTitle.textContent = zh ? `发现新版本 v${d.version}` : `New version v${d.version} available`;
+    umSub.textContent = zh ? `当前版本 v${d.currentVersion}` : `Current version v${d.currentVersion}`;
+    umBody.textContent = d.notes ? (zh ? `── 更新内容 ──\n\n${d.notes}` : `── What's new ──\n\n${d.notes}`) : (zh ? '（无更新说明）' : '(no release notes)');
+    umModal.style.display = 'flex';
+  });
+  document.getElementById('umLater').onclick = closeModal;
+  document.getElementById('umDownload').onclick = async () => {
+    document.getElementById('umDownload').disabled = true;
+    document.getElementById('umDownload').textContent = uiLang === 'zh' ? '下载中…' : 'Downloading…';
+    closeModal();
+    const r = await window.api.startUpdateDownload();
+    if (!r.ok) alert(r.error || (uiLang === 'zh' ? '下载失败' : 'Download failed'));
+    document.getElementById('umDownload').disabled = false;
+    document.getElementById('umDownload').textContent = uiLang === 'zh' ? '立即下载更新' : 'Download Now';
+  };
+  umModal.addEventListener('click', (e) => { if (e.target === umModal) closeModal(); });
 });
 
 // 类目：{ 类目名: { en: 英文名, zh: 中文名, items: [[关键词, 中文翻译], ...] } }

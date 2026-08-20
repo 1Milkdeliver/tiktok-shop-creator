@@ -20,6 +20,8 @@ contextBridge.exposeInMainWorld('api', {
   getVersion: () => ipcRenderer.invoke('get-version'),
   exit: () => ipcRenderer.invoke('exit-app'),
   checkUpdate: () => ipcRenderer.invoke('check-update'),
+  startUpdateDownload: () => ipcRenderer.invoke('start-update-download'),
   onUpdateState: (cb) => ipcRenderer.on('update-state', (e, s) => cb(s)),
+  onShowUpdateDialog: (cb) => ipcRenderer.on('show-update-dialog', (e, d) => cb(d)),
 });
 

@@ -248,6 +248,19 @@ ipcMain.handle('check-update', () => {
   return { ok: true };
 });
 
+// Renderer clicked "立即下载更新" in the in-app update dialog
+ipcMain.handle('start-update-download', async () => {
+  try {
+    setUpdateState({ phase: 'downloading', percent: 0, message: '开始下载更新…' });
+    await autoUpdater.downloadUpdate();
+    return { ok: true };
+  } catch (e) {
+    setUpdateState({ phase: 'error', message: '下载失败: ' + e.message });
+    writeLog('下载更新失败: ' + e.message);
+    return { ok: false, error: String(e.message || e) };
+  }
+});
+
 async function checkForUpdates(manual) {
   if (!app.isPackaged) {
     if (manual && mainWindow) {
@@ -316,8 +329,7 @@ function setupAutoUpdaterEvents() {
     const v = (info && info.version) || '';
     setUpdateState({ phase: 'available', percent: 0, message: `发现新版本 v${v}` });
     writeLog(`发现新版本 v${v}`);
-    if (!mainWindow) return;
-    // fetch release notes from GitHub to show what's new in the dialog
+    // fetch release notes from GitHub to show what's new (full text, scrollable)
     let notes = '';
     try {
       const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
@@ -327,43 +339,24 @@ function setupAutoUpdaterEvents() {
       if (res.ok) {
         const rel = await res.json();
         if (rel.body) {
-          // strip markdown headers/links to keep the dialog readable
-          notes = String(rel.body).replace(/^#+\s*/gm, '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1').replace(/\*\*/g, '').trim();
-          if (notes.length > 900) notes = notes.slice(0, 900) + '\n…';
+          // keep markdown minimal: strip md syntax for a readable plain-text dialog
+          notes = String(rel.body)
+            .replace(/^#+\s*/gm, '')
+            .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+            .replace(/\*\*/g, '')
+            .replace(/`/g, '')
+            .trim();
         }
       }
     } catch (e) { }
-    const notesText = notes ? `\n\n── 更新内容 ──\n${notes}` : '';
-    const { response } = await dialog.showMessageBox(mainWindow, {
-      type: 'info',
-      title: '发现新版本',
-      message: `发现新版本 v${v}（当前 v${CURRENT_VERSION}）`,
-      detail: `是否现在下载并安装？下载完成后会提示重启应用完成更新。${notesText}`,
-      buttons: ['立即下载更新', '稍后'],
-      defaultId: 0,
-      cancelId: 1,
-      icon: path.join(__dirname, 'icon-256.png'),
-    });
-    if (response === 0) {
-      try {
-        setUpdateState({ phase: 'downloading', percent: 0, message: '开始下载更新…' });
-        await autoUpdater.downloadUpdate();
-      } catch (e) {
-        setUpdateState({ phase: 'error', message: '下载失败: ' + e.message });
-        writeLog('下载更新失败: ' + e.message);
-        if (mainWindow) {
-          dialog.showMessageBox(mainWindow, {
-            type: 'error',
-            title: '下载更新失败',
-            message: '更新下载失败',
-            detail: String(e.message || e) + '\n\n可前往下载页手动下载最新安装包。',
-            buttons: ['前往下载页', '关闭'],
-            defaultId: 0,
-            cancelId: 1,
-            icon: path.join(__dirname, 'icon-256.png'),
-          }).then((r) => { if (r.response === 0) shell.openExternal(RELEASE_URL); });
-        }
-      }
+    // show the update dialog in the renderer (scrollable, full notes) instead of
+    // the native message box (no scrolling, notes were truncated before)
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('show-update-dialog', {
+        version: v,
+        currentVersion: CURRENT_VERSION,
+        notes: notes,
+      });
     }
   });
   autoUpdater.on('download-progress', (p) => {
