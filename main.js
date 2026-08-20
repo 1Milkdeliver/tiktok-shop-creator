@@ -474,6 +474,7 @@ ipcMain.handle('test-scrape', async (event, config) => {
       format: config.format || 'csv',
       outPath: config.outPath || OUT_DIR,
       detail: false,
+      shopRegion: config.shopRegion || 'US',
       keywords: ['phone case'],
       fields: ['handle', 'nickname'],
       testMode: true, // multirunner will stop after 1 page
@@ -509,6 +510,7 @@ ipcMain.handle('start-scrape', async (event, config) => {
       outPath: path.isAbsolute(config.outPath || '') ? config.outPath : path.join(APP_DIR, config.outPath || 'output'),
       detail: !!config.detail,
       headerLang: config.headerLang === 'en' ? 'en' : 'zh',
+      shopRegion: config.shopRegion || 'US',
       keywords: config.keywords && config.keywords.length ? config.keywords : require('./lib/exporter').DEFAULT_KEYWORDS,
       fields: config.fields && config.fields.length ? config.fields : null,
     };

@@ -74,11 +74,17 @@
   .radio-group label { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 10px; font-size: 13px; cursor: pointer; background: rgba(0,0,0,.04); transition: .15s; }
   .radio-group label:has(input:checked) { background: rgba(0,113,227,.1); color: var(--accent); font-weight: 500; }
   .mode-desc { font-size: 12px; color: var(--sub); margin-top: 10px; line-height: 1.6; }
-  .cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
-  .cat { background: rgba(0,0,0,.03); border-radius: 12px; padding: 10px 12px; }
-  .cat b { display: block; font-size: 13px; margin-bottom: 7px; color: var(--text); }
-  .cat label { display: flex; align-items: center; gap: 5px; font-size: 12px; margin: 4px 0; cursor: pointer; color: #555; }
-  .cat label:hover { color: var(--accent); }
+  .cats { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .cat { background: rgba(0,0,0,.03); border-radius: 14px; padding: 12px 14px; border: 1px solid rgba(0,0,0,.04); }
+  .cat-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+  .cat-head b { font-size: 13px; color: var(--text); }
+  .cat-head .cat-toggle { font-size: 11px; color: var(--sub); cursor: pointer; padding: 2px 8px; border-radius: 10px; background: rgba(0,0,0,.05); }
+  .cat-head .cat-toggle:hover { color: var(--accent); background: rgba(0,113,227,.1); }
+  .cat-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cat-chips label { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 10px; border-radius: 999px; background: #fff; border: 1px solid rgba(0,0,0,.1); cursor: pointer; color: #555; transition: .15s; }
+  .cat-chips label:hover { border-color: var(--accent); color: var(--accent); }
+  .cat-chips label:has(input:checked) { background: rgba(0,113,227,.1); border-color: rgba(0,113,227,.35); color: var(--accent); font-weight: 500; }
+  .cat-chips input { accent-color: var(--accent); }
   input[type=text] { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; background: #fff; outline: none; transition: .15s; }
   input[type=text]:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,113,227,.12); }
   .inline { display: flex; gap: 14px; }
@@ -137,6 +143,23 @@
       <label><input type="radio" name="mode" value="headless"> Headless</label>
     </div>
     <div class="mode-desc">自动：优先连接常驻调试 Chrome(9222)，没有则开屏幕外真实窗口。Headless 模式兼容性有限，建议使用自动或真实窗口。</div>
+    <div style="margin-top:14px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:13px;color:var(--sub)" data-i18n="step2.region">达人地区（Shop）</span>
+      <select id="shopRegion" style="padding:7px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:#fff;outline:none">
+        <option value="US" selected>🇺🇸 US 美国</option>
+        <option value="UK">🇬🇧 UK 英国</option>
+        <option value="SG">🇸🇬 SG 新加坡</option>
+        <option value="MY">🇲🇾 MY 马来西亚</option>
+        <option value="TH">🇹🇭 TH 泰国</option>
+        <option value="VN">🇻🇳 VN 越南</option>
+        <option value="PH">🇵🇭 PH 菲律宾</option>
+        <option value="ID">🇮🇩 ID 印尼</option>
+        <option value="MX">🇲🇽 MX 墨西哥</option>
+        <option value="BR">🇧🇷 BR 巴西</option>
+      </select>
+      <input type="text" id="shopRegionCustom" placeholder="或输入其他站点代码，如 ES / IT / DE" style="max-width:260px;padding:7px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px">
+    </div>
+    <div class="hint" style="margin-top:6px;padding-left:0">💡 选择达人所在的 TikTok Shop 站点。需使用对应站点店铺账号的 Cookie 登录，才能抓取该地区达人。</div>
   </div>
 
   <div class="card">
@@ -311,14 +334,30 @@ function renderCats() {
   let html = '';
   for (const [key, cat] of Object.entries(CATS)) {
     const title = catLang === 'en' ? cat.en : cat.zh;
-    html += `<div class="cat"><b>${title}</b>`;
-    for (const [k, zh] of cat.items) {
+    const chips = cat.items.map(([k, zh]) => {
       const label = catLang === 'en' ? k : `${zh}`;
-      html += `<label title="${k}"><input type="checkbox" class="kw" value="${k}" checked> ${label}</label>`;
-    }
-    html += `</div>`;
+      return `<label title="${k}"><input type="checkbox" class="kw" value="${k}" checked> ${label}</label>`;
+    }).join('');
+    html += `<div class="cat">
+      <div class="cat-head"><b>${title}</b><span class="cat-toggle" data-cat="${key}">${catLang === 'zh' ? '全选' : 'All'}</span></div>
+      <div class="cat-chips">${chips}</div>
+    </div>`;
   }
   box.innerHTML = html;
+  // per-category toggle: click header label toggles all chips in that category
+  box.querySelectorAll('.cat-toggle').forEach(el => {
+    el.onclick = () => {
+      const cat = CATS[el.dataset.cat];
+      const allOn = cat.items.every(([k]) => {
+        const cb = box.querySelector(`input.kw[value="${CSS.escape(k)}"]`);
+        return cb && cb.checked;
+      });
+      cat.items.forEach(([k]) => {
+        const cb = box.querySelector(`input.kw[value="${CSS.escape(k)}"]`);
+        if (cb) cb.checked = !allOn;
+      });
+    };
+  });
 }
 function toggleCatLang() {
   catLang = catLang === 'zh' ? 'en' : 'zh';
@@ -658,8 +697,9 @@ document.getElementById('btnStart').onclick = async () => {
   const headerLang = document.querySelector('input[name=headerLang]:checked').value;
   const outPath = document.getElementById('outPath').value.trim() || './output';
   const detail = document.getElementById('detail').checked;
+  const shopRegion = (document.getElementById('shopRegionCustom').value.trim() || document.getElementById('shopRegion').value || 'US').toUpperCase();
 
-  const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, headerLang, outPath, detail, keywords: kws, fields };
+  const cfg = { pastedCookies: cookieList.map(c => c.data), mode, format, headerLang, outPath, detail, keywords: kws, fields, shopRegion };
   syncMainButton('pause', { disabled: true });
   document.getElementById('btnStop').disabled = false;
   document.getElementById('resultBox').style.display = 'none';
@@ -692,7 +732,7 @@ document.getElementById('btnTest').onclick = async () => {
   box.innerHTML = '⏳ 正在测试（隔离环境抓取 1 页验证）...';
   box.className = 'hint';
   try {
-    const j = await window.api.test({ pastedCookies: cookieList.map(c => c.data), mode: document.querySelector('input[name=mode]:checked').value });
+    const j = await window.api.test({ pastedCookies: cookieList.map(c => c.data), mode: document.querySelector('input[name=mode]:checked').value, shopRegion: (document.getElementById('shopRegionCustom').value.trim() || document.getElementById('shopRegion').value || 'US').toUpperCase() });
     if (j.error) {
       box.innerHTML = '❌ 测试失败：' + j.error + '<br><small>' + (j.log ? j.log.join('<br>') : '') + '</small>';
       box.style.color = 'var(--danger)';
