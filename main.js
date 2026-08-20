@@ -189,7 +189,7 @@ function createWindow() {
     width: 980,
     height: 860,
     title: 'TikTokShop达人抓取工具',
-    icon: path.join(__dirname, 'icon-256.png'),
+    icon: path.join(__dirname, 'build', 'icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),

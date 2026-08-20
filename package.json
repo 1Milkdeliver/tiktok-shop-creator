@@ -28,6 +28,7 @@
       "index.html",
       "logo.png",
       "icon-256.png",
+      "build/icon.ico",
       "lib/**/*"
     ],
     "extraResources": [
