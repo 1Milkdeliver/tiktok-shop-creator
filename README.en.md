@@ -166,4 +166,4 @@ This project is licensed under the **GPL-3.0** License — see the [LICENSE](LIC
 
 ---
 
-*Keywords: TikTok Shop affiliate creator scraper, TikTok creator data, TikTok Shop seller tool, creator export CSV Excel, TikTok influencer analytics, TikTok达人抓取, TikTok联盟达人*
+*Keywords: TikTok Shop affiliate creator scraper TikTok Shop 达人抓取, TikTok creator data TikTok 达人数据采集, TikTok Shop seller tool TikTok 卖家工具, creator export CSV Excel 达人导出 CSV Excel, TikTok influencer analytics TikTok 网红数据分析, creator discovery 达人筛选, MCN lookup MCN 机构查询, contact email extractor 合作邮箱提取, TikTok Shop product research TikTok Shop 选品*

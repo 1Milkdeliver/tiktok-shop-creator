@@ -1,4 +1,4 @@
-﻿<p align='center'>
+<p align='center'>
 <img src='./build/icon.ico' width="150" height="150" alt="TikTokShop达人抓取 图标" />
 </p>
 
@@ -175,4 +175,4 @@ gh release create v1.2.0 "dist\TikTokShop达人抓取安装程序-1.2.0.exe" \
 
 ---
 
-*关键词：TikTok Shop 达人抓取、TikTok联盟达人、达人数据采集、TikTok 卖家工具、达人导出 CSV Excel、TikTok 网红数据分析*
+*关键词 Keywords：TikTok Shop 达人抓取 TikTok Shop creator scraper、TikTok联盟达人 TikTok affiliate creator、达人数据采集 creator data collection、TikTok 卖家工具 TikTok seller tool、达人导出 CSV Excel creator export、TikTok 网红数据分析 TikTok influencer analytics、达人筛选 creator discovery、MCN 机构查询 MCN lookup、合作邮箱提取 contact email extractor、TikTok Shop 选品 TikTok Shop product research*
