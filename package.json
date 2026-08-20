@@ -41,8 +41,8 @@
         "to": "README.md"
       },
       {
-        "from": "README.zh.md",
-        "to": "README-zh.md"
+        "from": "README.en.md",
+        "to": "README-en.md"
       }
     ],
     "afterPack": "./afterPack.js",
