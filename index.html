@@ -281,10 +281,6 @@ https://www.tiktok.com/@makeup.lover'></textarea>
     <div class="hint" id="statusDetail" style="margin-top:10px;font-size:13px;color:var(--accent)"></div>
     <div class="hint" id="testResult" style="display:none;margin-top:8px"></div>
     <div class="result-box" id="resultBox"></div>
-    <div id="updateBar">
-      <div class="ub-msg" id="updateMsg"></div>
-      <div class="ub-track"><div class="ub-fill" id="updateFill"></div></div>
-    </div>
     <div id="log" style="margin-top:14px"></div>
   </div>
 
@@ -298,7 +294,7 @@ https://www.tiktok.com/@makeup.lover'></textarea>
   <footer><span id="footerVersion">v—</span> · <span data-i18n="footer.text">专为 TikTok Shop 卖家打造 · 请求间隔人性化 · 自动限流处理</span></footer>
 </div>
 
-<!-- 更新内容弹窗（可滚动查看完整更新说明） -->
+<!-- 更新内容弹窗（可滚动查看完整更新说明 + 下载进度） -->
 <div class="modal-overlay" id="updateModal" style="display:none">
   <div class="modal-panel">
     <div class="modal-head">
@@ -309,6 +305,10 @@ https://www.tiktok.com/@makeup.lover'></textarea>
       </div>
     </div>
     <div class="modal-body" id="umBody"></div>
+    <div id="umProgress" style="display:none;padding:2px 22px 4px">
+      <div class="ub-msg" id="umProgressMsg" style="font-size:13px;font-weight:600;color:var(--accent);margin-bottom:6px"></div>
+      <div class="ub-track"><div class="ub-fill" id="umProgressFill"></div></div>
+    </div>
     <div class="modal-foot">
       <button class="btn btn-secondary" id="umLater">稍后</button>
       <button class="btn btn-primary" id="umDownload">立即下载更新</button>
