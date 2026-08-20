@@ -69,12 +69,9 @@
   .hist-row:hover { background: rgba(17,24,39,.025); }
   .fld-detail { opacity: .45; filter: grayscale(.6); }
   .fld-detail.on { opacity: 1; filter: none; }
-  #updateBar { display: none; margin-top: 12px; padding: 12px 15px; border-radius: var(--radius-sm); background: rgba(0,113,227,.06); border: 1px solid rgba(0,113,227,.28); font-size: 13px; }
-  #updateBar .ub-msg { color: var(--accent); font-weight: 600; margin-bottom: 7px; }
-  #updateBar .ub-track { height: 8px; border-radius: 99px; background: rgba(17,24,39,.08); overflow: hidden; }
-  #updateBar .ub-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #0071e3, #25f4ee); border-radius: 99px; transition: width .3s; }
-  #updateBar.ub-error { border-color: rgba(254,44,85,.4); background: rgba(254,44,85,.06); }
-  #updateBar.ub-error .ub-msg { color: var(--danger); }
+  .ub-msg { color: var(--accent); font-weight: 600; margin-bottom: 7px; }
+  .ub-track { height: 8px; border-radius: 99px; background: rgba(17,24,39,.08); overflow: hidden; }
+  .ub-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #0071e3, #25f4ee); border-radius: 99px; transition: width .3s; }
   .modal-overlay { position: fixed; inset: 0; background: rgba(17,24,39,.5); z-index: 999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
   .modal-panel { background: var(--card-solid); border-radius: 18px; width: 560px; max-width: 92vw; max-height: 82vh; display: flex; flex-direction: column; box-shadow: var(--shadow-lg); overflow: hidden; }
   .modal-head { display: flex; align-items: center; gap: 13px; padding: 20px 22px 12px; }
@@ -698,31 +695,31 @@ function startSpin(prefix) {
 function stopSpin() {
   if (spinTimer) { clearInterval(spinTimer); spinTimer = null; }
 }
-// ═══════════ 更新状态显示 ═══════════
+// ═══════════ 更新状态显示（进度条在更新弹窗内） ═══════════
 function renderUpdate(u) {
-  const bar = document.getElementById('updateBar');
-  const msg = document.getElementById('updateMsg');
-  const fill = document.getElementById('updateFill');
-  if (!bar || !u) return;
-  if (!u.phase || u.phase === 'idle') { bar.style.display = 'none'; return; }
-  bar.style.display = 'block';
-  bar.classList.toggle('ub-error', u.phase === 'error');
+  const prog = document.getElementById('umProgress');
+  const msg = document.getElementById('umProgressMsg');
+  const fill = document.getElementById('umProgressFill');
+  if (!prog || !u) return;
   const zh = uiLang === 'zh';
-  if (u.phase === 'checking') {
-    msg.textContent = zh ? '正在检查更新…' : 'Checking for updates…';
-    fill.style.width = '0%';
-  } else if (u.phase === 'downloading') {
+  if (u.phase === 'downloading') {
+    // show progress inside the update modal
+    prog.style.display = 'block';
     msg.textContent = zh ? `正在下载更新… ${u.percent}%` : `Downloading update… ${u.percent}%`;
     fill.style.width = (u.percent || 0) + '%';
+    const modal = document.getElementById('updateModal');
+    if (modal) modal.style.display = 'flex';
   } else if (u.phase === 'downloaded' || u.phase === 'installing') {
+    prog.style.display = 'block';
     msg.textContent = zh ? '更新下载完成，等待重启安装…' : 'Update downloaded, waiting to restart…';
     fill.style.width = '100%';
-  } else if (u.phase === 'available') {
-    msg.textContent = (u.message || '') + (zh ? '，点击「立即下载更新」' : ', click "Download now"');
-    fill.style.width = '0%';
   } else if (u.phase === 'error') {
-    msg.textContent = zh ? ('❌ ' + (u.message || '更新出错')) : ('❌ ' + (u.message || 'Update failed'));
+    prog.style.display = 'block';
     fill.style.width = '0%';
+    msg.textContent = zh ? ('❌ ' + (u.message || '更新出错')) : ('❌ ' + (u.message || 'Update failed'));
+    prog.style.color = 'var(--danger)';
+  } else {
+    prog.style.display = 'none'; // checking / available / idle → no bar in modal
   }
 }
 
