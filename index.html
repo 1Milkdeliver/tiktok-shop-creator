@@ -202,7 +202,7 @@
   </div>
 
   <div class="card">
-    <h2><span class="step-num">3</span> <span data-i18n="step3.title">选择类目</span> <span class="sel-all" id="selAll" data-i18n="step3.all">全选</span><span class="sel-all" id="selNone" data-i18n="step3.none">清空</span></h2>
+    <h2><span class="step-num">3</span> <span data-i18n="step3.title">选择类目</span> <button class="btn-link" id="langToggle" style="margin-left:4px">🌐 EN</button><span class="sel-all" id="selAll" data-i18n="step3.all">全选</span><span class="sel-all" id="selNone" data-i18n="step3.none">清空</span></h2>
     <div class="cats" id="cats"></div>
   </div>
 
@@ -345,6 +345,9 @@ function applyI18n() {
   // dynamic bits
   const lt = document.getElementById('uiLangToggle');
   if (lt) lt.textContent = I18N['lang.toggle'][uiLang];
+  const langToggle = document.getElementById('langToggle');
+  if (langToggle) langToggle.textContent = uiLang === 'zh' ? '🌐 EN' : '🌐 中文';
+  catLang = uiLang;
   renderCats();
 }
 function toggleUiLang() {
@@ -407,19 +410,18 @@ const CATS = {
   '汽车户外': { en: 'Auto & Outdoors', zh: '汽车户外', items: [['car','汽车'],['auto','车'],['truck','卡车'],['motorcycle','摩托'],['sports','运动'],['outdoor','户外'],['camping','露营'],['hiking','徒步'],['fishing','钓鱼'],['cycling','骑行']] },
   '生活方式': { en: 'Lifestyle', zh: '生活方式', items: [['lifestyle','生活方式'],['vlog','Vlog'],['travel','旅行'],['book','书籍'],['reading','阅读'],['art','艺术'],['craft','手工'],['budget','预算'],['deal','好价'],['coupon','优惠券'],['shopping','购物'],['target','Target'],['walmart','沃尔玛'],['amazon','亚马逊'],['amazon finds','亚马逊好物'],['tiktok made me buy','TikTok种草'],['cute','可爱'],['aesthetic','美学'],['viral','爆款'],['fyp','推荐页'],['product review','产品测评'],['review','测评']] },
 };
+let catLang = 'zh'; // 'zh' | 'en'
 function renderCats() {
   const box = document.getElementById('cats');
   let html = '';
   for (const [key, cat] of Object.entries(CATS)) {
-    // category title shows both languages: 中文名 English Name
-    const title = `${cat.zh} ${cat.en}`;
-    // each chip shows 中文 + English (e.g. 美妆 beauty); the EN keyword is the value
+    const title = catLang === 'en' ? cat.en : cat.zh;
     const chips = cat.items.map(([k, zh]) => {
-      const label = `${zh} ${k}`;
+      const label = catLang === 'en' ? k : `${zh}`;
       return `<label title="${k}"><input type="checkbox" class="kw" value="${k}" checked> ${label}</label>`;
     }).join('');
     html += `<div class="cat">
-      <div class="cat-head"><b>${title}</b><span class="cat-toggle" data-cat="${key}">全选 / All</span></div>
+      <div class="cat-head"><b>${title}</b><span class="cat-toggle" data-cat="${key}">${catLang === 'zh' ? '全选' : 'All'}</span></div>
       <div class="cat-chips">${chips}</div>
     </div>`;
   }
@@ -439,9 +441,15 @@ function renderCats() {
     };
   });
 }
+function toggleCatLang() {
+  catLang = catLang === 'zh' ? 'en' : 'zh';
+  renderCats();
+  document.getElementById('langToggle').textContent = catLang === 'zh' ? '🌐 EN' : '🌐 中文';
+}
 renderCats();
 document.getElementById('selAll').onclick = () => document.querySelectorAll('.kw').forEach(c => c.checked = true);
 document.getElementById('selNone').onclick = () => document.querySelectorAll('.kw').forEach(c => c.checked = false);
+document.getElementById('langToggle').onclick = toggleCatLang;
 
 // ═══════════ 字段 ═══════════
 const FIELDS = [
