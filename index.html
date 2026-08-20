@@ -464,7 +464,22 @@ const FIELDS = [
   { k: 'top_follower_ages', n: '粉丝年龄段' }, { k: 'top_follower_gender', n: '粉丝性别分布' },
   { k: 'pps_score', n: 'PPS评分' }, { k: 'is_fast_growing', n: '快速增长' }, { k: 'has_collaborated', n: '已合作' },
   { k: 'creator_permission_tag', n: '达人类目权限' }, { k: 'is_live_auction', n: '直播拍卖' },
+  { k: 'main_industry', n: '主营行业' }, { k: 'creator_bind_mcn_name', n: 'MCN机构' },
+  { k: 'is_active_creator', n: '活跃达人' }, { k: 'is_quickly_response', n: '快速回复' },
+  { k: 'is_rising_star', n: '明星达人' }, { k: 'is_official_recommend', n: '官方推荐' },
+  { k: 'is_ecom_authorized', n: '电商授权' }, { k: 'is_high_sample_dispatch_rate', n: '高样片发货率' },
+  { k: 'sample_fulfillment_rate', n: '样片履约率' }, { k: 'follower_state_location', n: '粉丝地域' },
+  { k: 'vertical_pro_category', n: '垂直类目' }, { k: 'vat', n: 'VAT' },
+  { k: 'it_tax_regime', n: '税制' }, { k: 'brand_safe_tag', n: '品牌安全' },
+  { k: 'invoice_available', n: '可开发票' }, { k: 'receipt_info_authorized', n: '收据授权' },
   { k: '简介', n: '简介', detail: true }, { k: '合作邮箱', n: '合作邮箱', detail: true }, { k: 'MCN机构', n: 'MCN机构', detail: true },
+  { k: '平均佣金率', n: '平均佣金率', detail: true }, { k: '佣金率区间', n: '佣金率区间', detail: true },
+  { k: '合作品牌数', n: '合作品牌数', detail: true }, { k: '产品数', n: '产品数', detail: true },
+  { k: '推广产品数', n: '推广产品数', detail: true }, { k: '近30天视频数', n: '近30天视频数', detail: true },
+  { k: '近30天直播数', n: '近30天直播数', detail: true }, { k: '平均客单价', n: '平均客单价', detail: true },
+  { k: '客单价区间', n: '客单价区间', detail: true }, { k: '明星达人', n: '明星达人', detail: true },
+  { k: '样片履约率', n: '样片履约率', detail: true }, { k: '粉丝地域', n: '粉丝地域', detail: true },
+  { k: '税制', n: '税制', detail: true }, { k: '可开发票', n: '可开发票', detail: true },
 ];
 function syncDetailFields() {
   const on = document.getElementById('detail').checked;
