@@ -264,7 +264,7 @@ ipcMain.handle('start-update-download', async () => {
 async function checkForUpdates(manual) {
   if (!app.isPackaged) {
     if (manual && mainWindow) {
-      dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '开发模式下不检查更新', detail: '请使用打包后的安装版。' });
+      dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '开发模式下不检查更新', detail: '请使用打包后的安装版。', icon: path.join(__dirname, 'icon-256.png') });
     }
     return;
   }
@@ -278,14 +278,14 @@ async function checkForUpdates(manual) {
       isManualCheck = false;
       setUpdateState({ phase: 'idle', message: '' });
       writeLog('已是最新版本');
-      dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '已是最新版本', detail: `当前版本 v${CURRENT_VERSION}` });
+      dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '已是最新版本', detail: `当前版本 v${CURRENT_VERSION}`, icon: path.join(__dirname, 'icon-256.png') });
     }
   } catch (e) {
     setUpdateState({ phase: 'error', message: e.message });
     writeLog('自动更新检查失败: ' + e.message);
     if (manual && mainWindow) {
       isManualCheck = false;
-      dialog.showMessageBox(mainWindow, { type: 'error', title: '检查更新失败', message: '无法连接更新服务器', detail: String(e.message || e), buttons: ['前往下载页', '关闭'], defaultId: 0, cancelId: 1 })
+      dialog.showMessageBox(mainWindow, { type: 'error', title: '检查更新失败', message: '无法连接更新服务器', detail: String(e.message || e), buttons: ['前往下载页', '关闭'], defaultId: 0, cancelId: 1, icon: path.join(__dirname, 'icon-256.png') })
         .then(({ response }) => { if (response === 0) shell.openExternal(RELEASE_URL); });
     } else {
       checkViaGitHubApi(); // silent fallback: open the release page
@@ -407,7 +407,7 @@ function setupAutoUpdaterEvents() {
     // manual check → confirm to the user with a dialog
     if (isManualCheck && mainWindow) {
       isManualCheck = false;
-      dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '已是最新版本', detail: `当前版本 v${CURRENT_VERSION}` });
+      dialog.showMessageBox(mainWindow, { type: 'info', title: '检查更新', message: '已是最新版本', detail: `当前版本 v${CURRENT_VERSION}`, icon: path.join(__dirname, 'icon-256.png') });
     }
   });
   autoUpdater.on('error', (e) => {
