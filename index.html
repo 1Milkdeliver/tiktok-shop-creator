@@ -779,6 +779,16 @@ async function poll() {
 function showResult(r) {
   const box = document.getElementById('resultBox');
   box.style.display = 'block';
+  if (r.empty) {
+    box.innerHTML = '⚠️ 本次没有抓到任何达人（可能 Cookie 失效 / 风控 / 关键词无结果），未生成导出文件。';
+    box.style.background = 'rgba(245,158,11,.1)';
+    box.style.borderColor = 'rgba(245,158,11,.35)';
+    box.style.color = '#b45309';
+    return;
+  }
+  box.style.background = '';
+  box.style.borderColor = '';
+  box.style.color = '';
   box.innerHTML = `✅ 抓取完成：${r.creators} 条达人${r.details ? ' + ' + r.details + ' 条详情' : ''}，共 ${r.rows} 行<br>📄 文件: ${r.outPath}`;
 }
 
