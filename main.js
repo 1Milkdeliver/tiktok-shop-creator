@@ -126,8 +126,15 @@ function saveAppData() {
 function recordHistory(entry) {
   if (!entry || !entry.outPath) return;
   const abs = path.resolve(entry.outPath);
-  // dedupe: avoid double-recording the same file (onDone + polling fallback)
-  appData.history = (appData.history || []).filter(h => path.resolve(h.outPath || '') !== abs);
+  const base = path.basename(abs); // e.g. 达人数据-20260820-123456.csv
+  // dedupe: remove any existing entry with the same resolved path OR same
+  // filename (robust against cwd differences between the two record paths)
+  appData.history = (appData.history || []).filter(h => {
+    if (!h.outPath) return true;
+    const hAbs = path.resolve(h.outPath);
+    const hBase = path.basename(hAbs);
+    return hAbs !== abs && hBase !== base;
+  });
   appData.history.unshift({
     outPath: entry.outPath,
     rows: entry.rows || 0,
