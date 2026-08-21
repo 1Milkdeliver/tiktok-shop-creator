@@ -170,6 +170,8 @@ npm run build      # 打包安装程序 → dist/TikTokShop达人抓取安装程
 > - 打包时设置 `CSC_IDENTITY_AUTO_DISCOVERY=false` 跳过代码签名（Windows 符号链接权限的已知问题）。
 > - 安装包图标通过 `afterPack.js` 钩子 + rcedit 注入，`rebuild-icons.js` 可重新生成图标资源。
 
+> 🌐 **双语约定（必须遵守）**：所有新增的界面文案、按钮、弹窗、提示、字段名都必须同时提供中英两个版本（沿用 `I18N` 字典 + `uiLang` 判断的现有机制）。新增功能遗漏英文版视为未完成。发布时 Release notes 同样必须中英双语（英文在前 `What's new in vX.Y.Z`，中文在后 `更新内容`）。
+
 ## 📤 发布新版
 
 应用内置自动检查更新（差分下载）。发布新版步骤：

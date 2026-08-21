@@ -169,6 +169,8 @@ npm run build      # build installer → dist/TikTokShop达人抓取安装程序
 > - Set `CSC_IDENTITY_AUTO_DISCOVERY=false` when packaging to skip code signing (known Windows symlink permission issue).
 > - The installer icon is injected via the `afterPack.js` hook + rcedit; `rebuild-icons.js` regenerates the icon assets.
 
+> 🌐 **Bilingual convention (mandatory)**: every new UI label, button, dialog, tooltip, field name and prompt must ship in BOTH Chinese and English (use the existing `I18N` dictionary + `uiLang` mechanism). A feature that lacks an English version is not done. Release notes must also be bilingual (English first — `What's new in vX.Y.Z` — then Chinese — `更新内容`).
+
 ## 📤 Release / Update
 
 The app checks GitHub for new versions on startup (differential download). To publish a new version:
