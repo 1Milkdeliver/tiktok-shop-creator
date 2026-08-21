@@ -468,14 +468,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('umLater').onclick = closeModal;
   document.getElementById('umDownload').onclick = async () => {
-    document.getElementById('umDownload').disabled = true;
-    document.getElementById('umDownload').textContent = uiLang === 'zh' ? '下载中…' : 'Downloading…';
-    closeModal();
+    const btn = document.getElementById('umDownload');
+    btn.disabled = true;
+    btn.textContent = uiLang === 'zh' ? '下载中…' : 'Downloading…';
+    // keep the modal open so the in-dialog progress bar stays visible
     const r = await window.api.startUpdateDownload();
     if (!r.ok) alert(r.error || (uiLang === 'zh' ? '下载失败' : 'Download failed'));
-    document.getElementById('umDownload').disabled = false;
-    document.getElementById('umDownload').textContent = uiLang === 'zh' ? '立即下载更新' : 'Download Now';
+    btn.disabled = false;
+    btn.textContent = uiLang === 'zh' ? '立即下载更新' : 'Download Now';
   };
+  // live progress: main pushes update-state events; render the bar immediately
+  // (poll every 1.5s alone can miss fast differential downloads)
+  window.api.onUpdateState((u) => renderUpdate(u));
   umModal.addEventListener('click', (e) => { if (e.target === umModal) closeModal(); });
 });
 
