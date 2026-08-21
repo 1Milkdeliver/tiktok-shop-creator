@@ -249,16 +249,16 @@ https://www.tiktok.com/@makeup.lover'></textarea>
     <div style="margin-top:14px">
       <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:8px" data-i18n="step4.mode">抓取模式</div>
       <div class="radio-group">
-        <label><input type="radio" name="scrapeMode" value="fast" checked> <span data-i18n="step4.modeFast">⚡ 快速模式（只抓列表字段）</span></label>
-        <label><input type="radio" name="scrapeMode" value="full"> <span data-i18n="step4.modeFull">📦 完整模式（列表 + 详情全部字段）</span></label>
+        <label><input type="radio" name="scrapeMode" value="fast"> <span data-i18n="step4.modeFast">⚡ 快速模式（只抓列表字段）</span></label>
+        <label><input type="radio" name="scrapeMode" value="full" checked> <span data-i18n="step4.modeFull">📦 完整模式（列表 + 详情全部字段）</span></label>
       </div>
       <div class="hint" style="margin-top:8px;padding-left:0" data-i18n="step4.modeHint">💡 <b>快速模式</b>约 3-7 秒/页，适合大批量筛选；<b>完整模式</b>额外抓每位达人的简介、合作邮箱、MCN 等（速度慢 2-3 倍），适合精挑合作对象。快速模式下详情字段为灰色不可选。</div>
     </div>
     <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <span style="font-size:13px;font-weight:600;color:var(--text-2)" data-i18n="step4.scope">抓取范围：</span>
       <div class="radio-group">
-        <label><input type="radio" name="dedupeMode" value="dedupe" checked> <span data-i18n="step4.scopeNew">🆕 只抓新的（跳过已抓过）</span></label>
-        <label><input type="radio" name="dedupeMode" value="refresh"> <span data-i18n="step4.scopeAll">🔄 全部重抓（刷新数据）</span></label>
+        <label><input type="radio" name="dedupeMode" value="dedupe"> <span data-i18n="step4.scopeNew">🆕 只抓新的（跳过已抓过）</span></label>
+        <label><input type="radio" name="dedupeMode" value="refresh" checked> <span data-i18n="step4.scopeAll">🔄 全部重抓（刷新数据）</span></label>
       </div>
     </div>
     <div class="hint" style="margin-top:6px" data-i18n="step4.scopeHint">💡 <b>只抓新的</b>：与之前抓取去重，不重复抓同一达人，适合持续增量采集；<b>全部重抓</b>：重新抓取所有达人（含之前已抓的），用于更新 GMV、粉丝数等有时效的数据。</div>
