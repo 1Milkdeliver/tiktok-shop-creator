@@ -794,7 +794,7 @@ async function poll() {
         syncMainButton('start', { disabled: true });
         btnStop.disabled = false;
         startSpin(uiLang === 'zh' ? '⏹ 正在结束并导出' : '⏹ Finishing & exporting');
-        detail.textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件（可再次点击「结束并导出」跳过详情补抓）…' : 'Saving scraped data and exporting (click again to skip detail fill)…';
+        detail.textContent = uiLang === 'zh' ? '正在完成当前请求并保存导出…' : 'Finishing current request and saving…';
       } else if (j.paused) {
         stopSpin();
         syncMainButton('resume', { disabled: false });
@@ -910,7 +910,7 @@ document.getElementById('btnStop').onclick = async () => {
   document.getElementById('btnStop').disabled = true;
   syncMainButton('start', { disabled: true });
   setStatus(uiLang === 'zh' ? '⏹ 正在结束并导出…' : '⏹ Finishing & exporting…', '');
-  document.getElementById('statusDetail').textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件（可再次点击「结束并导出」跳过详情补抓）…' : 'Saving scraped data and exporting (click again to skip detail fill)…';
+  document.getElementById('statusDetail').textContent = uiLang === 'zh' ? '正在完成当前请求并保存导出…' : 'Finishing current request and saving…';
 };
 document.getElementById('btnExit').onclick = async () => { if (confirm(I18N['exit.confirm'][uiLang])) await window.api.exit(); };
 
