@@ -424,10 +424,16 @@ function applyI18n() {
 function toggleUiLang() {
   uiLang = uiLang === 'zh' ? 'en' : 'zh';
   localStorage.setItem('uiLang', uiLang);
+  // keep header language in sync with the UI language (export headers follow)
+  const hl = document.querySelector('input[name=headerLang][value="' + uiLang + '"]');
+  if (hl) hl.checked = true;
   applyI18n();
 }
 document.addEventListener('DOMContentLoaded', () => {
   applyI18n();
+  // header language follows the remembered UI language on startup
+  const hl = document.querySelector('input[name=headerLang][value="' + uiLang + '"]');
+  if (hl) hl.checked = true;
   const u = document.getElementById('uiLangToggle');
   if (u) u.onclick = toggleUiLang;
   const up = document.getElementById('btnUpdate');
@@ -955,13 +961,13 @@ async function renderHistory(history) {
     <div class="hist-row" data-i="${i}" style="display:flex;align-items:center;gap:10px;padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.05);font-size:13px">
       <span style="color:var(--ok);flex-shrink:0">📄</span>
       <span class="hist-path" title="${h.outPath}" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${h.outPath}</span>
-      <span style="color:var(--sub);flex-shrink:0">${h.rows} 行 · ${h.time}</span>
+      <span style="color:var(--sub);flex-shrink:0">${h.rows} ${uiLang === 'zh' ? '行' : 'rows'} · ${h.time}</span>
       <span class="hist-actions" style="display:flex;gap:4px;flex-shrink:0">
-        <button class="hist-btn" data-act="open" title="${uiLang === 'zh' ? '打开文件' : 'Open file'}">📂 打开</button>
+        <button class="hist-btn" data-act="open" title="${uiLang === 'zh' ? '打开文件' : 'Open file'}">📂 ${uiLang === 'zh' ? '打开' : 'Open'}</button>
         <button class="hist-btn" data-act="folder" title="${uiLang === 'zh' ? '打开所在文件夹' : 'Open folder'}">📁</button>
-        <button class="hist-btn" data-act="continue" title="${uiLang === 'zh' ? '继续抓取：仅新增未抓过的达人' : 'Continue: only add new creators'}">🔼 继续抓取</button>
-        <button class="hist-btn" data-act="refresh" title="${uiLang === 'zh' ? '刷新：重新抓取全部达人并覆盖' : 'Refresh: re-scrape all and overwrite'}">🔄 刷新</button>
-        <button class="hist-btn hist-del" data-act="del" title="${uiLang === 'zh' ? '删除文件' : 'Delete file'}">🗑 删除</button>
+        <button class="hist-btn" data-act="continue" title="${uiLang === 'zh' ? '继续抓取：仅新增未抓过的达人' : 'Continue: only add new creators'}">🔼 ${uiLang === 'zh' ? '继续抓取' : 'Continue'}</button>
+        <button class="hist-btn" data-act="refresh" title="${uiLang === 'zh' ? '刷新：重新抓取全部达人并覆盖' : 'Refresh: re-scrape all and overwrite'}">🔄 ${uiLang === 'zh' ? '刷新' : 'Refresh'}</button>
+        <button class="hist-btn hist-del" data-act="del" title="${uiLang === 'zh' ? '删除文件' : 'Delete file'}">🗑 ${uiLang === 'zh' ? '删除' : 'Delete'}</button>
       </span>
     </div>`).join('');
   box.querySelectorAll('.hist-btn').forEach(btn => {
