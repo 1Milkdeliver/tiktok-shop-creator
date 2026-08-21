@@ -16,6 +16,8 @@ runner.onDone = (result) => {
   try {
     if (result && result.ok && !result.testMode) {
       runner._historyRecorded = true;
+      // attach the run config so history entries can continue/refresh
+      if (runner._lastConfig) result.config = runner._lastConfig;
       recordHistory(result);
     }
   } catch (e) { }
@@ -141,6 +143,16 @@ function recordHistory(entry) {
     creators: entry.creators || 0,
     details: entry.details || 0,
     time: new Date().toLocaleString(),
+    config: entry.config ? {
+      keywords: entry.config.keywords || [],
+      shopRegion: entry.config.shopRegion || 'US',
+      detail: !!entry.config.detail,
+      dedupe: !!entry.config.dedupe,
+      format: entry.config.format || 'csv',
+      fields: entry.config.fields || null,
+      mode: entry.config.mode || 'auto',
+      headerLang: entry.config.headerLang || 'zh',
+    } : null,
   });
   if (appData.history.length > 100) appData.history = appData.history.slice(0, 100);
   saveAppData();
@@ -149,6 +161,114 @@ function recordHistory(entry) {
 // IPC: remembered cookies + history + default out dir
 ipcMain.handle('get-app-data', () => ({ cookies: appData.cookies || [], history: appData.history || [], defaultOutDir: appData.outDir || OUT_DIR }));
 ipcMain.handle('clear-cookies', () => { appData.cookies = []; saveAppData(); return { ok: true }; });
+
+// Read creator IDs from an existing CSV/XLSX export (for "继续抓取" dedupe)
+function readExistingIds(filePath) {
+  const ids = [];
+  try {
+    if (/\.xlsx$/i.test(filePath)) {
+      const ExcelJS = require('exceljs');
+      // async — callers await; but this is sync handler, so we read via workbook.load
+    } else {
+      const content = fs.readFileSync(filePath, 'utf8').replace(/^\uFEFF/, '');
+      const lines = content.split(/\r?\n/).filter(Boolean);
+      if (!lines.length) return ids;
+      const headers = parseCsvLine(lines[0]);
+      const idIdx = headers.findIndex(h => h === '达人ID' || h === 'Creator ID' || h === 'creator_oecuid');
+      if (idIdx < 0) return ids;
+      for (let i = 1; i < lines.length; i++) {
+        const cells = parseCsvLine(lines[i]);
+        if (cells[idIdx]) ids.push(cells[idIdx]);
+      }
+    }
+  } catch (e) { }
+  return ids;
+}
+// minimal CSV line parser (handles quoted fields)
+function parseCsvLine(line) {
+  const out = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQ) {
+      if (ch === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else inQ = false; }
+      else cur += ch;
+    } else {
+      if (ch === '"') inQ = true;
+      else if (ch === ',') { out.push(cur); cur = ''; }
+      else cur += ch;
+    }
+  }
+  out.push(cur);
+  return out;
+}
+
+// IPC: continue scraping based on a history entry (incremental, skips saved IDs)
+ipcMain.handle('continue-history', async (event, filePath) => {
+  try {
+    const entry = (appData.history || []).find(h => path.resolve(h.outPath || '') === path.resolve(filePath || ''));
+    if (!entry || !entry.config) return { ok: false, error: '该历史记录缺少抓取配置，无法继续（旧版本生成）' };
+    if (runner.running) return { ok: false, error: '已有抓取任务在运行' };
+    const existingIds = readExistingIds(entry.outPath);
+    const cfg = {
+      cookieFiles: entry.config.cookieFiles || [],
+      mode: entry.config.mode || 'auto',
+      format: entry.config.format || 'csv',
+      outPath: path.dirname(entry.outPath),
+      detail: !!entry.config.detail,
+      headerLang: entry.config.headerLang || 'zh',
+      shopRegion: entry.config.shopRegion || 'US',
+      dedupe: true, // skip already-saved IDs
+      existingIds,
+      overwritePath: entry.outPath, // write back to the same file
+      keywords: entry.config.keywords && entry.config.keywords.length ? entry.config.keywords : require('./lib/exporter').DEFAULT_KEYWORDS,
+      fields: entry.config.fields || null,
+    };
+    // use remembered cookies if available
+    if (appData.cookies && appData.cookies.length) {
+      const { cookieFiles, error } = saveCookiesToFiles(appData.cookies);
+      if (error) return { ok: false, error };
+      cfg.cookieFiles = cookieFiles;
+    }
+    if (!cfg.cookieFiles.length) return { ok: false, error: '没有可用 Cookie，请先导入 Cookie' };
+    const prevResult = runner.result;
+    runner._lastConfig = cfg;
+    runner.start(cfg).catch(e => runner.log('继续抓取错误: ' + e.message));
+    return { ok: true };
+  } catch (e) { return { ok: false, error: e.message }; }
+});
+
+// IPC: refresh a history entry (re-scrape all, overwrite the file)
+ipcMain.handle('refresh-history', async (event, filePath) => {
+  try {
+    const entry = (appData.history || []).find(h => path.resolve(h.outPath || '') === path.resolve(filePath || ''));
+    if (!entry || !entry.config) return { ok: false, error: '该历史记录缺少抓取配置，无法刷新（旧版本生成）' };
+    if (runner.running) return { ok: false, error: '已有抓取任务在运行' };
+    const cfg = {
+      cookieFiles: entry.config.cookieFiles || [],
+      mode: entry.config.mode || 'auto',
+      format: entry.config.format || 'csv',
+      outPath: path.dirname(entry.outPath),
+      detail: !!entry.config.detail,
+      headerLang: entry.config.headerLang || 'zh',
+      shopRegion: entry.config.shopRegion || 'US',
+      dedupe: false, // re-scrape everything
+      overwritePath: entry.outPath,
+      keywords: entry.config.keywords && entry.config.keywords.length ? entry.config.keywords : require('./lib/exporter').DEFAULT_KEYWORDS,
+      fields: entry.config.fields || null,
+    };
+    if (appData.cookies && appData.cookies.length) {
+      const { cookieFiles, error } = saveCookiesToFiles(appData.cookies);
+      if (error) return { ok: false, error };
+      cfg.cookieFiles = cookieFiles;
+    }
+    if (!cfg.cookieFiles.length) return { ok: false, error: '没有可用 Cookie，请先导入 Cookie' };
+    const prevResult = runner.result;
+    runner._lastConfig = cfg;
+    runner.start(cfg).catch(e => runner.log('刷新抓取错误: ' + e.message));
+    return { ok: true };
+  } catch (e) { return { ok: false, error: e.message }; }
+});
 
 // IPC: open a history file with the system default app.
 // If the file is gone (moved/deleted), drop the stale entry from history too.
@@ -537,6 +657,8 @@ ipcMain.handle('start-scrape', async (event, config) => {
     appData.cookies = pasted.slice();
     saveAppData();
     const prevResult = runner.result;
+    // attach the run config to the result so history can offer continue/refresh
+    runner._lastConfig = cfg;
     runner.start(cfg).catch(e => runner.log('内部错误: ' + e.message));
     // history is recorded via runner.onDone (reliable); this polling loop only
     // acts as a fallback trigger if onDone somehow didn't fire

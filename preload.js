@@ -17,6 +17,8 @@ contextBridge.exposeInMainWorld('api', {
   copyHistoryPath: (p) => ipcRenderer.invoke('copy-history-path', p),
   openHistoryFolder: (p) => ipcRenderer.invoke('open-history-folder', p),
   deleteHistoryFile: (p) => ipcRenderer.invoke('delete-history-file', p),
+  continueHistory: (p) => ipcRenderer.invoke('continue-history', p),
+  refreshHistory: (p) => ipcRenderer.invoke('refresh-history', p),
   getVersion: () => ipcRenderer.invoke('get-version'),
   exit: () => ipcRenderer.invoke('exit-app'),
   checkUpdate: () => ipcRenderer.invoke('check-update'),

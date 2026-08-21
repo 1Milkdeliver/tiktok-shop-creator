@@ -950,6 +950,8 @@ async function renderHistory(history) {
       <span class="hist-actions" style="display:flex;gap:4px;flex-shrink:0">
         <button class="hist-btn" data-act="open" title="${uiLang === 'zh' ? '打开文件' : 'Open file'}">📂 打开</button>
         <button class="hist-btn" data-act="folder" title="${uiLang === 'zh' ? '打开所在文件夹' : 'Open folder'}">📁</button>
+        <button class="hist-btn" data-act="continue" title="${uiLang === 'zh' ? '继续抓取：仅新增未抓过的达人' : 'Continue: only add new creators'}">🔼 继续抓取</button>
+        <button class="hist-btn" data-act="refresh" title="${uiLang === 'zh' ? '刷新：重新抓取全部达人并覆盖' : 'Refresh: re-scrape all and overwrite'}">🔄 刷新</button>
         <button class="hist-btn hist-del" data-act="del" title="${uiLang === 'zh' ? '删除文件' : 'Delete file'}">🗑 删除</button>
       </span>
     </div>`).join('');
@@ -970,6 +972,20 @@ async function renderHistory(history) {
         const r = await window.api.deleteHistoryFile(entry.outPath);
         if (!r.ok) { alert(r.error || I18N['hist.delFail'][uiLang]); return; }
         renderHistory(r.history || []);
+      } else if (act === 'continue' || act === 'refresh') {
+        const isCont = act === 'continue';
+        const msg = uiLang === 'zh'
+          ? (isCont ? `继续抓取将基于此文件新增未抓过的达人，并写回同一文件。\n\n⚠️ 如文件已被修改，可能覆盖之前的数据，建议先备份。\n\n${entry.outPath}\n\n确定继续吗？`
+                    : `刷新将重新抓取全部达人并覆盖此文件。\n\n⚠️ 将覆盖之前的数据，建议先备份。\n\n${entry.outPath}\n\n确定刷新吗？`)
+          : (isCont ? `Continue will scrape NEW creators and write back to this file.\n\n⚠️ May overwrite existing data if the file was edited — backup recommended.\n\n${entry.outPath}\n\nContinue?`
+                    : `Refresh will re-scrape ALL creators and overwrite this file.\n\n⚠️ This overwrites previous data — backup recommended.\n\n${entry.outPath}\n\nRefresh?`);
+        if (!confirm(msg)) return;
+        const r = isCont ? await window.api.continueHistory(entry.outPath) : await window.api.refreshHistory(entry.outPath);
+        if (!r.ok) { alert(r.error || (uiLang === 'zh' ? '操作失败' : 'Action failed')); return; }
+        // switch to running state (poll will pick up)
+        setStatus('⏳ 启动中…', 'running');
+        document.getElementById('btnStop').disabled = false;
+        lockOptions(true);
       }
     };
   });
