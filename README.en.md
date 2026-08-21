@@ -36,15 +36,15 @@
 
 ## 🚀 Introduction
 
-**TikTokShop Creator Scraper** is a desktop application built for **TikTok Shop sellers** to:
+**TikTokShop Creator Scraper** is an open-source desktop application built for **TikTok Shop sellers** to:
 
-- Scrape creator data from the TikTok Shop Affiliate (联盟) marketplace
-- Analyze creator performance (GMV, sales, engagement, follower demographics)
-- Extract creator contact info (bio, email, MCN agency)
-- Export everything to **CSV / Excel** with selectable fields and **CN/EN header language**
-- Output history with one-click **Open / Copy path / Delete**
+- Scrape creator data from the TikTok Shop Affiliate (联盟) marketplace — search by keywords, or import creator IDs / @handles / TikTok links directly
+- Analyze creator performance (GMV, sales, engagement, follower demographics, PPS score)
+- Extract creator contact info (bio, collaboration email, MCN agency)
+- Export everything to **CSV / Excel** with selectable fields — headers follow the UI language (CN/EN one-click switch)
+- Output history with one-click **Continue / Refresh / Open / Delete**, resume from breakpoints, automatic deduplication
 
-> Open-source · GPL-3.0 · Windows desktop app · Multi-account support
+> Open-source · GPL-3.0 · Windows desktop app · Multi-account concurrent scraping · Auto-update
 
 ## 🎯 Who It's For
 
@@ -56,26 +56,31 @@
 
 | Feature | Description |
 |---|---|
-| 🔍 Creator scraping | Batch-scrape the affiliate creator marketplace |
-| 📊 Performance data | GMV, sales, video/live performance, follower profile |
-| 📧 Contact info | Bio, collaboration email (extracted), MCN agency |
-| 📁 Export | CSV / Excel with customizable fields |
-| 👥 Multi-account | Multiple cookies for concurrent scraping |
-| 🌐 Bilingual UI | Chinese / English interface with one-click switch |
-| 🔄 Auto-update | Checks for new versions on startup, one-click update |
-| 💾 Data memory | Remembers cookies, output history, resume from breakpoints |
+| 🔍 Creator scraping | Batch keyword search, or import ID / @handle / TikTok links directly |
+| 🌍 Multi-region | Choose US / UK / Southeast Asia / LATAM shop regions |
+| 📊 Performance data | GMV, sales, video/live performance, follower profile (incl. gender %) |
+| 📧 Contact info | Bio, collaboration email (auto-extracted), MCN agency |
+| 📁 Export | CSV / Excel with customizable fields; headers follow UI language |
+| 🚀 Dual speed modes | Fast mode (list only) vs Full mode (list + details), Full by default |
+| 🔁 Resume history | One-click **Continue** (new creators only) or **Refresh** (re-scrape all, overwrite) |
+| 🧹 Deduplication | Already-scraped creators are skipped automatically |
+| 👥 Multi-account | Multiple cookies scraped concurrently with staggered starts |
+| 🛡️ Session rotation | Auto-rotates session on risk-control, resumes from breakpoint (up to 3×) |
+| ⏯️ Tri-state control | Pause / Resume / one-click **Finish & Export** anytime |
+| 🌐 Bilingual UI | Chinese / English interface, field list and headers with one-click switch |
+| 🔄 Auto-update | Checks for new versions on startup, one-click update (differential download) |
+| 💾 Data memory | Remembers cookies, output history, resumes from breakpoints |
 | 🖥️ Desktop integration | Desktop shortcut, custom icon, auto output/log folders |
-| 🛡️ Install guard | Detects existing install, prevents duplicate installation |
 
 ## 📊 Data You Can Collect
 
 | Category | Fields |
 |---|---|
-| Basic Info | handle, nickname, creator ID, avatar, region, follower count |
-| Sales Data | total GMV, video GMV, live GMV, units sold, category |
-| Content Performance | avg views, engagement, GPM, UV |
-| Follower Profile | age distribution, gender split, PPS score |
-| Details (optional) | bio, collaboration email, MCN agency |
+| Basic Info | creator page, nickname, creator ID, avatar, region, follower count |
+| Sales Data | total GMV, GMV range, video GMV, live GMV, units sold, units sold range, category |
+| Content Performance | avg/median video views, engagement, e-comm engagement, e-comm GPM, live GPM, e-comm avg UV |
+| Follower Profile | age distribution, gender split (%), PPS score, fast growing, collaborated, category permission, live auction |
+| Details (optional) | bio, collaboration email (auto-extracted), MCN agency, category |
 
 ## 📦 Install
 
@@ -110,14 +115,21 @@ The app needs your TikTok Shop Affiliate **login cookie** to access creator data
 
 ### Step 2 — Configure & Start
 
-1. **Browser mode**: keep "Auto (Recommended)" — it connects to your Chrome if possible, otherwise opens an off-screen window
-2. **Select categories**: check the creator categories you want (select all / clear, 中/EN switch available)
-3. **Export settings**: choose CSV or Excel, pick an output folder, optionally select which fields to export
-   - Check "Also scrape details" if you need bio / email / MCN (slower)
-4. Click **▶ Start Scraping** — progress shows in the log below
-5. When done, the file is saved to your chosen folder: `达人数据-日期-时间.csv` / `.xlsx`
+1. **Creator region**: choose the TikTok Shop site to scrape (e.g. US / UK / Southeast Asia)
+2. **Scrape target**:
+   - **Keyword search**: check creator categories / enter keywords to scrape marketplace results
+   - **Import list**: paste creator IDs, @handles or TikTok links (one per line) to scrape only those
+3. **Scrape mode**: **Full mode** is default (list + details: bio/email/MCN, slower); switch to **Fast mode** (list only, 2-3× faster) if you don't need details
+4. **Scrape scope**:
+   - **New only (default)**: automatically skips already-scraped creators
+   - **Re-scrape all**: re-scrapes everything and overwrites to refresh data
+5. **Export settings**: choose CSV or Excel, pick an output folder, check the fields to export (headers follow UI language)
+6. Click **▶ Start Scraping** — progress shows in the log below (Pause / Resume / one-click **Finish & Export** anytime)
+7. When done, the file is saved to your chosen folder: `达人数据-日期-时间.csv` / `.xlsx`
 
 > 🆕 **First time?** Click **🔍 Test** first to verify everything works with a 1-page trial scrape (isolated environment, no full run).
+
+> 🔁 **Want to continue a previous scrape?** In "History", find the file and click **🔼 Continue** to scrape only new creators and write back to the same file, or **🔄 Refresh** to re-scrape all and overwrite.
 
 ## ❓ FAQ
 
@@ -125,13 +137,25 @@ The app needs your TikTok Shop Affiliate **login cookie** to access creator data
 A: Your cookie may have expired (TikTok sessions last ~3 days). Re-export a fresh cookie.
 
 **Q: Scraping is slow?**  
-A: Request intervals are randomized (~6-15s) for stability. Enabling details (bio/email) is slower as each creator is queried individually.
+A: Request intervals are randomized (~6-15s) for stability. Full mode (details) is slower as each creator is queried individually; switch to **Fast mode** if you don't need email/bio (2-3× faster).
 
 **Q: How do I use multiple accounts?**  
 A: Click "＋ Add Account" in the cookie area and paste multiple account cookies. The app scrapes concurrently with staggered starts.
 
 **Q: Interrupted mid-scrape?**  
-A: Restart the app and scrape again — it resumes automatically from the last checkpoint.
+A: Restart the app and scrape again — it resumes automatically from the last checkpoint. If risk-control triggers, the app auto-rotates to a new session and continues (up to 3×).
+
+**Q: Will already-scraped creators be scraped again?**  
+A: No, by default. "New only" mode skips creators already saved (dedup by creator ID); choose "Re-scrape all" to refresh data.
+
+**Q: No email found?**  
+A: In Full mode the app auto-extracts emails from creator bios. If the creator didn't write an email in their bio, the cell is empty — that's normal.
+
+**Q: What do the numbers in "Audience Gender" mean?**  
+A: Percentages (e.g. `Female: 79.47%`), not counts. TikTok's API returns "share × 100" values and the app converts them back to percentages automatically.
+
+**Q: MCN agency is empty?**  
+A: Most creators aren't bound to an MCN — TikTok returns "not authorized", which is normal, not a scraping failure.
 
 ## 💻 Development
 
