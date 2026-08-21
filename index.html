@@ -255,12 +255,13 @@ https://www.tiktok.com/@makeup.lover'></textarea>
       <div class="hint" style="margin-top:8px;padding-left:0">💡 <b>快速模式</b>约 3-7 秒/页，适合大批量筛选；<b>完整模式</b>额外抓每位达人的简介、邮箱、佣金率、合作品牌等（速度慢 2-3 倍），适合精挑合作对象。快速模式下详情字段为灰色不可选。</div>
     </div>
     <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span style="font-size:13px;font-weight:600;color:var(--text-2)">去重方式：</span>
+      <span style="font-size:13px;font-weight:600;color:var(--text-2)">抓取范围：</span>
       <div class="radio-group">
-        <label><input type="radio" name="dedupeMode" value="dedupe" checked> 🎯 查重（跳过已抓过）</label>
-        <label><input type="radio" name="dedupeMode" value="refresh"> 🔄 刷新（重爬更新数据）</label>
+        <label><input type="radio" name="dedupeMode" value="dedupe" checked> 🆕 只抓新的（跳过已抓过）</label>
+        <label><input type="radio" name="dedupeMode" value="refresh"> 🔄 全部重抓（刷新数据）</label>
       </div>
     </div>
+    <div class="hint" style="margin-top:6px">💡 <b>只抓新的</b>：与之前抓取去重，不重复抓同一达人，适合持续增量采集；<b>全部重抓</b>：重新抓取所有达人（含之前已抓的），用于更新 GMV、粉丝数等有时效的数据。</div>
     <div style="margin-top:14px">
       <span style="font-size:13px;color:var(--sub)" data-i18n="step4.fields">导出字段</span>
       <span class="sel-all" id="fieldsAll">全选</span><span class="sel-all" id="fieldsNone">清空</span>
@@ -342,7 +343,7 @@ const I18N = {
   'step4.out': { zh: '输出位置', en: 'Output Location' },
   'step4.choose': { zh: '📁 选择', en: '📁 Choose' },
   'step4.detail': { zh: '同时抓取详情（简介、合作邮箱、MCN 等）', en: 'Also scrape details (bio, email, MCN)' },
-  'step4.dedupe': { zh: '查重（跳过已抓过的达人）', en: 'Dedupe (skip already-scraped creators)' },
+  'step4.dedupe': { zh: '只抓新的（跳过已抓过）', en: 'New only (skip scraped)' },
   'step4.fields': { zh: '导出字段', en: 'Export Fields' },
   'step4.fieldsAll': { zh: '全选', en: 'Select All' },
   'step4.fieldsNone': { zh: '清空', en: 'Clear' },
