@@ -201,23 +201,23 @@
   <div class="card">
     <h2><span class="step-num">3</span> <span data-i18n="step3.title">选择抓取对象</span></h2>
     <div class="radio-group" style="margin-bottom:14px">
-      <label><input type="radio" name="source" value="cat" checked> 🏷️ 按类目抓取</label>
-      <label><input type="radio" name="source" value="list"> 📋 按达人名单抓取</label>
+      <label><input type="radio" name="source" value="cat" checked> <span data-i18n="step3.sourceCat">🏷️ 按类目抓取</span></label>
+      <label><input type="radio" name="source" value="list"> <span data-i18n="step3.sourceList">📋 按达人名单抓取</span></label>
     </div>
     <div id="sourceCat">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:13px;font-weight:600;color:var(--text-2)">类目关键词</span>
+        <span style="font-size:13px;font-weight:600;color:var(--text-2)" data-i18n="step3.catTitle">类目关键词</span>
         <span><button class="btn-link" id="langToggle" style="margin-left:4px">🌐 EN</button><span class="sel-all" id="selAll" data-i18n="step3.all">全选</span><span class="sel-all" id="selNone" data-i18n="step3.none">清空</span></span>
       </div>
       <div class="cats" id="cats"></div>
     </div>
     <div id="sourceList" style="display:none">
-      <label class="check-label" style="font-size:13.5px;color:var(--text-2);margin-bottom:8px">📋 达人名单（数值ID / handle / TikTok链接，每行一个）</label>
-      <textarea id="creatorInput" rows="4" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'SF Mono',Consolas,monospace;font-size:12px;resize:vertical;background:#fff;outline:none" placeholder='例如：
+      <label class="check-label" style="font-size:13.5px;color:var(--text-2);margin-bottom:8px" data-i18n="step3.listTitle">📋 达人名单（数值ID / handle / TikTok链接，每行一个）</label>
+      <textarea id="creatorInput" rows="4" style="width:100%;border:1px solid var(--border);border-radius:10px;padding:10px 12px;font-family:'SF Mono',Consolas,monospace;font-size:12px;resize:vertical;background:#fff;outline:none" data-i18n-placeholder="step3.listPlaceholder" placeholder='例如：
 7494397026366031127
 @beauty.pro
 https://www.tiktok.com/@makeup.lover'></textarea>
-      <div class="hint" style="margin-top:6px">ID 直接抓，handle/链接会自动解析。单次上限 500 条（防风控），超过请分批抓取。</div>
+      <div class="hint" style="margin-top:6px" data-i18n="step3.listHint">ID 直接抓，handle/链接会自动解析。单次上限 500 条（防风控），超过请分批抓取。</div>
     </div>
   </div>
 
@@ -247,21 +247,21 @@ https://www.tiktok.com/@makeup.lover'></textarea>
       </div>
     </div>
     <div style="margin-top:14px">
-      <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:8px">抓取模式</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:8px" data-i18n="step4.mode">抓取模式</div>
       <div class="radio-group">
-        <label><input type="radio" name="scrapeMode" value="fast" checked> ⚡ 快速模式（只抓列表字段）</label>
-        <label><input type="radio" name="scrapeMode" value="full"> 📦 完整模式（列表 + 详情全部字段）</label>
+        <label><input type="radio" name="scrapeMode" value="fast" checked> <span data-i18n="step4.modeFast">⚡ 快速模式（只抓列表字段）</span></label>
+        <label><input type="radio" name="scrapeMode" value="full"> <span data-i18n="step4.modeFull">📦 完整模式（列表 + 详情全部字段）</span></label>
       </div>
-      <div class="hint" style="margin-top:8px;padding-left:0">💡 <b>快速模式</b>约 3-7 秒/页，适合大批量筛选；<b>完整模式</b>额外抓每位达人的简介、邮箱、佣金率、合作品牌等（速度慢 2-3 倍），适合精挑合作对象。快速模式下详情字段为灰色不可选。</div>
+      <div class="hint" style="margin-top:8px;padding-left:0" data-i18n="step4.modeHint">💡 <b>快速模式</b>约 3-7 秒/页，适合大批量筛选；<b>完整模式</b>额外抓每位达人的简介、合作邮箱、MCN 等（速度慢 2-3 倍），适合精挑合作对象。快速模式下详情字段为灰色不可选。</div>
     </div>
     <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span style="font-size:13px;font-weight:600;color:var(--text-2)">抓取范围：</span>
+      <span style="font-size:13px;font-weight:600;color:var(--text-2)" data-i18n="step4.scope">抓取范围：</span>
       <div class="radio-group">
-        <label><input type="radio" name="dedupeMode" value="dedupe" checked> 🆕 只抓新的（跳过已抓过）</label>
-        <label><input type="radio" name="dedupeMode" value="refresh"> 🔄 全部重抓（刷新数据）</label>
+        <label><input type="radio" name="dedupeMode" value="dedupe" checked> <span data-i18n="step4.scopeNew">🆕 只抓新的（跳过已抓过）</span></label>
+        <label><input type="radio" name="dedupeMode" value="refresh"> <span data-i18n="step4.scopeAll">🔄 全部重抓（刷新数据）</span></label>
       </div>
     </div>
-    <div class="hint" style="margin-top:6px">💡 <b>只抓新的</b>：与之前抓取去重，不重复抓同一达人，适合持续增量采集；<b>全部重抓</b>：重新抓取所有达人（含之前已抓的），用于更新 GMV、粉丝数等有时效的数据。</div>
+    <div class="hint" style="margin-top:6px" data-i18n="step4.scopeHint">💡 <b>只抓新的</b>：与之前抓取去重，不重复抓同一达人，适合持续增量采集；<b>全部重抓</b>：重新抓取所有达人（含之前已抓的），用于更新 GMV、粉丝数等有时效的数据。</div>
     <div style="margin-top:14px">
       <span style="font-size:13px;color:var(--sub)" data-i18n="step4.fields">导出字段</span>
       <span class="sel-all" id="fieldsAll">全选</span><span class="sel-all" id="fieldsNone">清空</span>
@@ -308,8 +308,8 @@ https://www.tiktok.com/@makeup.lover'></textarea>
       <div class="ub-track"><div class="ub-fill" id="umProgressFill"></div></div>
     </div>
     <div class="modal-foot">
-      <button class="btn btn-secondary" id="umLater">稍后</button>
-      <button class="btn btn-primary" id="umDownload">立即下载更新</button>
+      <button class="btn btn-secondary" id="umLater" data-i18n="upd.later">稍后</button>
+      <button class="btn btn-primary" id="umDownload" data-i18n="upd.download">立即下载更新</button>
     </div>
   </div>
 </div>
@@ -334,7 +334,13 @@ const I18N = {
   'step2.real': { zh: '真实窗口', en: 'Real Window' },
   'step2.headless': { zh: 'Headless', en: 'Headless' },
   'step2.desc': { zh: '自动：优先连接常驻调试 Chrome(9222)，没有则开屏幕外真实窗口。Headless 模式兼容性有限，建议使用自动或真实窗口。', en: 'Auto: connects to debug Chrome(9222) first, otherwise opens an off-screen real window. Headless has limited compatibility; auto or real window is recommended.' },
-  'step3.title': { zh: '选择类目', en: 'Select Categories' },
+  'step3.title': { zh: '选择抓取对象', en: 'Choose Scrape Target' },
+  'step3.sourceCat': { zh: '🏷️ 按类目抓取', en: '🏷️ By Category' },
+  'step3.sourceList': { zh: '📋 按达人名单抓取', en: '📋 By Creator List' },
+  'step3.catTitle': { zh: '类目关键词', en: 'Category Keywords' },
+  'step3.listTitle': { zh: '📋 达人名单（数值ID / handle / TikTok链接，每行一个）', en: '📋 Creator list (numeric ID / @handle / TikTok link, one per line)' },
+  'step3.listPlaceholder': { zh: '例如：\n7494397026366031127\n@beauty.pro\nhttps://www.tiktok.com/@makeup.lover', en: 'e.g.\n7494397026366031127\n@beauty.pro\nhttps://www.tiktok.com/@makeup.lover' },
+  'step3.listHint': { zh: 'ID 直接抓，handle/链接会自动解析。单次上限 500 条（防风控），超过请分批抓取。', en: 'IDs are used directly; handles/links are auto-resolved. Max 500 per run (risk-control), split larger lists.' },
   'step3.all': { zh: '全选', en: 'Select All' },
   'step3.none': { zh: '清空', en: 'Clear' },
   'step4.title': { zh: '导出设置', en: 'Export Settings' },
@@ -342,6 +348,14 @@ const I18N = {
   'step4.headerLang': { zh: '表头语言', en: 'Header Language' },
   'step4.out': { zh: '输出位置', en: 'Output Location' },
   'step4.choose': { zh: '📁 选择', en: '📁 Choose' },
+  'step4.mode': { zh: '抓取模式', en: 'Scrape Mode' },
+  'step4.modeFast': { zh: '⚡ 快速模式（只抓列表字段）', en: '⚡ Fast (list fields only)' },
+  'step4.modeFull': { zh: '📦 完整模式（列表 + 详情全部字段）', en: '📦 Full (list + all detail fields)' },
+  'step4.modeHint': { zh: '💡 <b>快速模式</b>约 3-7 秒/页，适合大批量筛选；<b>完整模式</b>额外抓每位达人的简介、合作邮箱、MCN 等（速度慢 2-3 倍），适合精挑合作对象。快速模式下详情字段为灰色不可选。', en: '💡 <b>Fast</b> ~3-7s/page, ideal for large screening; <b>Full</b> also fetches each creator\'s bio, contact email, MCN, etc. (2-3× slower), best for shortlisting partners. Detail fields are grayed out in Fast mode.' },
+  'step4.scope': { zh: '抓取范围：', en: 'Scrape Scope:' },
+  'step4.scopeNew': { zh: '🆕 只抓新的（跳过已抓过）', en: '🆕 New only (skip scraped)' },
+  'step4.scopeAll': { zh: '🔄 全部重抓（刷新数据）', en: '🔄 Re-scrape all (refresh)' },
+  'step4.scopeHint': { zh: '💡 <b>只抓新的</b>：与之前抓取去重，不重复抓同一达人，适合持续增量采集；<b>全部重抓</b>：重新抓取所有达人（含之前已抓的），用于更新 GMV、粉丝数等有时效的数据。', en: '💡 <b>New only</b>: skip creators already scraped — good for incremental collection; <b>Re-scrape all</b>: fetch every creator again (incl. previous) to refresh time-sensitive data like GMV/followers.' },
   'step4.detail': { zh: '同时抓取详情（简介、合作邮箱、MCN 等）', en: 'Also scrape details (bio, email, MCN)' },
   'step4.dedupe': { zh: '只抓新的（跳过已抓过）', en: 'New only (skip scraped)' },
   'step4.fields': { zh: '导出字段', en: 'Export Fields' },
@@ -359,6 +373,25 @@ const I18N = {
   'step5.empty': { zh: '暂无历史记录', en: 'No history yet' },
   'footer.text': { zh: '专为 TikTok Shop 卖家打造 · 请求间隔人性化 · 自动限流处理', en: 'Built for TikTok Shop Sellers · Reasonable request pacing' },
   'lang.toggle': { zh: '🌐 EN', en: '🌐 中文' },
+  'upd.later': { zh: '稍后', en: 'Later' },
+  'upd.download': { zh: '立即下载更新', en: 'Download Now' },
+  'upd.downloading': { zh: '下载中…', en: 'Downloading…' },
+  'upd.ready': { zh: '更新下载完成，等待重启安装…', en: 'Update downloaded, waiting to restart…' },
+  'upd.downloadingPct': { zh: '正在下载更新… {p}%', en: 'Downloading update… {p}%' },
+  'exit.confirm': { zh: '确定退出程序吗？', en: 'Quit the app?' },
+  'alert.noCookie': { zh: '请先导入 Cookie（拖入文件或粘贴内容）', en: 'Please import cookies first (drag file or paste)' },
+  'alert.noList': { zh: '请填写达人名单', en: 'Please fill in the creator list' },
+  'alert.noKw': { zh: '请至少选择一个类目/关键词', en: 'Select at least one category/keyword' },
+  'alert.startFail': { zh: '启动失败', en: 'Start failed' },
+  'hist.openFail': { zh: '打开失败', en: 'Open failed' },
+  'hist.folderFail': { zh: '打开文件夹失败', en: 'Open folder failed' },
+  'hist.delFail': { zh: '删除失败', en: 'Delete failed' },
+  'hist.delConfirm': { zh: '确定删除文件吗？', en: 'Delete file?' },
+  'hist.openTitle': { zh: '打开文件', en: 'Open file' },
+  'hist.folderTitle': { zh: '打开所在文件夹', en: 'Open folder' },
+  'hist.delTitle': { zh: '删除文件', en: 'Delete file' },
+  'cookie.invalidJson': { zh: '无效 JSON（不是数组）', en: 'Invalid JSON (not an array)' },
+  'cookie.invalid': { zh: '内容无效，请检查 JSON 格式', en: 'Invalid content, check JSON format' },
 };
 let uiLang = localStorage.getItem('uiLang') || 'zh';
 function applyI18n() {
@@ -369,6 +402,11 @@ function applyI18n() {
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.setAttribute('placeholder', t[uiLang] || '');
       else el.innerHTML = t[uiLang] || el.innerHTML;
     }
+  });
+  // separate attribute for placeholders (keeps inner text intact)
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const t = I18N[el.getAttribute('data-i18n-placeholder')];
+    if (t) el.setAttribute('placeholder', t[uiLang] || '');
   });
   // dynamic bits
   const lt = document.getElementById('uiLangToggle');
@@ -501,13 +539,14 @@ const FIELDS = [
   { k: '简介', n: '简介', detail: true }, { k: '合作邮箱', n: '合作邮箱', detail: true }, { k: 'MCN机构', n: 'MCN机构', detail: true },
 ];
 function syncDetailFields() {
-  // fast mode → detail-only fields grayed out & uncheckable; full mode → all enabled
+  // fast mode → detail-only fields grayed out & uncheckable; full mode → all enabled + auto-checked
   const mode = (document.querySelector('input[name=scrapeMode]:checked') || {}).value || 'fast';
   const on = mode === 'full';
   document.querySelectorAll('.fld-detail').forEach(label => {
     const cb = label.querySelector('input.fld');
     cb.disabled = !on;
-    if (!on) cb.checked = false;   // fast mode: force unchecked
+    if (on) cb.checked = true;      // full mode: auto-check bio/email/MCN so they export
+    else cb.checked = false;        // fast mode: force unchecked
     label.classList.toggle('on', on);
     label.title = on ? (cb.value) : (uiLang === 'zh' ? '完整模式才可抓取' : 'Available in Full mode');
   });
@@ -638,14 +677,14 @@ function showDirModal(dirs) {
   const panel = document.createElement('div');
   panel.style.cssText = 'background:#fff;border-radius:16px;padding:24px;width:500px;max-width:92vw;box-shadow:0 12px 40px rgba(0,0,0,.2);font-family:inherit;';
   panel.innerHTML = `
-    <h3 style="margin:0 0 14px;font-size:16px;font-weight:600">选择输出目录</h3>
+    <h3 style="margin:0 0 14px;font-size:16px;font-weight:600">${uiLang === 'zh' ? '选择输出目录' : 'Choose Output Directory'}</h3>
     <div style="max-height:220px;overflow-y:auto;margin-bottom:12px">
-      ${(dirs || []).map((d, i) => `<div data-i="${i}" style="padding:9px 12px;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:4px">📁 ${d}</div>`).join('') || '<div style="color:#999;font-size:13px">无常用目录</div>'}
+      ${(dirs || []).map((d, i) => `<div data-i="${i}" style="padding:9px 12px;border-radius:8px;cursor:pointer;font-size:14px;margin-bottom:4px">📁 ${d}</div>`).join('') || `<div style="color:#999;font-size:13px">${uiLang === 'zh' ? '无常用目录' : 'No common folders'}</div>`}
     </div>
-    <div style="margin-bottom:14px"><input type="text" id="dirManual" placeholder="或手动输入完整路径，如 D:\\data" style="width:100%;padding:9px 12px;border:1px solid rgba(0,0,0,.12);border-radius:10px;font-size:14px;outline:none"></div>
+    <div style="margin-bottom:14px"><input type="text" id="dirManual" placeholder="${uiLang === 'zh' ? '或手动输入完整路径，如 D:\\data' : 'Or type a full path, e.g. D:\\data'}" style="width:100%;padding:9px 12px;border:1px solid rgba(0,0,0,.12);border-radius:10px;font-size:14px;outline:none"></div>
     <div style="display:flex;justify-content:flex-end;gap:8px">
-      <button class="btn btn-secondary" id="dirCancel">取消</button>
-      <button class="btn btn-primary" id="dirOk">确定</button>
+      <button class="btn btn-secondary" id="dirCancel">${uiLang === 'zh' ? '取消' : 'Cancel'}</button>
+      <button class="btn btn-primary" id="dirOk">${uiLang === 'zh' ? '确定' : 'OK'}</button>
     </div>`;
   overlay.appendChild(panel);
   document.body.appendChild(overlay);
@@ -815,12 +854,12 @@ document.getElementById('btnStart').onclick = async () => {
   if (st && st.stopping) return; // ignore clicks while winding down
 
   // ---- start a new scrape ----
-  if (!cookieList.length) { alert('请先导入 Cookie（拖入文件或粘贴内容）'); return; }
+  if (!cookieList.length) { alert(I18N['alert.noCookie'][uiLang]); return; }
   const source = (document.querySelector('input[name=source]:checked') || {}).value || 'cat';
   const creatorInput = document.getElementById('creatorInput').value.trim().split(/\r?\n/).map(x => x.trim()).filter(Boolean);
   const kws = [...document.querySelectorAll('.kw:checked')].map(c => c.value);
-  if (source === 'list' && !creatorInput.length) { alert('请填写达人名单'); return; }
-  if (source === 'cat' && !kws.length) { alert('请至少选择一个类目/关键词'); return; }
+  if (source === 'list' && !creatorInput.length) { alert(I18N['alert.noList'][uiLang]); return; }
+  if (source === 'cat' && !kws.length) { alert(I18N['alert.noKw'][uiLang]); return; }
   const fields = [...document.querySelectorAll('.fld:checked')].map(c => c.value);
   const mode = document.querySelector('input[name=mode]:checked').value;
   const format = document.querySelector('input[name=format]:checked').value;
@@ -845,8 +884,8 @@ document.getElementById('btnStart').onclick = async () => {
   lockOptions(true); // 抓取开始后锁定所有配置选项
   try {
     const j = await window.api.start(cfg);
-    if (j.error) { alert('启动失败: ' + j.error); setStatus('❌ ' + j.error, 'error'); syncMainButton('start', { disabled: false }); document.getElementById('btnStop').disabled = true; lockOptions(false); }
-  } catch (e) { alert('启动失败: ' + e.message); lockOptions(false); }
+    if (j.error) { alert(I18N['alert.startFail'][uiLang] + ': ' + j.error); setStatus('❌ ' + j.error, 'error'); syncMainButton('start', { disabled: false }); document.getElementById('btnStop').disabled = true; lockOptions(false); }
+  } catch (e) { alert(I18N['alert.startFail'][uiLang] + ': ' + e.message); lockOptions(false); }
   setInterval(poll, 1500);
 };
 
@@ -868,28 +907,28 @@ document.getElementById('btnStop').onclick = async () => {
   setStatus('⏹ 正在结束并导出…', '');
   document.getElementById('statusDetail').textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件（可再次点击「结束并导出」跳过详情补抓）…' : 'Saving scraped data and exporting (click again to skip detail fill)…';
 };
-document.getElementById('btnExit').onclick = async () => { if (confirm('确定退出程序吗？')) await window.api.exit(); };
+document.getElementById('btnExit').onclick = async () => { if (confirm(I18N['exit.confirm'][uiLang])) await window.api.exit(); };
 
 // ═══════════ 测试连接 ═══════════
 document.getElementById('btnTest').onclick = async () => {
-  if (!cookieList.length) { alert('请先导入 Cookie'); return; }
+  if (!cookieList.length) { alert(I18N['alert.noCookie'][uiLang]); return; }
   const btn = document.getElementById('btnTest');
   const box = document.getElementById('testResult');
   btn.disabled = true;
   box.style.display = 'block';
-  box.innerHTML = '⏳ 正在测试（隔离环境抓取 1 页验证）...';
+  box.innerHTML = uiLang === 'zh' ? '⏳ 正在测试（隔离环境抓取 1 页验证）...' : '⏳ Testing (isolated 1-page run)...';
   box.className = 'hint';
   try {
     const j = await window.api.test({ pastedCookies: cookieList.map(c => c.data), mode: document.querySelector('input[name=mode]:checked').value, shopRegion: (document.getElementById('shopRegionCustom').value.trim() || document.getElementById('shopRegion').value || 'US').toUpperCase() });
     if (j.error) {
-      box.innerHTML = '❌ 测试失败：' + j.error + '<br><small>' + (j.log ? j.log.join('<br>') : '') + '</small>';
+      box.innerHTML = (uiLang === 'zh' ? '❌ 测试失败：' : '❌ Test failed: ') + j.error + '<br><small>' + (j.log ? j.log.join('<br>') : '') + '</small>';
       box.style.color = 'var(--danger)';
     } else {
-      box.innerHTML = '✅ 测试成功！抓取到 ' + j.creators + ' 条达人数据（' + j.rows + ' 行），环境正常可正式抓取';
+      box.innerHTML = (uiLang === 'zh' ? `✅ 测试成功！抓取到 ${j.creators} 条达人数据（${j.rows} 行），环境正常可正式抓取` : `✅ Test OK! Scraped ${j.creators} creators (${j.rows} rows), environment ready`);
       box.style.color = 'var(--ok)';
     }
   } catch (e) {
-    box.innerHTML = '❌ 测试异常：' + e.message;
+    box.innerHTML = (uiLang === 'zh' ? '❌ 测试异常：' : '❌ Test error: ') + e.message;
     box.style.color = 'var(--danger)';
   }
   btn.disabled = false;
@@ -922,14 +961,14 @@ async function renderHistory(history) {
       const act = btn.dataset.act;
       if (act === 'open') {
         const r = await window.api.openHistoryFile(entry.outPath);
-        if (!r.ok) { alert(r.error || '打开失败'); if (r.history) renderHistory(r.history); }
+        if (!r.ok) { alert(r.error || I18N['hist.openFail'][uiLang]); if (r.history) renderHistory(r.history); }
       } else if (act === 'folder') {
         const r = await window.api.openHistoryFolder(entry.outPath);
-        if (!r.ok) alert(r.error || '打开文件夹失败');
+        if (!r.ok) alert(r.error || I18N['hist.folderFail'][uiLang]);
       } else if (act === 'del') {
         if (!confirm(uiLang === 'zh' ? `确定删除文件吗？\n${entry.outPath}` : `Delete file?\n${entry.outPath}`)) return;
         const r = await window.api.deleteHistoryFile(entry.outPath);
-        if (!r.ok) { alert(r.error || '删除失败'); return; }
+        if (!r.ok) { alert(r.error || I18N['hist.delFail'][uiLang]); return; }
         renderHistory(r.history || []);
       }
     };
