@@ -428,6 +428,9 @@ function toggleUiLang() {
   const hl = document.querySelector('input[name=headerLang][value="' + uiLang + '"]');
   if (hl) hl.checked = true;
   applyI18n();
+  // history rows are rendered from the cached list — re-render so buttons
+  // and row labels follow the new UI language too
+  renderHistory(lastHistory);
 }
 document.addEventListener('DOMContentLoaded', () => {
   applyI18n();
@@ -951,7 +954,9 @@ document.getElementById('btnTest').onclick = async () => {
 
 // ═══════════ 历史记录渲染 ═══════════
 const HIST_ACTIONS = { open: '📂', copy: '📋', del: '🗑' };
+let lastHistory = null; // cache so language switch can re-render rows
 async function renderHistory(history) {
+  lastHistory = history;
   const box = document.getElementById('historyBox');
   if (!history || !history.length) {
     box.innerHTML = '<div style="color:var(--sub);font-size:13px;padding:10px">' + I18N['step5.empty'][uiLang] + '</div>';
@@ -964,9 +969,9 @@ async function renderHistory(history) {
       <span style="color:var(--sub);flex-shrink:0">${h.rows} ${uiLang === 'zh' ? '行' : 'rows'} · ${h.time}</span>
       <span class="hist-actions" style="display:flex;gap:4px;flex-shrink:0">
         <button class="hist-btn" data-act="open" title="${uiLang === 'zh' ? '打开文件' : 'Open file'}">📂 ${uiLang === 'zh' ? '打开' : 'Open'}</button>
-        <button class="hist-btn" data-act="folder" title="${uiLang === 'zh' ? '打开所在文件夹' : 'Open folder'}">📁</button>
-        <button class="hist-btn" data-act="continue" title="${uiLang === 'zh' ? '继续抓取：仅新增未抓过的达人' : 'Continue: only add new creators'}">🔼 ${uiLang === 'zh' ? '继续抓取' : 'Continue'}</button>
-        <button class="hist-btn" data-act="refresh" title="${uiLang === 'zh' ? '刷新：重新抓取全部达人并覆盖' : 'Refresh: re-scrape all and overwrite'}">🔄 ${uiLang === 'zh' ? '刷新' : 'Refresh'}</button>
+        <button class="hist-btn" data-act="folder" title="${uiLang === 'zh' ? '打开所在文件夹' : 'Open folder'}">📁 ${uiLang === 'zh' ? '文件夹' : 'Folder'}</button>
+        <button class="hist-btn" data-act="continue" title="${uiLang === 'zh' ? '继续抓取：仅新增未抓过的达人' : 'Continue: only add new creators'}">🔼 ${uiLang === 'zh' ? '继续' : 'Continue'}</button>
+        <button class="hist-btn" data-act="refresh" title="${uiLang === 'zh' ? '刷新：重新抓取全部达人并覆盖' : 'Refresh: re-scrape all and overwrite'}">🔄 ${uiLang === 'zh' ? '重抓' : 'Refresh'}</button>
         <button class="hist-btn hist-del" data-act="del" title="${uiLang === 'zh' ? '删除文件' : 'Delete file'}">🗑 ${uiLang === 'zh' ? '删除' : 'Delete'}</button>
       </span>
     </div>`).join('');
