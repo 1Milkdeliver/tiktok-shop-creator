@@ -162,31 +162,44 @@ A：多数达人没有绑定 MCN，TikTok 返回"无授权"属正常现象，不
 
 ```bash
 npm install
-npm start          # 运行（开发模式）
+npm start          # 运行（开发模式，直接跑源码）
 npm run build      # 打包安装程序 → dist/TikTokShop达人抓取安装程序-<版本>.exe
 ```
 
-> 打包时设置 `CSC_IDENTITY_AUTO_DISCOVERY=false` 跳过代码签名（Windows 符号链接权限的已知问题）。
+> - 需要本机已安装 Google Chrome（工具通过 puppeteer-core 连接）。
+> - 打包时设置 `CSC_IDENTITY_AUTO_DISCOVERY=false` 跳过代码签名（Windows 符号链接权限的已知问题）。
+> - 安装包图标通过 `afterPack.js` 钩子 + rcedit 注入，`rebuild-icons.js` 可重新生成图标资源。
 
 ## 📤 发布新版
 
-应用内置自动检查更新。发布新版只需 4 步：
+应用内置自动检查更新（差分下载）。发布新版步骤：
 
 ```bash
-# 1. 更新 package.json 版本号（如 1.1.1 → 1.2.0）
+# 1. bump 版本号（如 1.1.1 → 1.2.0）
+npm version patch --no-git-tag-version
+
 # 2. 打包
 $env:CSC_IDENTITY_AUTO_DISCOVERY='false'
 npm run build
-# 3. 发布（包含差分更新元数据）
+
+# 3. 生成差分更新元数据（latest.yml + ASCII 名资产）
 node prepare-release.js 1.2.0
-gh release create v1.2.0 "dist\TikTokShop达人抓取安装程序-1.2.0.exe" \
-  "dist\tiktok-shop-creator-scraper-setup-1.2.0.exe" \
-  "dist\tiktok-shop-creator-scraper-setup-1.2.0.exe.blockmap" \
-  "dist\latest.yml" --repo 1Milkdeliver/tiktok-shop-creator-scraper \
-  --title "v1.2.0" --notes "版本说明"
-# 4. 旧版用户启动时自动提示更新 → 静默覆盖安装（数据保留）
+
+# 4. 提交并打 tag
+git add -A && git commit -m "release 1.2.0"
+git push origin main
+git tag v1.2.0 && git push origin v1.2.0
+
+# 5. 创建 Release 并上传 4 个资产（先传小文件，避免超时）
+gh release create v1.2.0 --title "v1.2.0" --notes "版本说明"
+gh release upload v1.2.0 dist/latest.yml dist/tiktok-shop-creator-scraper-setup-1.2.0.exe.blockmap
+gh release upload v1.2.0 dist/tiktok-shop-creator-scraper-setup-1.2.0.exe
+gh release upload v1.2.0 "dist/TikTokShop达人抓取安装程序-1.2.0.exe"
+
+# 6. 旧版用户启动时自动提示更新 → 覆盖安装（数据保留）
 ```
 
+> 必须上传全部 4 个资产（中文名安装包、ASCII 名 exe、.blockmap、latest.yml），缺一个更新就会失败。
 > 版本比较规则：三位版本号，任一更高即提示更新。Release 只留最新版，下载链接自动指向最新。
 
 ## 📄 许可证

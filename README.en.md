@@ -161,28 +161,45 @@ A: Most creators aren't bound to an MCN — TikTok returns "not authorized", whi
 
 ```bash
 npm install
-npm start          # run in dev mode
+npm start          # run in dev mode (runs source directly)
 npm run build      # build installer → dist/TikTokShop达人抓取安装程序-<version>.exe
 ```
 
-> Set `CSC_IDENTITY_AUTO_DISCOVERY=false` when packaging to skip code signing (known Windows symlink permission issue).
+> - Requires Google Chrome installed locally (the app connects via puppeteer-core).
+> - Set `CSC_IDENTITY_AUTO_DISCOVERY=false` when packaging to skip code signing (known Windows symlink permission issue).
+> - The installer icon is injected via the `afterPack.js` hook + rcedit; `rebuild-icons.js` regenerates the icon assets.
 
 ## 📤 Release / Update
 
-The app checks GitHub for new versions on startup. To publish a new version:
+The app checks GitHub for new versions on startup (differential download). To publish a new version:
 
 ```bash
-# 1. Bump version in package.json (e.g. 1.1.1 → 1.2.0)
+# 1. Bump version (e.g. 1.1.1 → 1.2.0)
+npm version patch --no-git-tag-version
+
 # 2. Build installer
 $env:CSC_IDENTITY_AUTO_DISCOVERY='false'
 npm run build
-# 3. Publish release
-Copy-Item "dist\TikTokShop达人抓取安装程序-1.2.0.exe" "dist\TikTok-Creator-Scraper-Setup.exe"
-gh release create v1.2.0 "dist\TikTok-Creator-Scraper-Setup.exe" --repo 1Milkdeliver/tiktok-shop-creator-scraper --title "v1.2.0" --notes "release notes"
-# 4. Old-version users get update prompt on startup → install over same directory (data preserved)
+
+# 3. Generate differential-update metadata (latest.yml + ASCII-named assets)
+node prepare-release.js 1.2.0
+
+# 4. Commit and tag
+git add -A && git commit -m "release 1.2.0"
+git push origin main
+git tag v1.2.0 && git push origin v1.2.0
+
+# 5. Create the Release and upload all 4 assets (small files first to avoid timeouts)
+gh release create v1.2.0 --title "v1.2.0" --notes "release notes"
+gh release upload v1.2.0 dist/latest.yml dist/tiktok-shop-creator-scraper-setup-1.2.0.exe.blockmap
+gh release upload v1.2.0 dist/tiktok-shop-creator-scraper-setup-1.2.0.exe
+gh release upload v1.2.0 "dist/TikTokShop达人抓取安装程序-1.2.0.exe"
+
+# 6. Old-version users get an update prompt on startup → install over same directory (data preserved)
 ```
 
-> Version comparison: three-part version (major.minor.patch). Keep only the latest release — README download link auto-points to `/releases/latest`.
+> All 4 assets are required (Chinese-named installer, ASCII-named exe, .blockmap, latest.yml) — missing any one breaks the update.
+> Version comparison: three-part version (major.minor.patch), any part higher triggers the update prompt. Keep only the latest release — the README download link auto-points to `/releases/latest`.
 
 ## 📄 License
 
