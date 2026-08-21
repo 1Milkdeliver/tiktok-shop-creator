@@ -190,7 +190,16 @@ git push origin main
 git tag v1.2.0 && git push origin v1.2.0
 
 # 5. Create the Release and upload all 4 assets (small files first to avoid timeouts)
-gh release create v1.2.0 --title "v1.2.0" --notes "release notes"
+#    ⚠️ Release notes MUST be bilingual (zh + en sections) — the in-app update
+#    dialog shows them to both Chinese and English users, and users who skipped
+#    several versions see every version's notes
+gh release create v1.2.0 --title "v1.2.0" --notes "## v1.2.0 (中文说明)
+- 改动 1
+- 改动 2
+
+## v1.2.0 (English)
+- change 1
+- change 2"
 gh release upload v1.2.0 dist/latest.yml dist/tiktok-shop-creator-scraper-setup-1.2.0.exe.blockmap
 gh release upload v1.2.0 dist/tiktok-shop-creator-scraper-setup-1.2.0.exe
 gh release upload v1.2.0 "dist/TikTokShop达人抓取安装程序-1.2.0.exe"

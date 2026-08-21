@@ -191,7 +191,14 @@ git push origin main
 git tag v1.2.0 && git push origin v1.2.0
 
 # 5. 创建 Release 并上传 4 个资产（先传小文件，避免超时）
-gh release create v1.2.0 --title "v1.2.0" --notes "版本说明"
+#    ⚠️ Release notes 必须中英双语（zh + en 各一段），界面和更新弹窗都依赖它
+gh release create v1.2.0 --title "v1.2.0" --notes "## v1.2.0 (中文说明)
+- 改动 1
+- 改动 2
+
+## v1.2.0 (English)
+- change 1
+- change 2"
 gh release upload v1.2.0 dist/latest.yml dist/tiktok-shop-creator-scraper-setup-1.2.0.exe.blockmap
 gh release upload v1.2.0 dist/tiktok-shop-creator-scraper-setup-1.2.0.exe
 gh release upload v1.2.0 "dist/TikTokShop达人抓取安装程序-1.2.0.exe"

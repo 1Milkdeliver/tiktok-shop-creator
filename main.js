@@ -462,26 +462,49 @@ function setupAutoUpdaterEvents() {
     const v = (info && info.version) || '';
     setUpdateState({ phase: 'available', percent: 0, message: `发现新版本 v${v}` });
     writeLog(`发现新版本 v${v}`);
-    // fetch release notes from GitHub to show what's new (full text, scrollable)
+    // fetch release notes from GitHub for EVERY version newer than the current
+    // one, so users who skipped several releases see all the changes
+    const stripMd = (body) => String(body || '')
+      .replace(/^#+\s*/gm, '')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+      .replace(/\*\*/g, '')
+      .replace(/`/g, '')
+      .trim();
     let notes = '';
     try {
-      const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+      const res = await fetch(`https://api.github.com/repos/${REPO}/releases?per_page=50`, {
         headers: { 'User-Agent': 'tiktok-shop-creator-scraper', 'Accept': 'application/vnd.github+json' },
         signal: AbortSignal.timeout(10000),
       });
       if (res.ok) {
-        const rel = await res.json();
-        if (rel.body) {
-          // keep markdown minimal: strip md syntax for a readable plain-text dialog
-          notes = String(rel.body)
-            .replace(/^#+\s*/gm, '')
-            .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-            .replace(/\*\*/g, '')
-            .replace(/`/g, '')
-            .trim();
-        }
+        const rels = await res.json();
+        // keep only versions newer than the current one
+        const newer = (Array.isArray(rels) ? rels : [])
+          .filter(r => r && !r.draft && !r.prerelease && isNewer((r.tag_name || '').replace(/^v/i, ''), CURRENT_VERSION))
+          .sort((a, b) => {
+            const av = parseVersion(a.tag_name), bv = parseVersion(b.tag_name);
+            return (av[0] - bv[0]) || (av[1] - bv[1]) || (av[2] - bv[2]); // oldest first
+          });
+        notes = newer.map(r => {
+          const body = stripMd(r.body);
+          const tag = (r.tag_name || '').replace(/^v/i, '');
+          return body ? `── v${tag} ──\n${body}` : '';
+        }).filter(Boolean).join('\n\n');
       }
     } catch (e) { }
+    // fallback: single latest release (e.g. API failed, list empty)
+    if (!notes) {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${REPO}/releases/latest`, {
+          headers: { 'User-Agent': 'tiktok-shop-creator-scraper', 'Accept': 'application/vnd.github+json' },
+          signal: AbortSignal.timeout(10000),
+        });
+        if (res.ok) {
+          const rel = await res.json();
+          if (rel && rel.body) notes = stripMd(rel.body);
+        }
+      } catch (e) { }
+    }
     // show the update dialog in the renderer (scrollable, full notes) instead of
     // the native message box (no scrolling, notes were truncated before)
     if (mainWindow && !mainWindow.isDestroyed()) {
