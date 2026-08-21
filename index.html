@@ -152,6 +152,7 @@
     <span class="status-pill" id="appVersion" style="margin-right:8px">v—</span>
     <span class="status-pill" id="status" data-i18n="status.ready">就绪</span>
     <button class="header-btn" id="btnUpdate" data-i18n="action.update">🔄 检查更新</button>
+    <a class="header-btn" id="btnGithub" href="https://github.com/1Milkdeliver/tiktok-shop-creator-scraper" target="_blank" data-i18n="action.github" style="text-decoration:none;display:inline-flex;align-items:center">⭐ GitHub</a>
     <button class="header-btn" id="uiLangToggle">🌐 EN</button>
   </header>
 
@@ -257,8 +258,8 @@ https://www.tiktok.com/@makeup.lover'></textarea>
     <div style="margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
       <span style="font-size:13px;font-weight:600;color:var(--text-2)" data-i18n="step4.scope">抓取范围：</span>
       <div class="radio-group">
-        <label><input type="radio" name="dedupeMode" value="dedupe"> <span data-i18n="step4.scopeNew">🆕 只抓新的（跳过已抓过）</span></label>
         <label><input type="radio" name="dedupeMode" value="refresh" checked> <span data-i18n="step4.scopeAll">🔄 全部重抓（刷新数据）</span></label>
+        <label><input type="radio" name="dedupeMode" value="dedupe"> <span data-i18n="step4.scopeNew">🆕 只抓新的（跳过已抓过）</span></label>
       </div>
     </div>
     <div class="hint" style="margin-top:6px" data-i18n="step4.scopeHint">💡 <b>只抓新的</b>：与之前抓取去重，不重复抓同一达人，适合持续增量采集；<b>全部重抓</b>：重新抓取所有达人（含之前已抓的），用于更新 GMV、粉丝数等有时效的数据。</div>
@@ -372,6 +373,7 @@ const I18N = {
   'action.stop': { zh: '■ 结束并导出', en: '■ Finish & Export' },
   'action.exit': { zh: '退出', en: 'Exit' },
   'action.update': { zh: '🔄 检查更新', en: '🔄 Check Update' },
+  'action.github': { zh: '⭐ GitHub 项目', en: '⭐ GitHub Project' },
   'step5.title': { zh: '历史输出', en: 'Output History' },
   'step5.refresh': { zh: '刷新', en: 'Refresh' },
   'step5.empty': { zh: '暂无历史记录', en: 'No history yet' },
@@ -569,7 +571,9 @@ function renderFields() {
   const label = (f) => uiLang === 'zh' ? f.n : (f.e || f.n);
   // preserve user's current selection across language re-render
   const prev = new Set([...document.querySelectorAll('.fld:checked')].map(c => c.value));
-  document.getElementById('fields').innerHTML = FIELDS.map(f => `<label class="${f.detail ? 'fld-detail' : ''}" title="${f.k}"><input type="checkbox" class="fld" value="${f.k}" ${prev.has(f.k) ? 'checked' : ''}> ${label(f)}</label>`).join('');
+  // first render (no prior selection): default to ALL fields checked
+  const firstRender = !document.querySelectorAll('.fld').length;
+  document.getElementById('fields').innerHTML = FIELDS.map(f => `<label class="${f.detail ? 'fld-detail' : ''}" title="${f.k}"><input type="checkbox" class="fld" value="${f.k}" ${(firstRender || prev.has(f.k)) ? 'checked' : ''}> ${label(f)}</label>`).join('');
   syncDetailFields();
 }
 renderFields();
