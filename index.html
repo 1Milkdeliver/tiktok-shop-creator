@@ -419,6 +419,7 @@ function applyI18n() {
   if (langToggle) langToggle.textContent = uiLang === 'zh' ? '🌐 EN' : '🌐 中文';
   catLang = uiLang;
   renderCats();
+  if (typeof renderFields === 'function') renderFields();
 }
 function toggleUiLang() {
   uiLang = uiLang === 'zh' ? 'en' : 'zh';
@@ -527,20 +528,20 @@ document.querySelectorAll('input[name=source]').forEach(r => r.addEventListener(
 }));
 document.getElementById('langToggle').onclick = toggleCatLang;
 
-// ═══════════ 字段 ═══════════
+// ═══════════ 字段（n=中文名，e=英文名；界面按 uiLang 显示，导出表头由 headerLang 控制） ═══════════
 const FIELDS = [
-  { k: 'handle', n: '达人主页' }, { k: 'nickname', n: '昵称' }, { k: 'creator_oecuid', n: '达人ID' },
-  { k: 'avatar', n: '头像' }, { k: 'selection_region', n: '地区' }, { k: 'follower_cnt', n: '粉丝数' },
-  { k: 'category', n: '类目' }, { k: 'med_gmv_revenue', n: '总GMV' }, { k: 'med_gmv_revenue_range', n: 'GMV区间' },
-  { k: 'video_gmv', n: '视频GMV' }, { k: 'live_gmv', n: '直播GMV' }, { k: 'units_sold', n: '销量' },
-  { k: 'units_sold_range', n: '销量区间' }, { k: 'video_avg_view_cnt', n: '平均视频观看' },
-  { k: 'video_play_cnt_med', n: '视频中位观看' }, { k: 'video_engagement', n: '视频互动量' },
-  { k: 'ec_video_engagement', n: '电商视频互动' }, { k: 'ec_video_gpm', n: '电商GPM' },
-  { k: 'ec_live_gpm', n: '直播GPM' }, { k: 'ec_live_avg_uv', n: '电商平均UV' },
-  { k: 'top_follower_ages', n: '粉丝年龄段' }, { k: 'top_follower_gender', n: '粉丝性别分布' },
-  { k: 'pps_score', n: 'PPS评分' }, { k: 'is_fast_growing', n: '快速增长' }, { k: 'has_collaborated', n: '已合作' },
-  { k: 'creator_permission_tag', n: '达人类目权限' }, { k: 'is_live_auction', n: '直播拍卖' },
-  { k: '简介', n: '简介', detail: true }, { k: '合作邮箱', n: '合作邮箱', detail: true }, { k: 'MCN机构', n: 'MCN机构', detail: true },
+  { k: 'handle', n: '达人主页', e: 'Handle' }, { k: 'nickname', n: '昵称', e: 'Nickname' }, { k: 'creator_oecuid', n: '达人ID', e: 'Creator ID' },
+  { k: 'avatar', n: '头像', e: 'Avatar' }, { k: 'selection_region', n: '地区', e: 'Region' }, { k: 'follower_cnt', n: '粉丝数', e: 'Followers' },
+  { k: 'category', n: '类目', e: 'Category' }, { k: 'med_gmv_revenue', n: '总GMV', e: 'Total GMV' }, { k: 'med_gmv_revenue_range', n: 'GMV区间', e: 'GMV Range' },
+  { k: 'video_gmv', n: '视频GMV', e: 'Video GMV' }, { k: 'live_gmv', n: '直播GMV', e: 'Live GMV' }, { k: 'units_sold', n: '销量', e: 'Units Sold' },
+  { k: 'units_sold_range', n: '销量区间', e: 'Units Sold Range' }, { k: 'video_avg_view_cnt', n: '平均视频观看', e: 'Avg Video Views' },
+  { k: 'video_play_cnt_med', n: '视频中位观看', e: 'Median Video Views' }, { k: 'video_engagement', n: '视频互动量', e: 'Video Engagement' },
+  { k: 'ec_video_engagement', n: '电商视频互动', e: 'E-comm Video Engagement' }, { k: 'ec_video_gpm', n: '电商GPM', e: 'E-comm GPM' },
+  { k: 'ec_live_gpm', n: '直播GPM', e: 'Live GPM' }, { k: 'ec_live_avg_uv', n: '电商平均UV', e: 'E-comm Avg UV' },
+  { k: 'top_follower_ages', n: '粉丝年龄段', e: 'Audience Ages' }, { k: 'top_follower_gender', n: '粉丝性别分布', e: 'Audience Gender' },
+  { k: 'pps_score', n: 'PPS评分', e: 'PPS Score' }, { k: 'is_fast_growing', n: '快速增长', e: 'Fast Growing' }, { k: 'has_collaborated', n: '已合作', e: 'Collaborated' },
+  { k: 'creator_permission_tag', n: '达人类目权限', e: 'Category Permission' }, { k: 'is_live_auction', n: '直播拍卖', e: 'Live Auction' },
+  { k: '简介', n: '简介', e: 'Bio', detail: true }, { k: '合作邮箱', n: '合作邮箱', e: 'Contact Email', detail: true }, { k: 'MCN机构', n: 'MCN机构', e: 'MCN Agency', detail: true },
 ];
 function syncDetailFields() {
   // fast mode → detail-only fields grayed out & uncheckable; full mode → all enabled + auto-checked
@@ -556,7 +557,10 @@ function syncDetailFields() {
   });
 }
 function renderFields() {
-  document.getElementById('fields').innerHTML = FIELDS.map(f => `<label class="${f.detail ? 'fld-detail' : ''}" title="${f.k}"><input type="checkbox" class="fld" value="${f.k}" checked> ${f.n}</label>`).join('');
+  const label = (f) => uiLang === 'zh' ? f.n : (f.e || f.n);
+  // preserve user's current selection across language re-render
+  const prev = new Set([...document.querySelectorAll('.fld:checked')].map(c => c.value));
+  document.getElementById('fields').innerHTML = FIELDS.map(f => `<label class="${f.detail ? 'fld-detail' : ''}" title="${f.k}"><input type="checkbox" class="fld" value="${f.k}" ${prev.has(f.k) ? 'checked' : ''}> ${label(f)}</label>`).join('');
   syncDetailFields();
 }
 renderFields();
