@@ -157,7 +157,7 @@
   </header>
 
   <div class="card">
-    <h2><span class="step-num">1</span> <span data-i18n="step1.title">导入 Cookie</span> <span class="sel-all" id="addCookieBtn" data-i18n="step1.add">＋ 添加账号</span></h2>
+    <h2><span class="step-num">1</span> <span data-i18n="step1.title">导入 Cookie</span> <span class="sel-all" id="addCookieBtn" data-i18n="step1.add">＋ 添加账号</span> <span class="sel-all" id="cookieGuideBtn" data-i18n="step1.guide" style="margin-left:8px">❓ 多账号指南</span></h2>
     <div class="cookie-zone" id="cookieZone">
       <div class="zone-label" data-i18n="step1.zone">将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框</div>
       <textarea id="cookieInput" data-i18n-placeholder="step1.cookiePlaceholder" placeholder='粘贴 Cookie JSON，例如 [{"domain":".tiktokshopglobalselling.com","name":"sessionid","value":"..."}, ...]'></textarea>
@@ -315,6 +315,23 @@ https://www.tiktok.com/@makeup.lover'></textarea>
   </div>
 </div>
 
+<!-- 多账号 Cookie 获取指南弹窗 -->
+<div class="modal-overlay" id="guideModal" style="display:none">
+  <div class="modal-panel">
+    <div class="modal-head">
+      <img src="icon-256.png" alt="logo">
+      <div>
+        <h3 id="guideTitle">多账号 Cookie 获取指南</h3>
+        <div class="sub" id="guideSub">如何避免切换账号导致 Cookie 失效</div>
+      </div>
+    </div>
+    <div class="modal-body" id="guideBody" style="font-size:13px;line-height:1.8"></div>
+    <div class="modal-foot">
+      <button class="btn btn-secondary" id="guideClose" data-i18n="upd.later">关闭</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ═══════════ 界面中英切换 (UI i18n) ═══════════
 const I18N = {
@@ -327,6 +344,7 @@ const I18N = {
   'status.starting': { zh: '启动中…', en: 'Starting…' },
   'step1.title': { zh: '导入 Cookie', en: 'Import Cookie' },
   'step1.add': { zh: '＋ 添加账号', en: '+ Add Account' },
+  'step1.guide': { zh: '❓ 多账号指南', en: '❓ Multi-account Guide' },
   'step1.zone': { zh: '将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框<b>（按回车导入）</b>', en: 'Drag <b>Cookie JSON file</b> here, or <b>paste</b> into the box below <b>(press Enter to import)</b>' },
   'step1.browse': { zh: '📂 导入文件', en: '📂 Import File' },
   'step1.cookiePlaceholder': { zh: '粘贴 Cookie JSON，例如 [{"domain":".tiktokshopglobalselling.com","name":"sessionid","value":"..."}, ...]', en: 'Paste Cookie JSON, e.g. [{"domain":".tiktokshopglobalselling.com","name":"sessionid","value":"..."}, ...]' },
@@ -481,6 +499,44 @@ document.addEventListener('DOMContentLoaded', () => {
   // (poll every 1.5s alone can miss fast differential downloads)
   window.api.onUpdateState((u) => renderUpdate(u));
   umModal.addEventListener('click', (e) => { if (e.target === umModal) closeModal(); });
+
+  // ── multi-account cookie guide dialog ──
+  const guideModal = document.getElementById('guideModal');
+  const guideBody = document.getElementById('guideBody');
+  const showGuide = () => {
+    const zh = uiLang === 'zh';
+    document.getElementById('guideTitle').textContent = zh ? '多账号 Cookie 获取指南' : 'Multi-account Cookie Guide';
+    document.getElementById('guideSub').textContent = zh ? '如何避免切换账号导致 Cookie 失效' : 'How to avoid cookies expiring when switching accounts';
+    guideBody.innerHTML = zh ? `
+      <b>为什么 Cookie 会失效？</b><br>
+      · 点了「退出登录」→ 服务端立即作废该账号所有已导出的 Cookie<br>
+      · 同一浏览器登录另一个账号 → 新会话可能顶掉旧会话<br>
+      · 登录超过约 3 天 → 会话自然过期<br><br>
+      <b>✅ 正确做法（不要点退出登录）：</b><br>
+      1️⃣ <b>Chrome 多用户资料（推荐）</b>：Chrome 右上角头像 →「添加」→ 新建个人资料（如"账号A"）。每个资料登录一个账号，完全隔离，导出互不影响。<br>
+      2️⃣ <b>无痕窗口</b>：普通窗口登录账号 A，无痕窗口登录账号 B，会话互相隔离。<br>
+      3️⃣ <b>先导出再切换</b>：切换前先用 Cookie-Editor 导出当前账号并保存，即使旧的被顶掉也有备份。<br><br>
+      <b>什么时候需要重新导出？</b><br>
+      · 提示「Cookie 无效或已过期」时<br>
+      · 每次重新登录 / 退出登录后<br>
+      · 超过 3 天未使用后建议刷新` : `
+      <b>Why do cookies expire?</b><br>
+      · Clicking "Sign out" invalidates every exported cookie for that account immediately<br>
+      · Logging into another account in the same browser may evict the old session<br>
+      · Sessions naturally expire after ~3 days<br><br>
+      <b>✅ Best practice (never sign out):</b><br>
+      1️⃣ <b>Chrome profiles (recommended)</b>: click the avatar in Chrome's top-right → "Add" → create a profile (e.g. "Account A"). Log into one account per profile — fully isolated exports.<br>
+      2️⃣ <b>Incognito window</b>: log into account A in a normal window and account B in incognito — sessions stay separate.<br>
+      3️⃣ <b>Export before switching</b>: use Cookie-Editor to export the current account before switching, so you keep a backup even if the old session is evicted.<br><br>
+      <b>When to re-export?</b><br>
+      · When the app says "cookie invalid or expired"<br>
+      · After re-login / sign-out<br>
+      · Refresh after more than ~3 days of inactivity`;
+    guideModal.style.display = 'flex';
+  };
+  document.getElementById('cookieGuideBtn').onclick = showGuide;
+  document.getElementById('guideClose').onclick = () => { guideModal.style.display = 'none'; };
+  guideModal.addEventListener('click', (e) => { if (e.target === guideModal) guideModal.style.display = 'none'; });
 });
 
 // 类目：{ 类目名: { en: 英文名, zh: 中文名, items: [[关键词, 中文翻译], ...] } }
