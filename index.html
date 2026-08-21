@@ -159,7 +159,7 @@
     <h2><span class="step-num">1</span> <span data-i18n="step1.title">导入 Cookie</span> <span class="sel-all" id="addCookieBtn" data-i18n="step1.add">＋ 添加账号</span></h2>
     <div class="cookie-zone" id="cookieZone">
       <div class="zone-label" data-i18n="step1.zone">将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框</div>
-      <textarea id="cookieInput" placeholder='粘贴 Cookie JSON，例如 [{"domain":".tiktokshopglobalselling.com","name":"sessionid","value":"..."}, ...]'></textarea>
+      <textarea id="cookieInput" data-i18n-placeholder="step1.cookiePlaceholder" placeholder='粘贴 Cookie JSON，例如 [{"domain":".tiktokshopglobalselling.com","name":"sessionid","value":"..."}, ...]'></textarea>
       <div class="file-row">
         <span>📄</span>
         <span class="fname" id="fname"></span>
@@ -168,7 +168,7 @@
       <input type="file" id="fileInput" accept=".json" style="display:none">
     </div>
     <div class="cookie-list" id="cookieList"></div>
-    <div class="hint">可添加多个账号 Cookie 实现多账号并发抓取 · 用 <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a> 扩展导出 JSON 后粘贴或拖入</div>
+    <div class="hint" data-i18n="step1.hint">可添加多个账号 Cookie 实现多账号并发抓取 · 用 <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a> 扩展导出 JSON 后粘贴或拖入</div>
   </div>
 
   <div class="card">
@@ -178,7 +178,7 @@
       <label><input type="radio" name="mode" value="real"> <span data-i18n="step2.real">真实窗口</span></label>
       <label><input type="radio" name="mode" value="headless"> Headless</label>
     </div>
-    <div class="mode-desc">自动：优先连接常驻调试 Chrome(9222)，没有则开屏幕外真实窗口。Headless 模式兼容性有限，建议使用自动或真实窗口。</div>
+    <div class="mode-desc" data-i18n="step2.desc">自动：优先连接常驻调试 Chrome(9222)，没有则开屏幕外真实窗口。Headless 模式兼容性有限，建议使用自动或真实窗口。</div>
     <div style="margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;background:rgba(17,24,39,.03);border-radius:var(--radius-sm);border:1px solid rgba(17,24,39,.05)">
       <span style="font-size:13px;font-weight:600;color:var(--text-2)" data-i18n="step2.region">🌍 达人地区（Shop）</span>
       <select id="shopRegion">
@@ -193,9 +193,9 @@
         <option value="MX">🇲🇽 MX 墨西哥</option>
         <option value="BR">🇧🇷 BR 巴西</option>
       </select>
-      <input type="text" id="shopRegionCustom" placeholder="或输入其他站点代码，如 ES / IT / DE" style="max-width:260px;padding:7px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px">
+      <input type="text" id="shopRegionCustom" data-i18n-placeholder="step2.regionCustom" placeholder="或输入其他站点代码，如 ES / IT / DE" style="max-width:260px;padding:7px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px">
     </div>
-    <div class="hint" style="margin-top:6px;padding-left:0">💡 选择达人所在的 TikTok Shop 站点。需使用对应站点店铺账号的 Cookie 登录，才能抓取该地区达人。</div>
+    <div class="hint" style="margin-top:6px;padding-left:0" data-i18n="step2.regionHint">💡 选择达人所在的 TikTok Shop 站点。需使用对应站点店铺账号的 Cookie 登录，才能抓取该地区达人。</div>
   </div>
 
   <div class="card">
@@ -207,7 +207,7 @@
     <div id="sourceCat">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:13px;font-weight:600;color:var(--text-2)" data-i18n="step3.catTitle">类目关键词</span>
-        <span><button class="btn-link" id="langToggle" style="margin-left:4px">🌐 EN</button><span class="sel-all" id="selAll" data-i18n="step3.all">全选</span><span class="sel-all" id="selNone" data-i18n="step3.none">清空</span></span>
+        <span><button class="btn-link" id="langToggle" style="margin-left:4px">🌐 EN</button><span class="sel-all" id="selAll" data-i18n="step3.all">全选</span> <span class="sel-all" id="selNone" data-i18n="step3.none">清空</span></span>
       </div>
       <div class="cats" id="cats"></div>
     </div>
@@ -264,7 +264,7 @@ https://www.tiktok.com/@makeup.lover'></textarea>
     <div class="hint" style="margin-top:6px" data-i18n="step4.scopeHint">💡 <b>只抓新的</b>：与之前抓取去重，不重复抓同一达人，适合持续增量采集；<b>全部重抓</b>：重新抓取所有达人（含之前已抓的），用于更新 GMV、粉丝数等有时效的数据。</div>
     <div style="margin-top:14px">
       <span style="font-size:13px;color:var(--sub)" data-i18n="step4.fields">导出字段</span>
-      <span class="sel-all" id="fieldsAll">全选</span><span class="sel-all" id="fieldsNone">清空</span>
+      <span class="sel-all" id="fieldsAll" data-i18n="step4.fieldsAll">全选</span> <span class="sel-all" id="fieldsNone" data-i18n="step4.fieldsNone">清空</span>
       <div class="field-grid" id="fields" style="margin-top:8px"></div>
     </div>
   </div>
@@ -285,7 +285,7 @@ https://www.tiktok.com/@makeup.lover'></textarea>
   <div class="card">
     <h2><span class="step-num">5</span> <span data-i18n="step5.title">历史输出</span> <span class="sel-all" id="histRefresh" data-i18n="step5.refresh">刷新</span></h2>
     <div id="historyBox" style="max-height:220px;overflow-y:auto">
-      <div style="color:var(--sub);font-size:13px;padding:10px">暂无历史记录</div>
+      <div style="color:var(--sub);font-size:13px;padding:10px" data-i18n="step5.empty">暂无历史记录</div>
     </div>
   </div>
 
@@ -328,12 +328,16 @@ const I18N = {
   'step1.add': { zh: '＋ 添加账号', en: '+ Add Account' },
   'step1.zone': { zh: '将 <b>Cookie JSON 文件</b> 拖到此处，或直接 <b>粘贴</b> 到下方输入框<b>（按回车导入）</b>', en: 'Drag <b>Cookie JSON file</b> here, or <b>paste</b> into the box below <b>(press Enter to import)</b>' },
   'step1.browse': { zh: '📂 导入文件', en: '📂 Import File' },
+  'step1.cookiePlaceholder': { zh: '粘贴 Cookie JSON，例如 [{"domain":".tiktokshopglobalselling.com","name":"sessionid","value":"..."}, ...]', en: 'Paste Cookie JSON, e.g. [{"domain":".tiktokshopglobalselling.com","name":"sessionid","value":"..."}, ...]' },
   'step1.hint': { zh: '可添加多个账号 Cookie 实现多账号并发抓取 · 用 <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a> 扩展导出 JSON 后粘贴或拖入', en: 'Add multiple account cookies for concurrent scraping · Export JSON with <a href="https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm" target="_blank" style="color:var(--accent)">Cookie-Editor</a>, then paste or drag in' },
   'step2.title': { zh: '浏览器模式', en: 'Browser Mode' },
   'step2.auto': { zh: '自动（推荐）', en: 'Auto (Recommended)' },
   'step2.real': { zh: '真实窗口', en: 'Real Window' },
   'step2.headless': { zh: 'Headless', en: 'Headless' },
   'step2.desc': { zh: '自动：优先连接常驻调试 Chrome(9222)，没有则开屏幕外真实窗口。Headless 模式兼容性有限，建议使用自动或真实窗口。', en: 'Auto: connects to debug Chrome(9222) first, otherwise opens an off-screen real window. Headless has limited compatibility; auto or real window is recommended.' },
+  'step2.region': { zh: '🌍 达人地区（Shop）', en: '🌍 Creator Region (Shop)' },
+  'step2.regionCustom': { zh: '或输入其他站点代码，如 ES / IT / DE', en: 'or type another region code, e.g. ES / IT / DE' },
+  'step2.regionHint': { zh: '💡 选择达人所在的 TikTok Shop 站点。需使用对应站点店铺账号的 Cookie 登录，才能抓取该地区达人。', en: '💡 Select the TikTok Shop region of the creators. You need cookies from a store account in that region to scrape its creators.' },
   'step3.title': { zh: '选择抓取对象', en: 'Choose Scrape Target' },
   'step3.sourceCat': { zh: '🏷️ 按类目抓取', en: '🏷️ By Category' },
   'step3.sourceList': { zh: '📋 按达人名单抓取', en: '📋 By Creator List' },
@@ -568,7 +572,7 @@ const fileInput = document.getElementById('fileInput');
 function cookieSummary(raw) {
   try {
     const arr = JSON.parse(raw.replace(/^\uFEFF/, ''));
-    if (!Array.isArray(arr)) return '无效 JSON（不是数组）';
+    if (!Array.isArray(arr)) return I18N['cookie.invalidJson'][uiLang];
     // find the earliest expiry among cookies that have one (expires/expirationDate, seconds)
     let minExp = Infinity;
     let hasExpiry = false;
@@ -583,21 +587,22 @@ function cookieSummary(raw) {
       const d = new Date(ms);
       const pad = n => String(n).padStart(2, '0');
       const dateStr = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-      if (days > 0) expiryText = ` · 失效 ${dateStr}（剩 ${days} 天）`;
-      else if (days === 0) expiryText = ` · 今天失效 ${dateStr}`;
-      else expiryText = ` · ⚠️ 已过期 ${dateStr}`;
+      const zh = uiLang === 'zh';
+      if (days > 0) expiryText = zh ? ` · 失效 ${dateStr}（剩 ${days} 天）` : ` · expires ${dateStr} (${days}d left)`;
+      else if (days === 0) expiryText = zh ? ` · 今天失效 ${dateStr}` : ` · expires today ${dateStr}`;
+      else expiryText = zh ? ` · ⚠️ 已过期 ${dateStr}` : ` · ⚠️ expired ${dateStr}`;
     }
-    return `已解析 ${arr.length} 条 Cookie${expiryText}`;
-  } catch (e) { return '内容无效，请检查 JSON 格式'; }
+    return (uiLang === 'zh' ? `已解析 ${arr.length} 条 Cookie` : `${arr.length} cookies parsed`) + expiryText;
+  } catch (e) { return I18N['cookie.invalid'][uiLang]; }
 }
 
 function addCookie(source, data, name) {
   const sum = cookieSummary(data);
-  if (sum.startsWith('无效') || sum.startsWith('内容无效')) {
-    alert('Cookie ' + sum);
+  if (sum === I18N['cookie.invalidJson'][uiLang] || sum === I18N['cookie.invalid'][uiLang]) {
+    alert('Cookie: ' + sum);
     return;
   }
-  cookieList.push({ source, data, name: name || `账号 ${cookieList.length + 1}` });
+  cookieList.push({ source, data, name: name || (uiLang === 'zh' ? `账号 ${cookieList.length + 1}` : `Account ${cookieList.length + 1}`) });
   renderCookieList();
   // clear paste box after successful add
   document.getElementById('cookieInput').value = '';
@@ -607,9 +612,10 @@ function addCookie(source, data, name) {
 function renderCookieList() {
   const box = document.getElementById('cookieList');
   if (!cookieList.length) { box.innerHTML = ''; return; }
+  const accLabel = uiLang === 'zh' ? '账号' : 'Account';
   box.innerHTML = cookieList.map((c, i) => `
     <div class="cookie-item">
-      <span class="tag">账号 ${i + 1}</span>
+      <span class="tag">${accLabel} ${i + 1}</span>
       <span class="sum">${c.name} · ${cookieSummary(c.data)}</span>
       <span class="del" data-i="${i}">✕</span>
     </div>`).join('');
@@ -722,8 +728,7 @@ const SPINNER = ['.', '..', '...'];
 let spinIdx = 0;
 // fast independent ticker so the dots animate quickly regardless of the 1.5s poll
 let spinTimer = null;
-let spinPrefix = '⏳ 抓取中';
-function startSpin(prefix) {
+let spinPrefix = '⏳ 抓取中';function startSpin(prefix) {
   spinPrefix = prefix;
   if (spinTimer) return;
   spinTimer = setInterval(() => {
@@ -788,17 +793,17 @@ async function poll() {
         // creators). Button stays enabled so a 2nd click aborts the detail phase.
         syncMainButton('start', { disabled: true });
         btnStop.disabled = false;
-        startSpin('⏹ 正在结束并导出');
+        startSpin(uiLang === 'zh' ? '⏹ 正在结束并导出' : '⏹ Finishing & exporting');
         detail.textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件（可再次点击「结束并导出」跳过详情补抓）…' : 'Saving scraped data and exporting (click again to skip detail fill)…';
       } else if (j.paused) {
         stopSpin();
         syncMainButton('resume', { disabled: false });
-        setStatus('⏸ 已暂停', '');
+        setStatus(uiLang === 'zh' ? '⏸ 已暂停' : '⏸ Paused', '');
         detail.textContent = uiLang === 'zh' ? '已暂停，点击按钮恢复抓取' : 'Paused — click button to resume';
       } else {
         // fast dot animation (250ms ticker) while running
         syncMainButton('pause', { disabled: false });
-        startSpin('⏳ 抓取中');
+        startSpin(uiLang === 'zh' ? '⏳ 抓取中' : '⏳ Scraping');
         const info = j.currentInfo || {};
         const kwText = info.keyword ? (uiLang === 'zh' ? ` 正在抓取：${info.keyword}` : ` Scraping: ${info.keyword}`) : '';
         document.getElementById('status').className = 'status-pill running';
@@ -807,17 +812,17 @@ async function poll() {
     } else if (j.status === 'paused') {
       stopSpin();
       syncMainButton('resume', { disabled: false });
-      setStatus('⏸ 已暂停', '');
+      setStatus(uiLang === 'zh' ? '⏸ 已暂停' : '⏸ Paused', '');
       detail.textContent = uiLang === 'zh' ? '已暂停' : 'Paused';
-    } else if (j.result && j.result.ok) { stopSpin(); setStatus('✅ 完成', 'done'); showResult(j.result); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; lockOptions(false); refreshAppData(); }
-    else if (j.result && !j.result.ok) { stopSpin(); setStatus('❌ 出错', 'error'); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; lockOptions(false); }
+    } else if (j.result && j.result.ok) { stopSpin(); setStatus(uiLang === 'zh' ? '✅ 完成' : '✅ Done', 'done'); showResult(j.result); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; lockOptions(false); refreshAppData(); }
+    else if (j.result && !j.result.ok) { stopSpin(); setStatus(uiLang === 'zh' ? '❌ 出错' : '❌ Error', 'error'); detail.textContent = ''; syncMainButton('start', { disabled: false }); btnStop.disabled = true; lockOptions(false); }
   } catch (e) { }
 }
 function showResult(r) {
   const box = document.getElementById('resultBox');
   box.style.display = 'block';
   if (r.empty) {
-    box.innerHTML = '⚠️ 本次没有抓到任何达人（可能 Cookie 失效 / 风控 / 关键词无结果），未生成导出文件。';
+    box.innerHTML = uiLang === 'zh' ? '⚠️ 本次没有抓到任何达人（可能 Cookie 失效 / 风控 / 关键词无结果），未生成导出文件。' : '⚠️ No creators scraped this run (cookie expired / risk control / no results) — no file was exported.';
     box.style.background = 'rgba(245,158,11,.1)';
     box.style.borderColor = 'rgba(245,158,11,.35)';
     box.style.color = '#b45309';
@@ -826,7 +831,7 @@ function showResult(r) {
   box.style.background = '';
   box.style.borderColor = '';
   box.style.color = '';
-  box.innerHTML = `✅ 抓取完成：${r.creators} 条达人${r.details ? ' + ' + r.details + ' 条详情' : ''}，共 ${r.rows} 行<br>📄 文件: ${r.outPath}`;
+  box.innerHTML = (uiLang === 'zh' ? `✅ 抓取完成：${r.creators} 条达人${r.details ? ' + ' + r.details + ' 条详情' : ''}，共 ${r.rows} 行<br>📄 文件: ${r.outPath}` : `✅ Done: ${r.creators} creators${r.details ? ' + ' + r.details + ' details' : ''}, ${r.rows} rows total<br>📄 File: ${r.outPath}`);
 }
 
 // ── 三态主按钮：开始抓取 / 暂停 / 继续 ──
@@ -880,7 +885,7 @@ document.getElementById('btnStart').onclick = async () => {
   document.getElementById('resultBox').style.display = 'none';
   logEl.textContent = '';
   lastCount = 0;
-  setStatus('⏳ 启动中…', 'running');
+  setStatus(uiLang === 'zh' ? '⏳ 启动中…' : '⏳ Starting…', 'running');
   lockOptions(true); // 抓取开始后锁定所有配置选项
   try {
     const j = await window.api.start(cfg);
@@ -904,7 +909,7 @@ document.getElementById('btnStop').onclick = async () => {
   await window.api.stop();
   document.getElementById('btnStop').disabled = true;
   syncMainButton('start', { disabled: true });
-  setStatus('⏹ 正在结束并导出…', '');
+  setStatus(uiLang === 'zh' ? '⏹ 正在结束并导出…' : '⏹ Finishing & exporting…', '');
   document.getElementById('statusDetail').textContent = uiLang === 'zh' ? '正在保存已抓取数据并导出文件（可再次点击「结束并导出」跳过详情补抓）…' : 'Saving scraped data and exporting (click again to skip detail fill)…';
 };
 document.getElementById('btnExit').onclick = async () => { if (confirm(I18N['exit.confirm'][uiLang])) await window.api.exit(); };
@@ -939,7 +944,7 @@ const HIST_ACTIONS = { open: '📂', copy: '📋', del: '🗑' };
 async function renderHistory(history) {
   const box = document.getElementById('historyBox');
   if (!history || !history.length) {
-    box.innerHTML = '<div style="color:var(--sub);font-size:13px;padding:10px">暂无历史记录</div>';
+    box.innerHTML = '<div style="color:var(--sub);font-size:13px;padding:10px">' + I18N['step5.empty'][uiLang] + '</div>';
     return;
   }
   box.innerHTML = history.map((h, i) => `
@@ -983,7 +988,7 @@ async function renderHistory(history) {
         const r = isCont ? await window.api.continueHistory(entry.outPath) : await window.api.refreshHistory(entry.outPath);
         if (!r.ok) { alert(r.error || (uiLang === 'zh' ? '操作失败' : 'Action failed')); return; }
         // switch to running state (poll will pick up)
-        setStatus('⏳ 启动中…', 'running');
+        setStatus(uiLang === 'zh' ? '⏳ 启动中…' : '⏳ Starting…', 'running');
         document.getElementById('btnStop').disabled = false;
         lockOptions(true);
       }
@@ -996,7 +1001,7 @@ async function refreshAppData() {
     // load remembered cookies (only if user hasn't added any yet)
     if (!cookieList.length && d.cookies && d.cookies.length) {
       for (const c of d.cookies) addCookie('paste', c);
-      document.getElementById('fname').textContent = '已自动加载上次的 Cookie';
+      document.getElementById('fname').textContent = uiLang === 'zh' ? '已自动加载上次的 Cookie' : 'Last cookies auto-loaded';
     }
     // default output dir
     if (d.defaultOutDir) document.getElementById('outPath').value = d.defaultOutDir;
